@@ -64,7 +64,7 @@ This is an example configuration for running Dokémon behind Traefik with LetsEn
           - ./dokemondata:/data
           - /var/run/docker.sock:/var/run/docker.sock
 
-In your DNS settings for you domain add an A record for the _Host_ which you have mentioned in the above config. The A record should point to the public IP address of your virtual machine.
+In the DNS settings for your domain, add an A record for the _Host_ which you have mentioned in the above config. The A record should point to the public IP address of your virtual machine.
 
 1. Create a file named `compose.yaml` on your server. Copy and paste the above YAML definition into the file. Modify the email and host. Make any other changes as per your requirements.
 2. Run `mkdir ./letsencrypt && mkdir ./dokemondata`
