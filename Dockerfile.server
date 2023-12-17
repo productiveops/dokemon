@@ -1,0 +1,74 @@
+# syntax=docker/dockerfile:1
+
+# Build the React application
+FROM node:18-alpine AS base
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY web/package.json web/yarn.lock* web/package-lock.json* web/pnpm-lock.yaml* ./
+RUN \
+  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then npm ci; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
+# Rebuild the source code only when needed
+FROM base AS react-builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY ./web .
+RUN npm run build
+
+# Build the Go application
+FROM --platform=$BUILDPLATFORM golang:1.21 AS build-stage
+RUN go install github.com/GeertJohan/go.rice/rice@latest
+
+WORKDIR /temp
+
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz; \
+    fi
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      wget https://download.docker.com/linux/static/stable/aarch64/docker-24.0.7.tgz; \
+    fi
+RUN cd /bin && tar xvzf /temp/docker-24.0.7.tgz --strip-components 1 docker/docker
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o /bin/docker-compose; \
+    fi
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-aarch64 -o /bin/docker-compose; \
+    fi
+RUN chmod 755 /bin/docker-compose
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+COPY --from=react-builder /app/dist ./web/dist
+
+RUN $GOPATH/bin/rice embed-go -i ./web
+
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /dokemon ./cmd/server
+
+RUN mkdir -p /data
+
+# Deploy the application binary into a lean image
+FROM --platform=$BUILDPLATFORM gcr.io/distroless/base-debian11 AS build-release-stage
+
+WORKDIR /
+
+COPY --from=build-stage /dokemon /dokemon
+COPY --from=build-stage /data /data
+COPY --from=build-stage /bin/docker /bin/docker
+COPY --from=build-stage /bin/docker-compose /bin/docker-compose
+
+EXPOSE 9090
+
+ENTRYPOINT ["/dokemon"]

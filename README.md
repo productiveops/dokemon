@@ -1,8 +1,10 @@
+![Alt text](/screenshots/dokemon-light.svg?raw=true "Dokemon Logo")
+
 # Dokémon
 
-Dokémon is a friendly GUI for managing Docker Containers on Virtual Machines.
+Dokémon is a friendly GUI for managing Docker Containers. You can manage multiple servers from a single Dokemon instance.
 
-**Website URL:** https://dokemon.dev
+Check https://dokemon.dev for more details.
 
 ## Quickstart
 
@@ -64,10 +66,32 @@ This is an example configuration for running Dokémon behind Traefik with LetsEn
           - ./dokemondata:/data
           - /var/run/docker.sock:/var/run/docker.sock
 
-In your DNS settings for you domain add an A record for the _Host_ which you have mentioned in the above config. The A record should point to the public IP address of your virtual machine.
+In the DNS settings for your domain, add an A record for the _Host_ which you have mentioned in the above config. The A record should point to the public IP address of your virtual machine.
 
 1. Create a file named `compose.yaml` on your server. Copy and paste the above YAML definition into the file. Modify the email and host. Make any other changes as per your requirements.
 2. Run `mkdir ./letsencrypt && mkdir ./dokemondata`
 3. Run `docker compose up -d`
 
 Open https://dokemon.example.com (substitute your URL here which you entered as Host in the compose.yaml file) in the browser. It can take a few seconds for the SSL certificate to be provisioned. If you get an error related to SSL, please wait for a few moments and then refresh your browser.
+
+## Screenshots
+
+### Manage Multiple Servers
+
+![Alt text](/screenshots/screenshot-dokemon-nodes.jpg?raw=true "Dokemon Nodes")
+
+### Manage Variables for Different Environments
+
+![Alt text](/screenshots/screenshot-dokemon-variables.jpg?raw=true "Dokemon Variables")
+
+### Deploy Compose Projects
+
+![Alt text](/screenshots/screenshot-dokemon-compose-up.jpg?raw=true "Dokemon Compose Up")
+
+### Manage Containers, Images, Volumes, Networks
+
+![Alt text](/screenshots/screenshot-dokemon-containers.jpg?raw=true "Dokemon Containers")
+
+## License
+
+This project is [MIT Licensed](LICENSE).
