@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1
+
+# Build the Go application
+FROM --platform=$BUILDPLATFORM golang:1.21 AS build-stage
+
+WORKDIR /temp
+
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      wget https://download.docker.com/linux/static/stable/x86_64/docker-24.0.7.tgz; \
+    fi
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      wget https://download.docker.com/linux/static/stable/aarch64/docker-24.0.7.tgz; \
+    fi
+RUN cd /bin && tar xvzf /temp/docker-24.0.7.tgz --strip-components 1 docker/docker
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-x86_64 -o /bin/docker-compose; \
+    fi
+ARG TARGETARCH
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      curl -SL https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-aarch64 -o /bin/docker-compose; \
+    fi
+RUN chmod 755 /bin/docker-compose
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+ARG TARGETOS TARGETARCH
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /dokemon-agent ./cmd/agent
+
+RUN mkdir -p /data
+
+# Deploy the application binary into a lean image
+FROM --platform=$BUILDPLATFORM gcr.io/distroless/base-debian11 AS build-release-stage
+
+WORKDIR /
+
+COPY --from=build-stage /dokemon-agent /dokemon-agent
+COPY --from=build-stage /data /data
+COPY --from=build-stage /bin/docker /bin/docker
+COPY --from=build-stage /bin/docker-compose /bin/docker-compose
+
+ENTRYPOINT ["/dokemon-agent"]
