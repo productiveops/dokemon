@@ -140,7 +140,7 @@ export default function CreateComposeProject() {
                         name="projectName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>Library Project Name</FormLabel>
                             <FormControl>
                               <Input {...field} autoFocus />
                             </FormControl>
