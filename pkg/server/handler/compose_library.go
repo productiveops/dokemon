@@ -27,7 +27,7 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 		return unprocessableEntity(c, queryGte1ExpectedError("s"))
 	}
 
-	rows, totalRows, err := h.composeLibraryStore.GetList(uint(p), uint(s))
+	rows, totalRows, err := h.localComposeLibraryStore.GetList(uint(p), uint(s))
 	if err != nil {
 		panic(err)
 	}
@@ -36,13 +36,13 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 }
 
 func (h *Handler) CreateComposeProject(c echo.Context) error {
-	m := model.ComposeLibraryItem{}
+	m := model.LocalComposeLibraryItem{}
 	r := &composeProjectCreateRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
 	}
 
-	if err := h.composeLibraryStore.Create(&m); err != nil {
+	if err := h.localComposeLibraryStore.Create(&m); err != nil {
 		panic(err)
 	}
 
@@ -52,13 +52,13 @@ func (h *Handler) CreateComposeProject(c echo.Context) error {
 func (h *Handler) UpdateComposeProject(c echo.Context) error {
 	projectName := c.Param("projectName")
 
-	m := model.ComposeLibraryItemUpdate{}
+	m := model.LocalComposeLibraryItemUpdate{}
 	r := &composeProjectUpdateRequest{ProjectName: projectName}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
 	}
 
-	if err := h.composeLibraryStore.Update(&m); err != nil {
+	if err := h.localComposeLibraryStore.Update(&m); err != nil {
 		panic(err)
 	}
 
@@ -68,7 +68,7 @@ func (h *Handler) UpdateComposeProject(c echo.Context) error {
 func (h *Handler) DeleteComposeProject(c echo.Context) error {
 	projectName := c.Param("projectName")
 
-	if err := h.composeLibraryStore.DeleteByName(projectName); err != nil {
+	if err := h.localComposeLibraryStore.DeleteByName(projectName); err != nil {
 		return unprocessableEntity(c, err)
 	}
 
@@ -78,7 +78,7 @@ func (h *Handler) DeleteComposeProject(c echo.Context) error {
 func (h *Handler) GetComposeProject(c echo.Context) error {
 	projectName := c.Param("projectName")
 
-	m, err := h.composeLibraryStore.GetByName(projectName)
+	m, err := h.localComposeLibraryStore.GetByName(projectName)
 	if err != nil {
 		return notFound(c, "ComposeProject")
 	}

@@ -36,6 +36,12 @@ export default function ComposeLibraryItems() {
           >
             Create
           </Button>
+          <Button
+            className="w-36"
+            onClick={() => navigate("/composelibrary/add/github")}
+          >
+            Add from GitHub
+          </Button>
         </TopBarActions>
       </TopBar>
       <MainContent>

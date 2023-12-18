@@ -53,6 +53,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	}
 
 	db.AutoMigrate(
+		&model.ComposeLibraryItem{},
 		&model.Credential{},
 		&model.Environment{},
 		&model.Node{},
@@ -68,6 +69,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 
 	h := handler.NewHandler(
 		composeProjectsPath,
+		store.NewSqlComposeLibraryStore(db),
 		store.NewSqlCredentialStore(db),
 		store.NewSqlEnvironmentStore(db),
 		store.NewSqlUserStore(db),

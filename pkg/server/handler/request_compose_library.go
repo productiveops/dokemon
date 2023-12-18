@@ -11,7 +11,7 @@ type composeProjectCreateRequest struct {
 	Definition  string `json:"definition"`
 }
 
-func (r *composeProjectCreateRequest) bind(c echo.Context, m *model.ComposeLibraryItem) error {
+func (r *composeProjectCreateRequest) bind(c echo.Context, m *model.LocalComposeLibraryItem) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ type composeProjectUpdateRequest struct {
 	Definition  string `json:"definition"`
 }
 
-func (r *composeProjectUpdateRequest) bind(c echo.Context, m *model.ComposeLibraryItemUpdate) error {
+func (r *composeProjectUpdateRequest) bind(c echo.Context, m *model.LocalComposeLibraryItemUpdate) error {
 	if err := c.Bind(r); err != nil {
 		return err
 	}

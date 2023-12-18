@@ -11,11 +11,11 @@ type composeLibraryItem struct {
 	Definition  string `json:"definition"`
 }
 
-func newComposeLibraryItemHead(m *model.ComposeLibraryItemHead) composeLibraryItemHead {
+func newComposeLibraryItemHead(m *model.LocalComposeLibraryItemHead) composeLibraryItemHead {
 	return composeLibraryItemHead{ProjectName: m.ProjectName}
 }
 
-func newComposeLibraryItemHeadList(rows []model.ComposeLibraryItemHead) []composeLibraryItemHead {
+func newComposeLibraryItemHeadList(rows []model.LocalComposeLibraryItemHead) []composeLibraryItemHead {
 	headRows := make([]composeLibraryItemHead, len(rows))
 	for i, r := range rows {
 		headRows[i] = newComposeLibraryItemHead(&r)
@@ -23,6 +23,6 @@ func newComposeLibraryItemHeadList(rows []model.ComposeLibraryItemHead) []compos
 	return headRows
 }
 
-func newComposeLibraryItem(m *model.ComposeLibraryItem) composeLibraryItem {
+func newComposeLibraryItem(m *model.LocalComposeLibraryItem) composeLibraryItem {
 	return composeLibraryItem{ProjectName: m.ProjectName, Definition: m.Definition}
 }

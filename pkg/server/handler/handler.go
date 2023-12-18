@@ -13,6 +13,7 @@ import (
 
 type Handler struct {
 	composeProjectsPath string
+	composeLibraryStore store.ComposeLibraryStore
 	credentialStore store.CredentialStore
 	environmentStore store.EnvironmentStore
 	userStore store.UserStore
@@ -21,7 +22,7 @@ type Handler struct {
 	settingStore store.SettingStore
 	variableStore store.VariableStore
 	variableValueStore store.VariableValueStore
-	composeLibraryStore store.ComposeLibraryStore
+	localComposeLibraryStore store.LocalComposeLibraryStore
 }
 
 var (
@@ -30,6 +31,7 @@ var (
 
 func NewHandler(
 	composeProjectsPath string,
+	composeLibraryStore store.ComposeLibraryStore,
 	credentialStore store.CredentialStore,
 	environmentStore store.EnvironmentStore,
 	userStore store.UserStore,
@@ -38,10 +40,11 @@ func NewHandler(
 	settingStore store.SettingStore,
 	variableStore store.VariableStore,
 	variableValueStore store.VariableValueStore,
-	composeLibraryStore store.ComposeLibraryStore,
+	localComposeLibraryStore store.LocalComposeLibraryStore,
 	) *Handler {
 		return &Handler{
 		composeProjectsPath: composeProjectsPath,
+		composeLibraryStore: composeLibraryStore,
 		credentialStore: credentialStore,
 		environmentStore: environmentStore,
 		userStore: userStore,
@@ -50,7 +53,7 @@ func NewHandler(
 		settingStore: settingStore,
 		variableStore: variableStore,
 		variableValueStore: variableValueStore,
-		composeLibraryStore: composeLibraryStore,
+		localComposeLibraryStore: localComposeLibraryStore,
 		}
 }
 

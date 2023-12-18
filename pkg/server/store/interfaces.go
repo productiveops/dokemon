@@ -56,12 +56,24 @@ type SettingStore interface {
 	Exists(id string) (bool, error)
 }
 
+type LocalComposeLibraryStore interface {
+	Create(m *model.LocalComposeLibraryItem) error
+	Update(m *model.LocalComposeLibraryItemUpdate) error
+	GetByName(projectName string) (*model.LocalComposeLibraryItem, error)
+	DeleteByName(projectName string) error
+	GetList(pageNo, pageSize uint) ([]model.LocalComposeLibraryItemHead, int64, error)
+}
+
 type ComposeLibraryStore interface {
 	Create(m *model.ComposeLibraryItem) error
-	Update(m *model.ComposeLibraryItemUpdate) error
-	GetByName(projectName string) (*model.ComposeLibraryItem, error)
-	DeleteByName(projectName string) error
-	GetList(pageNo, pageSize uint) ([]model.ComposeLibraryItemHead, int64, error)
+	Update(m *model.ComposeLibraryItem) error
+	GetById(id uint) (*model.ComposeLibraryItem, error)
+	GetList(pageNo, pageSize uint) ([]model.ComposeLibraryItem, int64, error)
+	DeleteById(id uint) error
+	Exists(id uint) (bool, error)
+
+	IsUniqueName(name string) (bool, error)
+	IsUniqueNameExcludeItself(name string, id uint) (bool, error)
 }
 
 type CredentialStore interface {
