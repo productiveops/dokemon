@@ -102,7 +102,7 @@ export default function EditComposeProject() {
         title: "Success!",
         description: "Definition has been saved.",
       })
-      navigate(`/composelibrary/${data.newProjectName}/edit`)
+      navigate(`/composelibrary/filesystem/${data.newProjectName}/edit`)
     }
     setIsSaving(false)
   }

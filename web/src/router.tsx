@@ -88,15 +88,15 @@ const router = createBrowserRouter([
         element: <ComposeLibraryItems />,
       },
       {
-        path: "composelibrary/create",
+        path: "composelibrary/filesystem/create",
         element: <CreateComposeProject />,
       },
       {
-        path: "composelibrary/add/github",
+        path: "composelibrary/github/create",
         element: <CreateComposeProjectFromGitHub />,
       },
       {
-        path: "composelibrary/:composeProjectName/edit",
+        path: "composelibrary/filesystem/:composeProjectName/edit",
         element: <EditComposeProject />,
       },
       {

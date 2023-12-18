@@ -64,7 +64,7 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 
 func (h *Handler) CreateFileSystemComposeProject(c echo.Context) error {
 	m := model.FileSystemComposeLibraryItem{}
-	r := &composeProjectCreateRequest{}
+	r := &fileSystemComposeProjectCreateRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
 	}
@@ -80,7 +80,7 @@ func (h *Handler) UpdateFileSystemComposeProject(c echo.Context) error {
 	projectName := c.Param("projectName")
 
 	m := model.FileSystemComposeLibraryItemUpdate{}
-	r := &composeProjectUpdateRequest{ProjectName: projectName}
+	r := &fileSystemComposeProjectUpdateRequest{ProjectName: projectName}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
 	}
@@ -111,4 +111,18 @@ func (h *Handler) GetFileSystemComposeProject(c echo.Context) error {
 	}
 
 	return ok(c, newComposeLibraryItem(m))
+}
+
+func (h *Handler) CreateGitHubComposeProject(c echo.Context) error {
+	m := model.ComposeLibraryItem{}
+	r := &githubComposeProjectCreateRequest{}
+	if err := r.bind(c, &m); err != nil {
+		return unprocessableEntity(c, err)
+	}
+
+	if err := h.composeLibraryStore.Create(&m); err != nil {
+		panic(err)
+	}
+
+	return created(c, m.Id)
 }

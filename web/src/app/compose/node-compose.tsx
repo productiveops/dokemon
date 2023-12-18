@@ -80,7 +80,7 @@ export default function NodeCompose() {
                       onClick={(e) => {
                         e.stopPropagation()
                         window.open(
-                          `${location.protocol}//${location.host}/composelibrary/${item.libraryProjectName}/edit`
+                          `${location.protocol}//${location.host}/composelibrary/filesystem/${item.libraryProjectName}/edit`
                         )
                       }}
                     >

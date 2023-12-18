@@ -32,13 +32,13 @@ export default function ComposeLibraryItems() {
         <TopBarActions>
           <Button
             className="w-24"
-            onClick={() => navigate("/composelibrary/create")}
+            onClick={() => navigate("/composelibrary/filesystem/create")}
           >
             Create
           </Button>
           <Button
             className="w-36"
-            onClick={() => navigate("/composelibrary/add/github")}
+            onClick={() => navigate("/composelibrary/github/create")}
           >
             Add from GitHub
           </Button>
@@ -66,10 +66,14 @@ export default function ComposeLibraryItems() {
                   key={item.projectName}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
-                    let navigateTo = "edit"
-                    navigate(
-                      `/composelibrary/${item.projectName}/${navigateTo}`
-                    )
+                    if (item.type === "filesystem") {
+                      navigate(
+                        `/composelibrary/${item.type}/${item.projectName}/edit`
+                      )
+                    }
+                    if (item.type === "github") {
+                      navigate(`/composelibrary/${item.type}/${item.id}/edit`)
+                    }
                   }}
                 >
                   <TableCell>{item.projectName}</TableCell>

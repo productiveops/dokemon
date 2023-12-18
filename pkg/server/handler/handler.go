@@ -132,11 +132,17 @@ func (h *Handler) Register(e *echo.Echo) {
 	composelibrary := v1.Group("/composelibrary")
 	composelibrary.GET("", h.GetComposeProjectList)
 
-	localcomposelibrary := composelibrary.Group("/filesystem")
-	localcomposelibrary.POST("", h.CreateFileSystemComposeProject)
-	localcomposelibrary.PUT("/:projectName", h.UpdateFileSystemComposeProject)
-	localcomposelibrary.DELETE("/:projectName", h.DeleteFileSystemComposeProject)
-	localcomposelibrary.GET("/:projectName", h.GetFileSystemComposeProject)
+	filesystemcomposelibrary := composelibrary.Group("/filesystem")
+	filesystemcomposelibrary.POST("", h.CreateFileSystemComposeProject)
+	filesystemcomposelibrary.PUT("/:projectName", h.UpdateFileSystemComposeProject)
+	filesystemcomposelibrary.DELETE("/:projectName", h.DeleteFileSystemComposeProject)
+	filesystemcomposelibrary.GET("/:projectName", h.GetFileSystemComposeProject)
+
+	githubcomposelibrary := composelibrary.Group("/github")
+	githubcomposelibrary.POST("", h.CreateGitHubComposeProject)
+	//githubcomposelibrary.PUT("/:projectName", h.UpdateFileSystemComposeProject)
+	//githubcomposelibrary.DELETE("/:projectName", h.DeleteFileSystemComposeProject)
+	//githubcomposelibrary.GET("/:projectName", h.GetFileSystemComposeProject)
 
 	node_compose := nodes.Group("/:nodeId/compose")
 	node_compose.GET("", h.GetNodeComposeProjectList)

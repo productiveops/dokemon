@@ -80,7 +80,7 @@ export default function CreateComposeProject() {
         title: "Success!",
         description: "Project has been created.",
       })
-      navigate(`/composelibrary/${data.projectName}/edit`)
+      navigate(`/composelibrary/filesystem/${data.projectName}/edit`)
     }
     setIsSaving(false)
   }

@@ -74,14 +74,14 @@ export default function CreateComposeProjectFromGitHub() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: useMemo(() => {
-      return { projectName: "", definition: "" }
+      return { projectName: "", url: "", credentialId: 0, definition: "" }
     }, []),
   })
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     data.definition = editorRef.current?.getValue()
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/composelibrary`, {
+    const response = await fetch(`${apiBaseUrl()}/composelibrary/github`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -94,11 +94,12 @@ export default function CreateComposeProjectFromGitHub() {
         description: r.errors?.body,
       })
     } else {
+      const r = await response.json()
       toast({
         title: "Success!",
         description: "Project has been created.",
       })
-      navigate(`/composelibrary/${data.projectName}/edit`)
+      navigate(`/composelibrary/github/${r.id}/edit`)
     }
     setIsSaving(false)
   }
