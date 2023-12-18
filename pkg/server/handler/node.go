@@ -1,14 +1,15 @@
 package handler
 
 import (
-	"dokemon/pkg/crypto"
-	"dokemon/pkg/crypto/ske"
-	"dokemon/pkg/server/model"
 	"encoding/json"
 	"errors"
 	"slices"
 	"strconv"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/crypto"
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
 )

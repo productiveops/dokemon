@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"dokemon/pkg/crypto/ske"
-	"dokemon/pkg/server/model"
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
 )

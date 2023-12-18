@@ -1,4 +1,4 @@
-module dokemon
+module github.com/productiveops/dokemon
 
 go 1.21
 

@@ -1,6 +1,6 @@
 package dockerapi
 
-import "dokemon/pkg/server/store"
+import "github.com/productiveops/dokemon/pkg/server/store"
 
 // Containers
 

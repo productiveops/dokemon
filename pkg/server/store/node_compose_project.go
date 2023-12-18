@@ -1,8 +1,9 @@
 package store
 
 import (
-	"dokemon/pkg/server/model"
 	"errors"
+
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"gorm.io/gorm"
 )

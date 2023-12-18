@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"dokemon/pkg/server/model"
 	"strconv"
+
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
 )

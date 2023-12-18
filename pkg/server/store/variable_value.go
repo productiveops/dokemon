@@ -1,10 +1,11 @@
 package store
 
 import (
-	"dokemon/pkg/crypto/ske"
-	"dokemon/pkg/server/model"
 	"errors"
 	"strconv"
+
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"gorm.io/gorm"
 )

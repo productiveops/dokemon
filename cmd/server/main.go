@@ -1,8 +1,9 @@
 package main
 
 import (
-	"dokemon/pkg/server"
 	"os"
+
+	"github.com/productiveops/dokemon/pkg/server"
 )
 
 func main() {
