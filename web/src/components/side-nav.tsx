@@ -12,6 +12,7 @@ import {
   ComputerDesktopIcon,
   SunIcon,
   VariableIcon,
+  LockClosedIcon,
 } from "@heroicons/react/24/outline"
 import { Link, NavLink, useParams, useRoutes } from "react-router-dom"
 
@@ -68,6 +69,10 @@ function SideNavTopLevel() {
           <SideBarItem to={`/variables`}>
             <VariableIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
             Variables
+          </SideBarItem>
+          <SideBarItem to={`/credentials`}>
+            <LockClosedIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
+            Credentials
           </SideBarItem>
         </li>
       </ul>

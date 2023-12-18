@@ -5,8 +5,10 @@ go 1.21
 require (
 	github.com/GeertJohan/go.rice v1.0.3
 	github.com/docker/docker v24.0.7+incompatible
+	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e
 	github.com/glebarez/sqlite v1.10.0
 	github.com/go-playground/validator/v10 v10.14.0
+	github.com/google/go-github/v57 v57.0.0
 	github.com/google/uuid v1.4.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/labstack/echo/v4 v4.11.3
@@ -24,13 +26,13 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/gabemarshall/pty v0.0.0-20220927143247-d84f0bb0c17e // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect

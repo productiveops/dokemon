@@ -21,52 +21,30 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "@/components/ui/use-toast"
-import {
-  REGEX_IDENTIFIER,
-  REGEX_IDENTIFIER_MESSAGE,
-  cn,
-  trimString,
-} from "@/lib/utils"
-import useEnvironments from "@/hooks/useEnvironments"
+import { cn } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
-import { IEnvironmentHead } from "@/lib/api-models"
+import { ICredentialHead } from "@/lib/api-models"
 
-export default function EditEnvironmentDialog({
+export default function EditGithubPATSecretDialog({
   openState,
   setOpenState,
-  environmentHead,
+  credentialHead,
 }: {
   openState: boolean
   setOpenState: Dispatch<SetStateAction<boolean>>
-  environmentHead: IEnvironmentHead
+  credentialHead: ICredentialHead
 }) {
   const [isSaving, setIsSaving] = useState(false)
-  const { mutateEnvironments } = useEnvironments()
 
   const formSchema = z.object({
-    name: z.preprocess(
-      trimString,
-      z
-        .string()
-        .min(1, "Name is required")
-        .max(20)
-        .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/environments/${
-              environmentHead.id
-            }/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another environment with this name already exists")
-    ),
+    secret: z.string().min(1, "Required").max(200),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: environmentHead,
+    defaultValues: { secret: "" },
   })
 
   const handleCloseForm = () => {
@@ -77,7 +55,7 @@ export default function EditEnvironmentDialog({
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
     const response = await fetch(
-      `${apiBaseUrl()}/environments/${environmentHead.id}`,
+      `${apiBaseUrl()}/credentials/${credentialHead.id}/secret`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -89,14 +67,13 @@ export default function EditEnvironmentDialog({
       toast({
         variant: "destructive",
         title: "Something went wrong.",
-        description: "There was a problem saving the environment. Try again!",
+        description: "There was a problem saving the credential. Try again!",
       })
     } else {
-      mutateEnvironments()
       handleCloseForm()
       toast({
         title: "Success!",
-        description: "Environment has been saved.",
+        description: "Credential has been saved.",
       })
     }
     setIsSaving(false)
@@ -109,17 +86,17 @@ export default function EditEnvironmentDialog({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset className={cn("group")} disabled={isSaving}>
               <DialogHeader>
-                <DialogTitle>Edit Environment</DialogTitle>
+                <DialogTitle>Edit GitHub Personal Access Token</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4 group-disabled:opacity-50">
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="secret"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>GitHub Personal Access Token</FormLabel>
                       <FormControl>
-                        <Input {...field} autoFocus />
+                        <Input {...field} autoFocus type="password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

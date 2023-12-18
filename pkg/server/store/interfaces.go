@@ -64,6 +64,18 @@ type ComposeLibraryStore interface {
 	GetList(pageNo, pageSize uint) ([]model.ComposeLibraryItemHead, int64, error)
 }
 
+type CredentialStore interface {
+	Create(m *model.Credential) error
+	Update(m *model.Credential) error
+	GetById(id uint) (*model.Credential, error)
+	GetList(pageNo, pageSize uint) ([]model.Credential, int64, error)
+	DeleteById(id uint) error
+	Exists(id uint) (bool, error)
+
+	IsUniqueName(name string) (bool, error)
+	IsUniqueNameExcludeItself(name string, id uint) (bool, error)
+}
+
 type EnvironmentStore interface {
 	Create(m *model.Environment) error
 	Update(m *model.Environment) error

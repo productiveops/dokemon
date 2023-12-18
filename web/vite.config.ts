@@ -4,8 +4,6 @@ import { defineConfig } from "vite"
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
-  console.log(`Mode: ${mode}`)
-
   let proxy = {}
   if (mode === "development") {
     proxy = {

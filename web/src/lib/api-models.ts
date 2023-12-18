@@ -10,6 +10,23 @@ export interface ISetting {
   value: string
 }
 
+export interface ICredentialHead {
+  id: number
+  name: string
+  service?: string
+  type: string
+  userName?: string
+}
+
+export interface ICredential {
+  id: number
+  name: string
+  service?: string
+  type: string
+  userName?: string
+  secret: string
+}
+
 export interface IEnvironmentHead {
   id: number
   name: string

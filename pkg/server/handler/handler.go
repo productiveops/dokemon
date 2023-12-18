@@ -13,6 +13,7 @@ import (
 
 type Handler struct {
 	composeProjectsPath string
+	credentialStore store.CredentialStore
 	environmentStore store.EnvironmentStore
 	userStore store.UserStore
 	nodeStore store.NodeStore
@@ -29,6 +30,7 @@ var (
 
 func NewHandler(
 	composeProjectsPath string,
+	credentialStore store.CredentialStore,
 	environmentStore store.EnvironmentStore,
 	userStore store.UserStore,
 	nodeStore store.NodeStore,
@@ -40,6 +42,7 @@ func NewHandler(
 	) *Handler {
 		return &Handler{
 		composeProjectsPath: composeProjectsPath,
+		credentialStore: credentialStore,
 		environmentStore: environmentStore,
 		userStore: userStore,
 		nodeStore: nodeStore,
@@ -60,9 +63,22 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	v1 := e.Group("/api/v1")
 
+	github := v1.Group("/github/filecontent/load")
+	github.POST("", h.RetrieveGitHubFileContent)
+
 	settings := v1.Group("/settings")
 	settings.GET("/:id", h.GetSettingById)
 	settings.PUT("/:id", h.UpdateSetting)
+
+	credentials := v1.Group("/credentials")
+	credentials.POST("", h.CreateCredential)
+	credentials.PUT("/:id", h.UpdateCredentialDetails)
+	credentials.PUT("/:id/secret", h.UpdateCredentialSecret)
+	credentials.GET("", h.GetCredentialList)
+	credentials.GET("/:id", h.GetCredentialById)
+	credentials.DELETE("/:id", h.DeleteCredentialById)
+	credentials.GET("/uniquename", h.IsUniqueCredentialName)
+	credentials.GET("/:id/uniquename", h.IsUniqueCredentialNameExcludeItself)
 
 	environments := v1.Group("/environments")
 	environments.POST("", h.CreateEnvironment)
