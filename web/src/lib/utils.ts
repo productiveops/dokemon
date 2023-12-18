@@ -7,6 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const CLASSES_TABLE_ACTION_ICON = "w-4 text-slate-900 dark:text-white"
+export const CLASSES_CLICKABLE_TABLE_ROW =
+  "cursor-pointer hover:bg-slate-50  dark:hover:bg-slate-800"
 
 export function convertByteToMb(size: number) {
   return (size / (1000 * 1000)).toFixed(2) + " MB"

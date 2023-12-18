@@ -36,7 +36,10 @@ import axios from "axios"
 import useNodeHead from "@/hooks/useNodeHead"
 import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/dialogs/edit-containerbaseurl-dialog"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  CLASSES_TABLE_ACTION_ICON,
+} from "@/lib/utils"
 
 export default function Containers() {
   const { nodeId } = useParams()
@@ -198,7 +201,6 @@ export default function Containers() {
               <TableHead scope="col">Id</TableHead>
               <TableHead scope="col">Name</TableHead>
               <TableHead scope="col">Ports</TableHead>
-              <TableHead scope="col">Status</TableHead>
               <TableHead scope="col">State</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
@@ -217,7 +219,7 @@ export default function Containers() {
               containers?.items.map((item) => (
                 <TableRow
                   key={item.id}
-                  className="cursor-pointer hover:bg-slate-50"
+                  className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
                     navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
                   }}
@@ -225,12 +227,15 @@ export default function Containers() {
                   <TableCell>{item.id.substring(0, 12)}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
-                  <TableCell>{item.status}</TableCell>
                   <TableCell>
                     {item.state == "exited" ? (
-                      <Badge variant="destructive">{item.state}</Badge>
+                      <Badge variant="destructive" title={item.status}>
+                        {item.state}
+                      </Badge>
                     ) : (
-                      <Badge variant="default">{item.state}</Badge>
+                      <Badge variant="default" title={item.status}>
+                        {item.state}
+                      </Badge>
                     )}
                   </TableCell>
                   <TableCell className="text-right">
