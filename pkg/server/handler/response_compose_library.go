@@ -3,7 +3,9 @@ package handler
 import "github.com/productiveops/dokemon/pkg/server/model"
 
 type composeLibraryItemHead struct {
-	ProjectName string `json:"projectName"`
+	Id			*uint	`json:"id"`
+	ProjectName string 	`json:"projectName"`
+	Type 		string	`json:"type"` // github, local
 }
 
 type composeLibraryItem struct {
@@ -11,11 +13,15 @@ type composeLibraryItem struct {
 	Definition  string `json:"definition"`
 }
 
-func newComposeLibraryItemHead(m *model.LocalComposeLibraryItemHead) composeLibraryItemHead {
-	return composeLibraryItemHead{ProjectName: m.ProjectName}
+func newComposeLibraryItemHead(m *model.ComposeLibraryItem) composeLibraryItemHead {
+	return composeLibraryItemHead{
+		Id: &m.Id,
+		ProjectName: m.ProjectName,
+		Type: m.Type,
+	}
 }
 
-func newComposeLibraryItemHeadList(rows []model.LocalComposeLibraryItemHead) []composeLibraryItemHead {
+func newComposeLibraryItemHeadList(rows []model.ComposeLibraryItem) []composeLibraryItemHead {
 	headRows := make([]composeLibraryItemHead, len(rows))
 	for i, r := range rows {
 		headRows[i] = newComposeLibraryItemHead(&r)
@@ -23,6 +29,6 @@ func newComposeLibraryItemHeadList(rows []model.LocalComposeLibraryItemHead) []c
 	return headRows
 }
 
-func newComposeLibraryItem(m *model.LocalComposeLibraryItem) composeLibraryItem {
+func newComposeLibraryItem(m *model.FileSystemComposeLibraryItem) composeLibraryItem {
 	return composeLibraryItem{ProjectName: m.ProjectName, Definition: m.Definition}
 }

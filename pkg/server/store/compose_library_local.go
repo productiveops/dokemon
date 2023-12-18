@@ -12,19 +12,19 @@ import (
 	"gorm.io/gorm"
 )
 
-type FileSystemComposeLibraryStore struct {
+type LocalFileSystemComposeLibraryStore struct {
 	db *gorm.DB
 	composeLibraryPath string
 }
 
-func NewFileSystemComposeLibraryStore(db *gorm.DB, composeLibraryPath string) *FileSystemComposeLibraryStore {
-	return &FileSystemComposeLibraryStore{
+func NewLocalFileSystemComposeLibraryStore(db *gorm.DB, composeLibraryPath string) *LocalFileSystemComposeLibraryStore {
+	return &LocalFileSystemComposeLibraryStore{
 		db: db,
 		composeLibraryPath: composeLibraryPath,
 	}
 }
 
-func (s *FileSystemComposeLibraryStore) Create(m *model.LocalComposeLibraryItem) error {
+func (s *LocalFileSystemComposeLibraryStore) Create(m *model.FileSystemComposeLibraryItem) error {
 	p := filepath.Join(s.composeLibraryPath, m.ProjectName)
 
 	if _, err := os.Stat(p); errors.Is(err, os.ErrNotExist) {
@@ -51,7 +51,7 @@ func (s *FileSystemComposeLibraryStore) Create(m *model.LocalComposeLibraryItem)
 	}
 }
 
-func (s *FileSystemComposeLibraryStore) Update(m *model.LocalComposeLibraryItemUpdate) error {
+func (s *LocalFileSystemComposeLibraryStore) Update(m *model.FileSystemComposeLibraryItemUpdate) error {
 	composeProjectDirPath := filepath.Join(s.composeLibraryPath, m.ProjectName)
 	_, err := os.ReadDir(filepath.Join(composeProjectDirPath))
 	if err != nil {
@@ -107,7 +107,7 @@ func (s *FileSystemComposeLibraryStore) Update(m *model.LocalComposeLibraryItemU
 	return nil
 }
 
-func (s *FileSystemComposeLibraryStore) GetByName(projectName string) (*model.LocalComposeLibraryItem, error) {
+func (s *LocalFileSystemComposeLibraryStore) GetByName(projectName string) (*model.FileSystemComposeLibraryItem, error) {
 	composeProjectDirPath := filepath.Join(s.composeLibraryPath, projectName)
 	_, err := os.ReadDir(filepath.Join(composeProjectDirPath))
 	if err != nil {
@@ -133,10 +133,10 @@ func (s *FileSystemComposeLibraryStore) GetByName(projectName string) (*model.Lo
 		return nil, err
 	}
 
-	return &model.LocalComposeLibraryItem{ProjectName: projectName, Definition: string(definitionBytes)}, nil
+	return &model.FileSystemComposeLibraryItem{ProjectName: projectName, Definition: string(definitionBytes)}, nil
 }
 
-func (s *FileSystemComposeLibraryStore) DeleteByName(projectName string) error {
+func (s *LocalFileSystemComposeLibraryStore) DeleteByName(projectName string) error {
 	composeProjectDirPath := filepath.Join(s.composeLibraryPath, projectName)
 	_, err := os.ReadDir(filepath.Join(composeProjectDirPath))
 	if err != nil {
@@ -165,22 +165,17 @@ func (s *FileSystemComposeLibraryStore) DeleteByName(projectName string) error {
 	return nil
 }
 
-func (s *FileSystemComposeLibraryStore) GetList(pageNo, pageSize uint) ([]model.LocalComposeLibraryItemHead, int64, error) {
+func (s *LocalFileSystemComposeLibraryStore) GetList() ([]model.FileSystemComposeLibraryItemHead, int64, error) {
 	entries, err := os.ReadDir(s.composeLibraryPath)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	composeItemHeads := make([]model.LocalComposeLibraryItemHead, len(entries))
+	composeItemHeads := make([]model.FileSystemComposeLibraryItemHead, len(entries))
 	for i, entry := range entries {
-		composeItemHeads[i] = model.LocalComposeLibraryItemHead{ProjectName: entry.Name()}
+		composeItemHeads[i] = model.FileSystemComposeLibraryItemHead{ProjectName: entry.Name()}
 	}
 	
-	startIndex := (pageNo - 1) * pageSize
-	endIndex := startIndex + pageSize
-	if endIndex > uint(len(composeItemHeads)) {
-		endIndex = uint(len(composeItemHeads))
-	}
-	return composeItemHeads[startIndex:endIndex], int64(len(entries)), nil
+	return composeItemHeads, int64(len(entries)), nil
 }
 

@@ -90,10 +90,12 @@ export interface INetwork {
 }
 
 export interface IComposeLibraryItemHead {
+  id?: string
   projectName: string
+  type: string
 }
 
-export interface IComposeLibraryItem {
+export interface ILocalComposeLibraryItem {
   projectName: string
   definition: string
 }

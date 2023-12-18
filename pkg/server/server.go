@@ -78,7 +78,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 		store.NewSqlSettingStore(db),
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
-		store.NewFileSystemComposeLibraryStore(db, composeProjectsPath),
+		store.NewLocalFileSystemComposeLibraryStore(db, composeProjectsPath),
 		)
 
 	// Init encryption key

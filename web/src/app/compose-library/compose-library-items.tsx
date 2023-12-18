@@ -48,7 +48,8 @@ export default function ComposeLibraryItems() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Name</TableHead>
+              <TableHead scope="col">Library Project Name</TableHead>
+              <TableHead scope="col">Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,6 +73,10 @@ export default function ComposeLibraryItems() {
                   }}
                 >
                   <TableCell>{item.projectName}</TableCell>
+                  <TableCell>
+                    {item.type === "filesystem" ? "File System" : ""}
+                    {item.type === "github" ? "GitHub" : ""}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

@@ -1,16 +1,16 @@
 package model
 
-// Local: This is not a DB model
-type LocalComposeLibraryItemHead struct {
+// FileSystem: This is not a DB model
+type FileSystemComposeLibraryItemHead struct {
 	ProjectName string
 }
 
-type LocalComposeLibraryItem struct {
+type FileSystemComposeLibraryItem struct {
 	ProjectName string
 	Definition 	string
 }
 
-type LocalComposeLibraryItemUpdate struct {
+type FileSystemComposeLibraryItemUpdate struct {
 	ProjectName string
 	NewProjectName string
 	Definition 	string

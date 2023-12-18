@@ -27,7 +27,7 @@ export default function DeleteComposeDialog() {
     setIsSaving(true)
 
     const response = await fetch(
-      `${apiBaseUrl()}/composelibrary/${composeProjectName}`,
+      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },

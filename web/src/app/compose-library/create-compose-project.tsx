@@ -63,7 +63,7 @@ export default function CreateComposeProject() {
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     data.definition = editorRef.current?.getValue()
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/composelibrary`, {
+    const response = await fetch(`${apiBaseUrl()}/composelibrary/filesystem`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

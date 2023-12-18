@@ -22,7 +22,7 @@ type Handler struct {
 	settingStore store.SettingStore
 	variableStore store.VariableStore
 	variableValueStore store.VariableValueStore
-	localComposeLibraryStore store.LocalComposeLibraryStore
+	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore
 }
 
 var (
@@ -40,7 +40,7 @@ func NewHandler(
 	settingStore store.SettingStore,
 	variableStore store.VariableStore,
 	variableValueStore store.VariableValueStore,
-	localComposeLibraryStore store.LocalComposeLibraryStore,
+	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore,
 	) *Handler {
 		return &Handler{
 		composeProjectsPath: composeProjectsPath,
@@ -53,7 +53,7 @@ func NewHandler(
 		settingStore: settingStore,
 		variableStore: variableStore,
 		variableValueStore: variableValueStore,
-		localComposeLibraryStore: localComposeLibraryStore,
+		fileSystemComposeLibraryStore: fileSystemComposeLibraryStore,
 		}
 }
 
@@ -131,10 +131,12 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	composelibrary := v1.Group("/composelibrary")
 	composelibrary.GET("", h.GetComposeProjectList)
-	composelibrary.POST("", h.CreateComposeProject)
-	composelibrary.PUT("/:projectName", h.UpdateComposeProject)
-	composelibrary.DELETE("/:projectName", h.DeleteComposeProject)
-	composelibrary.GET("/:projectName", h.GetComposeProject)
+
+	localcomposelibrary := composelibrary.Group("/filesystem")
+	localcomposelibrary.POST("", h.CreateFileSystemComposeProject)
+	localcomposelibrary.PUT("/:projectName", h.UpdateFileSystemComposeProject)
+	localcomposelibrary.DELETE("/:projectName", h.DeleteFileSystemComposeProject)
+	localcomposelibrary.GET("/:projectName", h.GetFileSystemComposeProject)
 
 	node_compose := nodes.Group("/:nodeId/compose")
 	node_compose.GET("", h.GetNodeComposeProjectList)

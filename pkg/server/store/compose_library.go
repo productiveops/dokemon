@@ -57,14 +57,14 @@ func (s *SqlComposeLibraryStore) DeleteById(id uint) error {
 	return nil
 }
 
-func (s *SqlComposeLibraryStore) GetList(pageNo, pageSize uint) ([]model.ComposeLibraryItem, int64, error) {
+func (s *SqlComposeLibraryStore) GetList() ([]model.ComposeLibraryItem, int64, error) {
 	var (
 		l []model.ComposeLibraryItem
 		count int64
 	)
 
 	s.db.Model(&l).Count(&count)
-	s.db.Offset(int((pageNo - 1) * pageSize)).Limit(int(pageSize)).Order("name asc").Find(&l)
+	s.db.Order("project_name asc").Find(&l)
 
 	return l, count, nil
 }
@@ -72,7 +72,7 @@ func (s *SqlComposeLibraryStore) GetList(pageNo, pageSize uint) ([]model.Compose
 func (s *SqlComposeLibraryStore) IsUniqueName(name string) (bool, error) {
 	var count int64
 
-	if err := s.db.Model(&model.ComposeLibraryItem{}).Where("name = ? COLLATE NOCASE", name).Count(&count).Error; err != nil {
+	if err := s.db.Model(&model.ComposeLibraryItem{}).Where("project_name = ? COLLATE NOCASE", name).Count(&count).Error; err != nil {
 		return false, err
 	}
 
@@ -82,7 +82,7 @@ func (s *SqlComposeLibraryStore) IsUniqueName(name string) (bool, error) {
 func (s *SqlComposeLibraryStore) IsUniqueNameExcludeItself(name string, id uint) (bool, error) {
 	var count int64
 
-	if err := s.db.Model(&model.ComposeLibraryItem{}).Where("name = ? COLLATE NOCASE and id <> ?", name, id).Count(&count).Error; err != nil {
+	if err := s.db.Model(&model.ComposeLibraryItem{}).Where("project_name = ? COLLATE NOCASE and id <> ?", name, id).Count(&count).Error; err != nil {
 		return false, err
 	}
 

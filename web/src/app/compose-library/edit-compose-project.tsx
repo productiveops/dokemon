@@ -33,15 +33,17 @@ import Editor, { OnMount, loader } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
 import DeleteComposeDialog from "./dialogs/delete-compose-dialog"
-import useComposeLibraryItem from "@/hooks/useComposeLibraryItem"
+import useFileSystemComposeLibraryItem from "@/hooks/useFileSystemComposeLibraryItem"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 
 export default function EditComposeProject() {
   const { composeProjectName } = useParams()
-  const { composeLibraryItem, mutateComposeLibraryItem } =
-    useComposeLibraryItem(composeProjectName!)
+  const {
+    localComposeLibraryItem: composeLibraryItem,
+    mutateLocalComposeLibraryItem,
+  } = useFileSystemComposeLibraryItem(composeProjectName!)
   const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
   const [isSaving, setIsSaving] = useState(false)
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
@@ -79,7 +81,7 @@ export default function EditComposeProject() {
     data.definition = editorRef.current?.getValue()
     setIsSaving(true)
     const response = await fetch(
-      `${apiBaseUrl()}/composelibrary/${composeProjectName}`,
+      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -94,7 +96,7 @@ export default function EditComposeProject() {
           "There was a problem when saving the definition. Try again!",
       })
     } else {
-      mutateComposeLibraryItem()
+      mutateLocalComposeLibraryItem()
       mutateComposeLibraryItemList()
       toast({
         title: "Success!",

@@ -191,7 +191,7 @@ func (h *Handler) GetNodeComposePull(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("Project not found"))
 	}
 
-	clp, err := h.localComposeLibraryStore.GetByName(ncp.LibraryProjectName)
+	clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
 	if err != nil {
 		return unprocessableEntity(c, errors.New("Library Project not found"))
 	}
@@ -253,7 +253,7 @@ func (h *Handler) GetNodeComposeUp(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("Project not found"))
 	}
 
-	clp, err := h.localComposeLibraryStore.GetByName(ncp.LibraryProjectName)
+	clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
 	if err != nil {
 		return unprocessableEntity(c, errors.New("Library Project not found"))
 	}

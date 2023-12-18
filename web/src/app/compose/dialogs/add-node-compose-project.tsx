@@ -137,7 +137,7 @@ export default function AddNodeComposeProjectDialog() {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "inline-flex w-auto justify-between font-normal text-slate-800",
+                                  "inline-flex w-auto justify-between font-normal text-slate-800 dark:text-slate-50",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
