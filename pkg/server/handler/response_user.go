@@ -1,6 +1,6 @@
 package handler
 
-import "dokemon/pkg/server/model"
+import "github.com/productiveops/dokemon/pkg/server/model"
 
 type userResponse struct {
 	Id           uint   `json:"id"`

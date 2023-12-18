@@ -20,7 +20,10 @@ import { TrashIcon } from "@heroicons/react/24/solid"
 import { IEnvironmentHead } from "@/lib/api-models"
 import DeleteEnvironmentDialog from "./dialogs/delete-environment-dialog"
 import EditEnvironmentDialog from "./dialogs/edit-environment-dialog"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  CLASSES_TABLE_ACTION_ICON,
+} from "@/lib/utils"
 
 export default function Environments() {
   const { isLoading, environments } = useEnvironments()
@@ -87,7 +90,7 @@ export default function Environments() {
               environments?.items.map((item) => (
                 <TableRow
                   key={item.name}
-                  className="cursor-pointer hover:bg-slate-50"
+                  className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
                     handleEditEnvironment(item)
                   }}

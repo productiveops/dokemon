@@ -23,6 +23,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import AddNodeComposeProjectDialog from "./dialogs/add-node-compose-project"
 import { ArrowUpRight } from "lucide-react"
+import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 
 export default function NodeCompose() {
   const { nodeId } = useParams()
@@ -67,7 +68,7 @@ export default function NodeCompose() {
               nodeComposeItems?.items.map((item) => (
                 <TableRow
                   key={item.projectName}
-                  className="cursor-pointer hover:bg-slate-50"
+                  className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
                     navigate(`/nodes/${nodeId}/compose/${item.id}/actions`)
                   }}

@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"dokemon/pkg/dockerapi"
-	"dokemon/pkg/server/model"
 	"slices"
+
+	"github.com/productiveops/dokemon/pkg/dockerapi"
+	"github.com/productiveops/dokemon/pkg/server/model"
 )
 
 type nodeComposeProjectItemHead struct {

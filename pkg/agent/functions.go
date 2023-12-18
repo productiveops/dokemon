@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"dokemon/pkg/messages"
+	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
 )

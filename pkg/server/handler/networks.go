@@ -1,10 +1,11 @@
 package handler
 
 import (
-	"dokemon/pkg/dockerapi"
-	"dokemon/pkg/messages"
 	"errors"
 	"strconv"
+
+	"github.com/productiveops/dokemon/pkg/dockerapi"
+	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/labstack/echo/v4"
 )

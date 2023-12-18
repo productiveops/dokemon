@@ -1,10 +1,11 @@
 package requestutil
 
 import (
-	"dokemon/pkg/crypto/ske"
 	"encoding/json"
 	"net/http"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
 
 	"github.com/labstack/echo/v4"
 )

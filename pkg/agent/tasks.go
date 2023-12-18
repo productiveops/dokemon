@@ -1,10 +1,11 @@
 package agent
 
 import (
-	"dokemon/pkg/messages"
 	"slices"
 	"strings"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/rs/zerolog/log"
 )

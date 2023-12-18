@@ -1,10 +1,12 @@
 package handler
 
 import (
-	"dokemon/pkg/server/store"
-	"dokemon/web"
 	"net/http"
 	"time"
+
+	"github.com/productiveops/dokemon/web"
+
+	"github.com/productiveops/dokemon/pkg/server/store"
 
 	"github.com/labstack/echo/v4"
 )

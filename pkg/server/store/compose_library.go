@@ -1,11 +1,12 @@
 package store
 
 import (
-	"dokemon/pkg/server/model"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"

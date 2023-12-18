@@ -1,8 +1,9 @@
 package store
 
 import (
-	"dokemon/pkg/server/model"
 	"errors"
+
+	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"gorm.io/gorm"
 )
@@ -42,7 +43,7 @@ func (s *SqlUserStore) GetById(id uint) (*model.User, error) {
 func (s *SqlUserStore) GetByUserName(username string) (*model.User, error) {
 	var m model.User
 
-	if err := s.db.Where("user_name = ?", username).First(&m).Error; err != nil {
+	if err := s.db.Where("user_name = ? COLLATE NOCASE", username).First(&m).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		} else {

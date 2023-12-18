@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"dokemon/pkg/crypto"
-	"dokemon/pkg/server/model"
-	"dokemon/pkg/server/requestutil"
 	"errors"
 	"strconv"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/crypto"
+	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/productiveops/dokemon/pkg/server/requestutil"
 
 	"github.com/labstack/echo/v4"
 )

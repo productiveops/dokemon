@@ -1,18 +1,19 @@
 package server
 
 import (
-	"dokemon/pkg/common"
-	"dokemon/pkg/crypto/ske"
-	"dokemon/pkg/server/handler"
-	"dokemon/pkg/server/model"
-	"dokemon/pkg/server/requestutil"
-	"dokemon/pkg/server/router"
-	"dokemon/pkg/server/store"
 	"errors"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/common"
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
+	"github.com/productiveops/dokemon/pkg/server/handler"
+	"github.com/productiveops/dokemon/pkg/server/model"
+	"github.com/productiveops/dokemon/pkg/server/requestutil"
+	"github.com/productiveops/dokemon/pkg/server/router"
+	"github.com/productiveops/dokemon/pkg/server/store"
 
 	"github.com/glebarez/sqlite"
 

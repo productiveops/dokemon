@@ -15,6 +15,7 @@ import MainContent from "@/components/widgets/main-content"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
+import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 
 export default function ComposeLibraryItems() {
   const navigate = useNavigate()
@@ -56,7 +57,7 @@ export default function ComposeLibraryItems() {
               composeLibraryItems?.items.map((item) => (
                 <TableRow
                   key={item.projectName}
-                  className="cursor-pointer hover:bg-slate-50"
+                  className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
                     let navigateTo = "edit"
                     navigate(

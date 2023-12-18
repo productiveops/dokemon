@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"dokemon/pkg/dockerapi"
-	"dokemon/pkg/messages"
+	"github.com/productiveops/dokemon/pkg/dockerapi"
+	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog/log"

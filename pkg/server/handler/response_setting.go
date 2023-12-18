@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"dokemon/pkg/server/model"
+	"github.com/productiveops/dokemon/pkg/server/model"
 )
 
 type settingResponse struct {

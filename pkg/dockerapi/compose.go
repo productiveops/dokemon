@@ -3,7 +3,6 @@ package dockerapi
 import (
 	"bufio"
 	"bytes"
-	"dokemon/pkg/server/store"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +11,8 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+
+	"github.com/productiveops/dokemon/pkg/server/store"
 
 	"github.com/gabemarshall/pty"
 	"github.com/gorilla/websocket"

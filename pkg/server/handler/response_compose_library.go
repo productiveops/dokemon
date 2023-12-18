@@ -1,6 +1,6 @@
 package handler
 
-import "dokemon/pkg/server/model"
+import "github.com/productiveops/dokemon/pkg/server/model"
 
 type composeLibraryItemHead struct {
 	ProjectName string `json:"projectName"`

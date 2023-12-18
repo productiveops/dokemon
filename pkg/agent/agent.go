@@ -1,14 +1,15 @@
 package agent
 
 import (
-	"dokemon/pkg/common"
-	"dokemon/pkg/messages"
 	"fmt"
 	"os"
 	"os/signal"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/productiveops/dokemon/pkg/common"
+	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
 	"github.com/rs/zerolog"
