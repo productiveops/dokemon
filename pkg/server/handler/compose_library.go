@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Common
+
 func (h *Handler) GetComposeProjectList(c echo.Context) error {
 	p, err := strconv.Atoi(c.QueryParam("p"))
 	if err != nil {
@@ -62,6 +64,8 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 	return ok(c, newPageResponse[composeLibraryItemHead](newComposeLibraryItemHeadList(rows), uint(p), uint(s), uint(totalRows)))
 }
 
+// File System
+
 func (h *Handler) CreateFileSystemComposeProject(c echo.Context) error {
 	m := model.FileSystemComposeLibraryItem{}
 	r := &fileSystemComposeProjectCreateRequest{}
@@ -110,8 +114,10 @@ func (h *Handler) GetFileSystemComposeProject(c echo.Context) error {
 		return notFound(c, "ComposeProject")
 	}
 
-	return ok(c, newComposeLibraryItem(m))
+	return ok(c, newFileSystemComposeLibraryItem(m))
 }
+
+// GitHub
 
 func (h *Handler) CreateGitHubComposeProject(c echo.Context) error {
 	m := model.ComposeLibraryItem{}
@@ -120,9 +126,72 @@ func (h *Handler) CreateGitHubComposeProject(c echo.Context) error {
 		return unprocessableEntity(c, err)
 	}
 
+	isUnique, err := h.composeLibraryStore.IsUniqueName(r.ProjectName)
+	if err != nil {
+		panic(err)
+	}
+
+	if !isUnique {
+		return unprocessableEntity(c, duplicateNameError())
+	}
+
 	if err := h.composeLibraryStore.Create(&m); err != nil {
 		panic(err)
 	}
 
 	return created(c, m.Id)
+}
+
+func (h *Handler) UpdateGitHubComposeProject(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return unprocessableEntity(c, routeIntExpectedError("id"))
+	}
+	
+	m, err := h.composeLibraryStore.GetById(uint(id))
+	if err != nil {
+		panic(err)
+	}
+	
+	if m == nil {
+		return resourceNotFound(c, "ComposeLibraryItem")
+	}	
+
+	r := &githubComposeProjectUpdateRequest{Id: uint(id)}
+	if err := r.bind(c, m); err != nil {
+		return unprocessableEntity(c, err)
+	}
+
+	isUnique, err := h.composeLibraryStore.IsUniqueNameExcludeItself(r.ProjectName, r.Id)
+	if err != nil {
+		panic(err)
+	}
+
+	if !isUnique {
+		return unprocessableEntity(c, duplicateNameError())
+	}
+
+	if err := h.composeLibraryStore.Update(m); err != nil {
+		panic(err)
+	}
+
+	return noContent(c)
+}
+
+func (h *Handler) GetGitHubComposeProjectById(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return unprocessableEntity(c, routeIntExpectedError("id"))
+	}
+
+	m, err := h.composeLibraryStore.GetById(uint(id))
+	if err != nil {
+		panic(err)
+	}
+
+	if m == nil {
+		return resourceNotFound(c, "ComposeLibraryItem")
+	}
+
+	return ok(c, newGitHubComposeLibraryItem(m))
 }

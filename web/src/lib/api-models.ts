@@ -95,9 +95,16 @@ export interface IComposeLibraryItemHead {
   type: string
 }
 
-export interface ILocalComposeLibraryItem {
+export interface IFileSystemComposeLibraryItem {
   projectName: string
   definition: string
+}
+
+export interface IGitHubComposeLibraryItem {
+  id: number
+  credentialId: number
+  projectName: string
+  url: string
 }
 
 export interface INodeComposeItemHead {

@@ -74,3 +74,28 @@ func (r *githubComposeProjectCreateRequest) bind(c echo.Context, m *model.Compos
 
 	return nil
 }
+
+type githubComposeProjectUpdateRequest struct {
+	Id        		uint     `json:"id" validate:"required"`
+	ProjectName 	string 	`json:"projectName" validate:"required,max=100"`
+	CredentialId  	*uint 	`json:"credentialId"`
+	Url 			string 	`json:"url" validate:"required,max=255"`
+}
+
+func (r *githubComposeProjectUpdateRequest) bind(c echo.Context, m *model.ComposeLibraryItem) error {
+	if err := c.Bind(r); err != nil {
+		return err
+	}
+
+	if err := c.Validate(r); err != nil {
+		return err
+	}
+
+	m.Id = r.Id
+	m.ProjectName = r.ProjectName
+	m.CredentialId = r.CredentialId
+	m.Url = r.Url
+	m.Type = "github"
+
+	return nil
+}

@@ -1,5 +1,5 @@
 import apiBaseUrl from "@/lib/api-base-url"
-import { ILocalComposeLibraryItem } from "@/lib/api-models"
+import { IFileSystemComposeLibraryItem } from "@/lib/api-models"
 import useRequest from "@/lib/useRequest"
 
 export default function useFileSystemComposeLibraryItem(
@@ -8,7 +8,7 @@ export default function useFileSystemComposeLibraryItem(
   const url = `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`
 
   const { data, error, isLoading, mutate } =
-    useRequest<ILocalComposeLibraryItem>(
+    useRequest<IFileSystemComposeLibraryItem>(
       {
         url,
       },

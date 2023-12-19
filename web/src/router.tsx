@@ -22,8 +22,9 @@ import Nodes from "./app/nodes/nodes"
 import NodeDetails from "./app/nodes/node-details"
 import Environments from "./app/environments/environments"
 import Variables from "./app/variables/variables"
-import CreateComposeProjectFromGitHub from "./app/compose-library/create-compose-project-from-github"
+import CreateGitHubComposeProject from "./app/compose-library/create-github-compose-project"
 import Credentials from "./app/credentials/credentials"
+import EditGitHubComposeProject from "./app/compose-library/edit-github-compose-project"
 
 const router = createBrowserRouter([
   {
@@ -93,11 +94,15 @@ const router = createBrowserRouter([
       },
       {
         path: "composelibrary/github/create",
-        element: <CreateComposeProjectFromGitHub />,
+        element: <CreateGitHubComposeProject />,
       },
       {
         path: "composelibrary/filesystem/:composeProjectName/edit",
         element: <EditComposeProject />,
+      },
+      {
+        path: "composelibrary/github/:composeProjectId/edit",
+        element: <EditGitHubComposeProject />,
       },
       {
         path: "environments",

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -6,7 +6,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb"
 import apiBaseUrl from "@/lib/api-base-url"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainArea from "@/components/widgets/main-area"
@@ -49,13 +49,17 @@ import {
 } from "@/components/ui/command"
 import useCredentials from "@/hooks/useCredentials"
 import AddGitHubPATDialog from "../credentials/dialogs/add-github-pat-dialog"
+import useGitHubComposeLibraryItem from "@/hooks/useGitHubComposeLibraryItem"
 
-export default function CreateComposeProjectFromGitHub() {
+export default function EditGitHubComposeProject() {
+  const { composeProjectId } = useParams()
+  const { gitHubComposeLibraryItem } = useGitHubComposeLibraryItem(
+    composeProjectId!
+  )
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const { credentials } = useCredentials()
   const [credentialsComboOpen, setCredentialsComboOpen] = useState(false)
-  const definitionDefaultValue = ``
   const { theme } = useTheme()
 
   const formSchema = z.object({
@@ -66,7 +70,6 @@ export default function CreateComposeProjectFromGitHub() {
       .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE),
     url: z.string().url(),
     credentialId: z.number().nullable(),
-    definition: z.string().optional(),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
@@ -74,35 +77,44 @@ export default function CreateComposeProjectFromGitHub() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: useMemo(() => {
-      return { projectName: "", url: "", credentialId: 0, definition: "" }
+      return { projectName: "", url: "", credentialId: 0 }
     }, []),
   })
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
-    data.definition = editorRef.current?.getValue()
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/composelibrary/github`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/composelibrary/github/${composeProjectId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
       const r = await response.json()
       toast({
         variant: "destructive",
-        title: "Error creating project",
+        title: "Error saving project",
         description: r.errors?.body,
       })
     } else {
-      const r = await response.json()
       toast({
         title: "Success!",
-        description: "Project has been created.",
+        description: "Project has been saved.",
       })
-      navigate(`/composelibrary/github/${r.id}/edit`)
     }
     setIsSaving(false)
   }
+
+  useEffect(() => {
+    form.reset({
+      credentialId: gitHubComposeLibraryItem?.credentialId,
+      projectName: gitHubComposeLibraryItem?.projectName,
+      url: gitHubComposeLibraryItem?.url,
+    })
+    handleLoadFileContent()
+  }, [gitHubComposeLibraryItem])
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
 
@@ -110,13 +122,23 @@ export default function CreateComposeProjectFromGitHub() {
     editorRef.current = editor
   }
 
-  const handleLoadFileContent = async () => {
+  const handleLoadFileContent = async (
+    e?: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    if (e) e.preventDefault()
+
+    const url = form.getValues("url")
+    const credentialId = form.getValues("credentialId")
+    if (!url) {
+      return
+    }
+
     const response = await fetch(`${apiBaseUrl()}/github/filecontent/load`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        credentialId: form.getValues("credentialId"),
-        url: form.getValues("url"),
+        credentialId: credentialId,
+        url: url,
       }),
     })
     if (!response.ok) {
@@ -126,6 +148,7 @@ export default function CreateComposeProjectFromGitHub() {
         title: "Failed",
         description: data.errors?.body,
       })
+      editorRef.current?.setValue("# Error while loading content")
     } else {
       const data: { content: string } = await response.json()
       editorRef.current?.setValue(data.content)
@@ -149,7 +172,11 @@ export default function CreateComposeProjectFromGitHub() {
         <Breadcrumb>
           <BreadcrumbLink to="/composelibrary">Compose Library</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>Add from GitHub</BreadcrumbCurrent>
+          <BreadcrumbCurrent>
+            {gitHubComposeLibraryItem?.projectName}
+          </BreadcrumbCurrent>
+          <BreadcrumbSeparator />
+          <BreadcrumbCurrent>Edit</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
@@ -301,7 +328,7 @@ export default function CreateComposeProjectFromGitHub() {
                         variant={"default"}
                         onClick={handleLoadFileContent}
                       >
-                        Load File Content
+                        Refresh File Content
                       </Button>
                     </div>
                     <div>
@@ -312,7 +339,7 @@ export default function CreateComposeProjectFromGitHub() {
                         theme={theme}
                         height="50vh"
                         defaultLanguage="yaml"
-                        defaultValue={definitionDefaultValue}
+                        defaultValue={""}
                         options={{
                           minimap: { enabled: false },
                           readOnly: true,
