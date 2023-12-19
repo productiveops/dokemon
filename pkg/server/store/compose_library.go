@@ -2,6 +2,7 @@ package store
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/productiveops/dokemon/pkg/server/model"
 
@@ -39,6 +40,19 @@ func (s *SqlComposeLibraryStore) GetById(id uint) (*model.ComposeLibraryItem, er
 	return &m, nil
 }
 
+func (s *SqlComposeLibraryStore) GetByName(projectName string) (*model.ComposeLibraryItem, error) {
+	var m model.ComposeLibraryItem
+
+	if err := s.db.Where("project_name = ? COLLATE NOCASE", projectName).First(&m).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		} else {
+			return nil, err
+		}
+	}
+	return &m, nil
+}
+
 func (s *SqlComposeLibraryStore) Exists(id uint) (bool, error) {
 	var count int64
 
@@ -50,6 +64,21 @@ func (s *SqlComposeLibraryStore) Exists(id uint) (bool, error) {
 }
 
 func (s *SqlComposeLibraryStore) DeleteById(id uint) error {
+	m, err := s.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	var count int64
+	err = s.db.Model(&model.NodeComposeProject{}).Where("library_project_name = ?", m.ProjectName).Count(&count).Error
+	if err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return errors.New(fmt.Sprintf("Definition is in use by %d projects and cannot be deleted", count))
+	}
+
 	if err := s.db.Delete(&model.ComposeLibraryItem{}, id).Error; err != nil {
 		return err
 	}

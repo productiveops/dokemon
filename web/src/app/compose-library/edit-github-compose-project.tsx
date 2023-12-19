@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -50,13 +50,13 @@ import {
 import useCredentials from "@/hooks/useCredentials"
 import AddGitHubPATDialog from "../credentials/dialogs/add-github-pat-dialog"
 import useGitHubComposeLibraryItem from "@/hooks/useGitHubComposeLibraryItem"
+import DeleteGitHubComposeDialog from "./dialogs/delete-github-compose-dialog"
 
 export default function EditGitHubComposeProject() {
   const { composeProjectId } = useParams()
   const { gitHubComposeLibraryItem } = useGitHubComposeLibraryItem(
     composeProjectId!
   )
-  const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const { credentials } = useCredentials()
   const [credentialsComboOpen, setCredentialsComboOpen] = useState(false)
@@ -187,13 +187,7 @@ export default function EditGitHubComposeProject() {
         >
           Save
         </Button>
-        <Button
-          variant="secondary"
-          className="w-24"
-          onClick={() => navigate("/composelibrary")}
-        >
-          Cancel
-        </Button>
+        <DeleteGitHubComposeDialog />
       </div>
       <MainContent>
         <MainContainer>

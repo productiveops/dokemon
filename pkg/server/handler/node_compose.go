@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
 	"github.com/productiveops/dokemon/pkg/dockerapi"
 	"github.com/productiveops/dokemon/pkg/messages"
 	"github.com/productiveops/dokemon/pkg/server/model"
@@ -168,6 +169,44 @@ func (h *Handler) IsUniqueNodeComposeProjectName(c echo.Context) error {
 	return ok(c, newUniqueResponse(unique))
 }
 
+func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (string, error) {
+	definition := ""
+	if ncp.LibraryProjectId == nil {
+		clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
+		if err != nil {
+			return "", errors.New("Library Project not found")
+		}	
+		definition = clp.Definition
+	} else {
+		gclp, err := h.composeLibraryStore.GetById(*ncp.LibraryProjectId)
+		if err != nil {
+			return "", errors.New("Library Project not found")
+		}
+
+		decryptedSecret := ""
+		if gclp.CredentialId != nil {
+			credential, err := h.credentialStore.GetById(*gclp.CredentialId)
+			if err != nil {
+				return "", errors.New("Credentials not found")
+			}
+			
+			decryptedSecret, err = ske.Decrypt(credential.Secret)
+			if err != nil {
+				panic(err)
+			}
+		}
+
+		content, err := getGitHubFileContent(gclp.Url, decryptedSecret)
+		if err != nil {
+			return "", errors.New("Error while retrieving file content from GitHub")
+		}
+		
+		definition = content
+	}
+
+	return definition, nil
+}
+
 func (h *Handler) GetNodeComposePull(c echo.Context) error {
 	nodeId, err := strconv.Atoi(c.Param("nodeId"))
 	if err != nil {
@@ -179,21 +218,14 @@ func (h *Handler) GetNodeComposePull(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("id should be an integer"))
 	}
 
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
-		return err
-	}
-	defer ws.Close()
-
 	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
 	if err != nil {
 		return unprocessableEntity(c, errors.New("Project not found"))
 	}
 
-	clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
+	definition, err := h.getComposeProjectDefinition(ncp)
 	if err != nil {
-		return unprocessableEntity(c, errors.New("Library Project not found"))
+		return unprocessableEntity(c, err)
 	}
 
 	environmentId := ncp.EnvironmentId
@@ -214,7 +246,14 @@ func (h *Handler) GetNodeComposePull(c echo.Context) error {
 		}
 	}
 
-	req := dockerapi.DockerComposePull{ProjectName: ncp.ProjectName, Definition: clp.Definition, Variables: variables}
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
+		return err
+	}
+	defer ws.Close()
+
+	req := dockerapi.DockerComposePull{ProjectName: ncp.ProjectName, Definition: definition, Variables: variables}
 	if nodeId == 1 {
 		err := dockerapi.ComposePull(&req, ws)
 		if err != nil {
@@ -240,22 +279,15 @@ func (h *Handler) GetNodeComposeUp(c echo.Context) error {
 	if err != nil {
 		return unprocessableEntity(c, errors.New("id should be an integer"))
 	}
-
-	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
-		return err
-	}
-	defer ws.Close()
-
+	
 	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
 	if err != nil {
 		return unprocessableEntity(c, errors.New("Project not found"))
 	}
 
-	clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
+	definition, err := h.getComposeProjectDefinition(ncp)
 	if err != nil {
-		return unprocessableEntity(c, errors.New("Library Project not found"))
+		return unprocessableEntity(c, err)
 	}
 
 	environmentId := ncp.EnvironmentId
@@ -276,7 +308,14 @@ func (h *Handler) GetNodeComposeUp(c echo.Context) error {
 		}
 	}
 
-	req := dockerapi.DockerComposeUp{ProjectName: ncp.ProjectName, Definition: clp.Definition, Variables: variables}
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
+		return err
+	}
+	defer ws.Close()
+
+	req := dockerapi.DockerComposeUp{ProjectName: ncp.ProjectName, Definition: definition, Variables: variables}
 	if nodeId == 1 {
 		err := dockerapi.ComposeUp(&req, ws)
 		if err != nil {
@@ -303,17 +342,17 @@ func (h *Handler) GetNodeComposeDown(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("id should be an integer"))
 	}
 
+	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
+	if err != nil {
+		return unprocessableEntity(c, errors.New("Project not found"))
+	}
+
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
 		return err
 	}
 	defer ws.Close()
-
-	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
-	if err != nil {
-		return unprocessableEntity(c, errors.New("Project not found"))
-	}
 
 	req := dockerapi.DockerComposeDown{ProjectName: ncp.ProjectName}
 	if nodeId == 1 {

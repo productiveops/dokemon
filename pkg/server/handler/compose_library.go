@@ -178,6 +178,28 @@ func (h *Handler) UpdateGitHubComposeProject(c echo.Context) error {
 	return noContent(c)
 }
 
+func (h *Handler) DeleteGitHubComposeProject(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return unprocessableEntity(c, routeIntExpectedError("id"))
+	}
+
+	exists, err := h.composeLibraryStore.Exists(uint(id))
+	if err != nil {
+		panic(err)
+	}
+
+	if !exists {
+		return resourceNotFound(c, "ComposeLibraryItem")
+	}
+
+	if err := h.composeLibraryStore.DeleteById(uint(id)); err != nil {
+		return unprocessableEntity(c, err)
+	}
+
+	return noContent(c)
+}
+
 func (h *Handler) GetGitHubComposeProjectById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

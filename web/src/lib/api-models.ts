@@ -90,7 +90,7 @@ export interface INetwork {
 }
 
 export interface IComposeLibraryItemHead {
-  id?: string
+  id?: number
   projectName: string
   type: string
 }
@@ -110,6 +110,7 @@ export interface IGitHubComposeLibraryItem {
 export interface INodeComposeItemHead {
   id: number
   projectName: string
+  libraryProjectId?: number
   libraryProjectName: string
   status: string
 }

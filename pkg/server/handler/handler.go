@@ -141,7 +141,7 @@ func (h *Handler) Register(e *echo.Echo) {
 	githubcomposelibrary := composelibrary.Group("/github")
 	githubcomposelibrary.POST("", h.CreateGitHubComposeProject)
 	githubcomposelibrary.PUT("/:id", h.UpdateGitHubComposeProject)
-	//githubcomposelibrary.DELETE("/:id", h.DeleteGitHubComposeProject)
+	githubcomposelibrary.DELETE("/:id", h.DeleteGitHubComposeProject)
 	githubcomposelibrary.GET("/:id", h.GetGitHubComposeProjectById)
 
 	node_compose := nodes.Group("/:nodeId/compose")

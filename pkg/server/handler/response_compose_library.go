@@ -9,11 +9,18 @@ type composeLibraryItemHead struct {
 }
 
 func newComposeLibraryItemHead(m *model.ComposeLibraryItem) composeLibraryItemHead {
-	return composeLibraryItemHead{
-		Id: &m.Id,
+	var id uint = m.Id
+	ret := composeLibraryItemHead{
+		Id: &id,
 		ProjectName: m.ProjectName,
 		Type: m.Type,
 	}
+
+	if m.Id == 0 {
+		ret.Id = nil
+	}
+	
+	return ret
 }
 
 func newComposeLibraryItemHeadList(rows []model.ComposeLibraryItem) []composeLibraryItemHead {

@@ -38,32 +38,53 @@ func getGitHubUrlParts(url string) (*gitHubUrlParts, error) {
 	return ret, nil
 }
 
+func getGitHubFileContent(url string, token string) (string, error) {
+	var client *github.Client
+
+	p, err := getGitHubUrlParts(url)
+	if err != nil {
+		return "", err
+	}
+
+	if token == "" {
+		client = github.NewClient(nil)
+	} else {
+		client = github.NewClient(nil).WithAuthToken(token)
+	}
+
+	content, _, _, err := client.Repositories.GetContents(context.Background(), p.Owner, p.Repo, p.Path, &github.RepositoryContentGetOptions{Ref: p.Ref})
+	if err != nil {
+		return "", err
+	}
+
+	text, err := content.GetContent()
+	if err != nil {
+		return "", err
+	}
+
+	return text, nil
+}
+
 func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 	r := &gitHubfileContentRetrieveRequest{}
 	if err := r.bind(c); err != nil {
 		return unprocessableEntity(c, err)
 	}
 
-	client := github.NewClient(nil)
+	decryptedSecret := ""
 	if r.CredentialId != nil {
 		credential, err := h.credentialStore.GetById(*r.CredentialId)
 		if err != nil {
 			return unprocessableEntity(c, errors.New("Credentials not found"))
 		}
 		
-		decryptedSecret, err := ske.Decrypt(credential.Secret)
+		decryptedSecret, err = ske.Decrypt(credential.Secret)
 		if err != nil {
 			panic(err)
 		}
-		client = github.NewClient(nil).WithAuthToken(decryptedSecret)
 	}
 
-	p, err := getGitHubUrlParts(r.Url)
-	if err != nil {
-		return unprocessableEntity(c, err)
-	}
-
-	content, _, _, err := client.Repositories.GetContents(context.Background(), p.Owner, p.Repo, p.Path, &github.RepositoryContentGetOptions{Ref: p.Ref})
+	content, err := getGitHubFileContent(r.Url, decryptedSecret)
 	if err != nil {
 		if r.CredentialId != nil {
 			log.Error().Err(err).Str("url", r.Url).Uint("credentialId", *r.CredentialId).Msg("Error while retriveing file content from GitHub")
@@ -73,10 +94,5 @@ func (h *Handler) RetrieveGitHubFileContent(c echo.Context) error {
 		return unprocessableEntity(c, errors.New("Error while retrieving file content from provided GitHub URL"))
 	}
 
-	text, err := content.GetContent()
-	if err != nil {
-		panic(err)
-	}
-
-	return ok(c, newGitHubfileContentResponse(&text))
+	return ok(c, newGitHubfileContentResponse(&content))
 }
