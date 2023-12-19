@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -6,7 +6,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb"
 import apiBaseUrl from "@/lib/api-base-url"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainArea from "@/components/widgets/main-area"
@@ -29,25 +29,40 @@ import {
   Section,
   SectionBody,
 } from "@/components/widgets/main-container"
-import Editor, { loader, OnMount } from "@monaco-editor/react"
+import Editor, { OnMount, loader } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
+import DeleteComposeDialog from "./dialogs/delete-compose-dialog"
+import useFileSystemComposeLibraryItem from "@/hooks/useFileSystemComposeLibraryItem"
+import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 
-export default function CreateComposeProject() {
-  const navigate = useNavigate()
+export default function EditFileSystemComposeProject() {
+  const { composeProjectName } = useParams()
+  const {
+    fileSystemComposeLibraryItem: composeLibraryItem,
+    mutateFileSystemComposeLibraryItem,
+  } = useFileSystemComposeLibraryItem(composeProjectName!)
+  const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
   const [isSaving, setIsSaving] = useState(false)
-  const definitionDefaultValue = `# Add compose definition here
-`
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
+  const [editorMounted, setEditorMounted] = useState(1)
+  const navigate = useNavigate()
   const { theme } = useTheme()
 
   const formSchema = z.object({
-    projectName: z
+    newProjectName: z
       .string()
       .min(1, "Name is required")
       .max(20)
-      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE),
+      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
+      .refine(async (value) => {
+        const res = await fetch(
+          `${apiBaseUrl()}/composelibrary/uniquenameexcludeitself?newvalue=${value}&currentvalue=${composeLibraryItem?.projectName}`
+        )
+        return (await res.json()).unique
+      }, "Another project with this name already exists"),
     definition: z.string().optional(),
   })
 
@@ -56,39 +71,61 @@ export default function CreateComposeProject() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: useMemo(() => {
-      return { projectName: "", definition: "" }
-    }, []),
+      if (!composeLibraryItem || !composeLibraryItem.projectName)
+        return { newProjectName: "", definition: "" }
+
+      editorRef.current?.setValue(composeLibraryItem?.definition!)
+
+      return {
+        newProjectName: composeLibraryItem.projectName,
+        definition: composeLibraryItem.definition,
+      }
+    }, [composeLibraryItem]),
   })
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     data.definition = editorRef.current?.getValue()
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/composelibrary`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
-      const r = await response.json()
       toast({
         variant: "destructive",
-        title: "Error creating project",
-        description: r.errors?.body,
+        title: "Something went wrong.",
+        description:
+          "There was a problem when saving the definition. Try again!",
       })
     } else {
+      mutateFileSystemComposeLibraryItem()
+      mutateComposeLibraryItemList()
       toast({
         title: "Success!",
-        description: "Project has been created.",
+        description: "Definition has been saved.",
       })
-      navigate(`/composelibrary/${data.projectName}/edit`)
+      navigate(`/composelibrary/filesystem/${data.newProjectName}/edit`)
     }
     setIsSaving(false)
   }
 
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
+  useEffect(() => {
+    form.reset({
+      newProjectName: composeLibraryItem?.projectName,
+      definition: composeLibraryItem?.definition,
+    })
+    if (composeLibraryItem?.definition && editorRef.current) {
+      editorRef.current.setValue(composeLibraryItem.definition)
+    }
+  }, [composeLibraryItem, editorMounted])
 
   const handleEditorDidMount: OnMount = (editor, _monaco) => {
     editorRef.current = editor
+    setEditorMounted(editorMounted + 1)
   }
 
   loader.init().then((monaco) => {
@@ -108,7 +145,9 @@ export default function CreateComposeProject() {
         <Breadcrumb>
           <BreadcrumbLink to="/composelibrary">Compose Library</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>Create</BreadcrumbCurrent>
+          <BreadcrumbCurrent>{composeProjectName}</BreadcrumbCurrent>
+          <BreadcrumbSeparator />
+          <BreadcrumbCurrent>Edit</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
@@ -119,13 +158,7 @@ export default function CreateComposeProject() {
         >
           Save
         </Button>
-        <Button
-          variant="secondary"
-          className="w-24"
-          onClick={() => navigate("/composelibrary")}
-        >
-          Cancel
-        </Button>
+        <DeleteComposeDialog />
       </div>
       <MainContent>
         <MainContainer>
@@ -137,12 +170,12 @@ export default function CreateComposeProject() {
                     <div className="max-w-2xl pb-4">
                       <FormField
                         control={form.control}
-                        name="projectName"
+                        name="newProjectName"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                              <Input {...field} autoFocus />
+                              <Input {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -155,7 +188,7 @@ export default function CreateComposeProject() {
                         theme={theme}
                         height="50vh"
                         defaultLanguage="yaml"
-                        defaultValue={definitionDefaultValue}
+                        defaultValue=""
                         options={{ minimap: { enabled: false } }}
                         onMount={handleEditorDidMount}
                       />

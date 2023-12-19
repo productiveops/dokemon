@@ -1,10 +1,11 @@
-import { Dispatch, SetStateAction, useState } from "react"
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -20,96 +21,99 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "@/components/ui/use-toast"
 import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   trimString,
 } from "@/lib/utils"
-import useEnvironments from "@/hooks/useEnvironments"
+import useCredentials from "@/hooks/useCredentials"
 import apiBaseUrl from "@/lib/api-base-url"
-import { IEnvironmentHead } from "@/lib/api-models"
+import { toast } from "@/components/ui/use-toast"
 
-export default function EditEnvironmentDialog({
-  openState,
-  setOpenState,
-  environmentHead,
+export default function AddGitHubPATDialog({
+  buttonCaption,
 }: {
-  openState: boolean
-  setOpenState: Dispatch<SetStateAction<boolean>>
-  environmentHead: IEnvironmentHead
+  buttonCaption: string
 }) {
+  const [open, setOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const { mutateEnvironments } = useEnvironments()
+  const { mutateCredentials } = useCredentials()
 
   const formSchema = z.object({
     name: z.preprocess(
       trimString,
       z
         .string()
-        .min(1, "Name is required")
+        .min(1, "Required")
         .max(20)
         .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
         .refine(async (value) => {
           const res = await fetch(
-            `${apiBaseUrl()}/environments/${
-              environmentHead.id
-            }/uniquename?value=${value}`
+            `${apiBaseUrl()}/credentials/uniquename?value=${value}`
           )
           return (await res.json()).unique
-        }, "Another environment with this name already exists")
+        }, "Another credential with this name already exists")
     ),
+    secret: z.string().min(1, "Required").max(200),
+    service: z.string().default("github"),
+    type: z.string().default("pat"),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: environmentHead,
+    defaultValues: {
+      name: "",
+      secret: "",
+      service: "github",
+      type: "pat",
+    },
   })
 
   const handleCloseForm = () => {
-    setOpenState(false)
+    setOpen(false)
     form.reset()
   }
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
-    const response = await fetch(
-      `${apiBaseUrl()}/environments/${environmentHead.id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      }
-    )
+    const response = await fetch(`${apiBaseUrl()}/credentials`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
     if (!response.ok) {
       handleCloseForm()
       toast({
         variant: "destructive",
         title: "Something went wrong.",
-        description: "There was a problem saving the environment. Try again!",
+        description:
+          "There was a problem when creating new credential. Try again!",
       })
     } else {
-      mutateEnvironments()
+      mutateCredentials()
       handleCloseForm()
       toast({
         title: "Success!",
-        description: "Environment has been saved.",
+        description: "New credential has been added.",
       })
     }
     setIsSaving(false)
   }
 
   return (
-    <Dialog open={openState} onOpenChange={setOpenState}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>{buttonCaption}</Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset className={cn("group")} disabled={isSaving}>
               <DialogHeader>
-                <DialogTitle>Edit Environment</DialogTitle>
+                <DialogTitle>Add GitHub Personal Access Token</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4 group-disabled:opacity-50">
                 <FormField
@@ -117,9 +121,22 @@ export default function EditEnvironmentDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Credential Name</FormLabel>
                       <FormControl>
-                        <Input {...field} autoFocus />
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="secret"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GitHub Personal Access Token</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

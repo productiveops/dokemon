@@ -10,6 +10,23 @@ export interface ISetting {
   value: string
 }
 
+export interface ICredentialHead {
+  id: number
+  name: string
+  service?: string
+  type: string
+  userName?: string
+}
+
+export interface ICredential {
+  id: number
+  name: string
+  service?: string
+  type: string
+  userName?: string
+  secret: string
+}
+
 export interface IEnvironmentHead {
   id: number
   name: string
@@ -73,17 +90,27 @@ export interface INetwork {
 }
 
 export interface IComposeLibraryItemHead {
+  id?: number
   projectName: string
+  type: string
 }
 
-export interface IComposeLibraryItem {
+export interface IFileSystemComposeLibraryItem {
   projectName: string
   definition: string
+}
+
+export interface IGitHubComposeLibraryItem {
+  id: number
+  credentialId: number
+  projectName: string
+  url: string
 }
 
 export interface INodeComposeItemHead {
   id: number
   projectName: string
+  libraryProjectId?: number
   libraryProjectName: string
   status: string
 }

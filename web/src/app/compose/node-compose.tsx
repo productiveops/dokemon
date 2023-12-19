@@ -79,9 +79,15 @@ export default function NodeCompose() {
                       className="p-1 text-amber-600 hover:underline"
                       onClick={(e) => {
                         e.stopPropagation()
-                        window.open(
-                          `${location.protocol}//${location.host}/composelibrary/${item.libraryProjectName}/edit`
-                        )
+                        if (item.libraryProjectId) {
+                          window.open(
+                            `${location.protocol}//${location.host}/composelibrary/github/${item.libraryProjectId}/edit`
+                          )
+                        } else {
+                          window.open(
+                            `${location.protocol}//${location.host}/composelibrary/filesystem/${item.libraryProjectName}/edit`
+                          )
+                        }
                       }}
                     >
                       {item.libraryProjectName}

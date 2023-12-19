@@ -13,6 +13,8 @@ import (
 
 type Handler struct {
 	composeProjectsPath string
+	composeLibraryStore store.ComposeLibraryStore
+	credentialStore store.CredentialStore
 	environmentStore store.EnvironmentStore
 	userStore store.UserStore
 	nodeStore store.NodeStore
@@ -20,7 +22,7 @@ type Handler struct {
 	settingStore store.SettingStore
 	variableStore store.VariableStore
 	variableValueStore store.VariableValueStore
-	composeLibraryStore store.ComposeLibraryStore
+	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore
 }
 
 var (
@@ -29,6 +31,8 @@ var (
 
 func NewHandler(
 	composeProjectsPath string,
+	composeLibraryStore store.ComposeLibraryStore,
+	credentialStore store.CredentialStore,
 	environmentStore store.EnvironmentStore,
 	userStore store.UserStore,
 	nodeStore store.NodeStore,
@@ -36,10 +40,12 @@ func NewHandler(
 	settingStore store.SettingStore,
 	variableStore store.VariableStore,
 	variableValueStore store.VariableValueStore,
-	composeLibraryStore store.ComposeLibraryStore,
+	fileSystemComposeLibraryStore store.FileSystemComposeLibraryStore,
 	) *Handler {
 		return &Handler{
 		composeProjectsPath: composeProjectsPath,
+		composeLibraryStore: composeLibraryStore,
+		credentialStore: credentialStore,
 		environmentStore: environmentStore,
 		userStore: userStore,
 		nodeStore: nodeStore,
@@ -47,7 +53,7 @@ func NewHandler(
 		settingStore: settingStore,
 		variableStore: variableStore,
 		variableValueStore: variableValueStore,
-		composeLibraryStore: composeLibraryStore,
+		fileSystemComposeLibraryStore: fileSystemComposeLibraryStore,
 		}
 }
 
@@ -60,9 +66,22 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	v1 := e.Group("/api/v1")
 
+	github := v1.Group("/github/filecontent/load")
+	github.POST("", h.RetrieveGitHubFileContent)
+
 	settings := v1.Group("/settings")
 	settings.GET("/:id", h.GetSettingById)
 	settings.PUT("/:id", h.UpdateSetting)
+
+	credentials := v1.Group("/credentials")
+	credentials.POST("", h.CreateCredential)
+	credentials.PUT("/:id", h.UpdateCredentialDetails)
+	credentials.PUT("/:id/secret", h.UpdateCredentialSecret)
+	credentials.GET("", h.GetCredentialList)
+	credentials.GET("/:id", h.GetCredentialById)
+	credentials.DELETE("/:id", h.DeleteCredentialById)
+	credentials.GET("/uniquename", h.IsUniqueCredentialName)
+	credentials.GET("/:id/uniquename", h.IsUniqueCredentialNameExcludeItself)
 
 	environments := v1.Group("/environments")
 	environments.POST("", h.CreateEnvironment)
@@ -112,10 +131,20 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	composelibrary := v1.Group("/composelibrary")
 	composelibrary.GET("", h.GetComposeProjectList)
-	composelibrary.POST("", h.CreateComposeProject)
-	composelibrary.PUT("/:projectName", h.UpdateComposeProject)
-	composelibrary.DELETE("/:projectName", h.DeleteComposeProject)
-	composelibrary.GET("/:projectName", h.GetComposeProject)
+	composelibrary.GET("/uniquename", h.IsUniqueComposeProjectName)
+	composelibrary.GET("/uniquenameexcludeitself", h.IsUniqueComposeProjectNameExcludeItself)
+
+	filesystemcomposelibrary := composelibrary.Group("/filesystem")
+	filesystemcomposelibrary.POST("", h.CreateFileSystemComposeProject)
+	filesystemcomposelibrary.PUT("/:projectName", h.UpdateFileSystemComposeProject)
+	filesystemcomposelibrary.DELETE("/:projectName", h.DeleteFileSystemComposeProject)
+	filesystemcomposelibrary.GET("/:projectName", h.GetFileSystemComposeProject)
+
+	githubcomposelibrary := composelibrary.Group("/github")
+	githubcomposelibrary.POST("", h.CreateGitHubComposeProject)
+	githubcomposelibrary.PUT("/:id", h.UpdateGitHubComposeProject)
+	githubcomposelibrary.DELETE("/:id", h.DeleteGitHubComposeProject)
+	githubcomposelibrary.GET("/:id", h.GetGitHubComposeProjectById)
 
 	node_compose := nodes.Group("/:nodeId/compose")
 	node_compose.GET("", h.GetNodeComposeProjectList)

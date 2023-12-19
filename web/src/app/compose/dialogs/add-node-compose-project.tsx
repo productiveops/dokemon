@@ -52,6 +52,7 @@ export default function AddNodeComposeProjectDialog() {
   const [projectNameModified, setProjectNameModified] = useState(false)
 
   const formSchema = z.object({
+    libraryProjectId: z.number().nullable(),
     libraryProjectName: z.string().min(1, "Please select library project"),
     projectName: z
       .string()
@@ -71,6 +72,7 @@ export default function AddNodeComposeProjectDialog() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      libraryProjectId: null,
       libraryProjectName: "",
       projectName: "",
     },
@@ -137,7 +139,7 @@ export default function AddNodeComposeProjectDialog() {
                                 variant="outline"
                                 role="combobox"
                                 className={cn(
-                                  "inline-flex w-auto justify-between font-normal text-slate-800",
+                                  "inline-flex w-auto justify-between font-normal text-slate-800 dark:text-slate-50",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -160,6 +162,10 @@ export default function AddNodeComposeProjectDialog() {
                                     value={item.projectName}
                                     key={item.projectName}
                                     onSelect={() => {
+                                      form.setValue(
+                                        "libraryProjectId",
+                                        item.id!
+                                      )
                                       form.setValue(
                                         "libraryProjectName",
                                         item.projectName

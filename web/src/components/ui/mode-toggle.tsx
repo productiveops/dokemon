@@ -6,8 +6,6 @@ import { useTheme } from "@/components/ui/theme-provider"
 export function ModeToggle() {
   const { setTheme, theme } = useTheme()
 
-  console.log(theme)
-
   return (
     <Button
       variant={"outline"}

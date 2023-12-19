@@ -32,9 +32,15 @@ export default function ComposeLibraryItems() {
         <TopBarActions>
           <Button
             className="w-24"
-            onClick={() => navigate("/composelibrary/create")}
+            onClick={() => navigate("/composelibrary/filesystem/create")}
           >
             Create
+          </Button>
+          <Button
+            className="w-36"
+            onClick={() => navigate("/composelibrary/github/create")}
+          >
+            Add from GitHub
           </Button>
         </TopBarActions>
       </TopBar>
@@ -42,7 +48,8 @@ export default function ComposeLibraryItems() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Name</TableHead>
+              <TableHead scope="col">Library Project Name</TableHead>
+              <TableHead scope="col">Type</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -59,13 +66,21 @@ export default function ComposeLibraryItems() {
                   key={item.projectName}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
-                    let navigateTo = "edit"
-                    navigate(
-                      `/composelibrary/${item.projectName}/${navigateTo}`
-                    )
+                    if (item.type === "filesystem") {
+                      navigate(
+                        `/composelibrary/${item.type}/${item.projectName}/edit`
+                      )
+                    }
+                    if (item.type === "github") {
+                      navigate(`/composelibrary/${item.type}/${item.id}/edit`)
+                    }
                   }}
                 >
                   <TableCell>{item.projectName}</TableCell>
+                  <TableCell>
+                    {item.type === "filesystem" ? "File System" : ""}
+                    {item.type === "github" ? "GitHub" : ""}
+                  </TableCell>
                 </TableRow>
               ))}
           </TableBody>

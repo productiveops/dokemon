@@ -56,12 +56,38 @@ type SettingStore interface {
 	Exists(id string) (bool, error)
 }
 
+type FileSystemComposeLibraryStore interface {
+	Create(m *model.FileSystemComposeLibraryItem) error
+	Update(m *model.FileSystemComposeLibraryItemUpdate) error
+	GetByName(projectName string) (*model.FileSystemComposeLibraryItem, error)
+	DeleteByName(projectName string) error
+	GetList() ([]model.FileSystemComposeLibraryItemHead, int64, error)
+	IsUniqueName(projectName string) (bool, error)
+	IsUniqueNameExcludeItself(newProjectName string, existingProjectName string) (bool, error)
+}
+
 type ComposeLibraryStore interface {
 	Create(m *model.ComposeLibraryItem) error
-	Update(m *model.ComposeLibraryItemUpdate) error
-	GetByName(projectName string) (*model.ComposeLibraryItem, error)
-	DeleteByName(projectName string) error
-	GetList(pageNo, pageSize uint) ([]model.ComposeLibraryItemHead, int64, error)
+	Update(m *model.ComposeLibraryItem) error
+	GetById(id uint) (*model.ComposeLibraryItem, error)
+	GetList() ([]model.ComposeLibraryItem, int64, error)
+	DeleteById(id uint) error
+	Exists(id uint) (bool, error)
+
+	IsUniqueName(name string) (bool, error)
+	IsUniqueNameExcludeItself(name string, id uint) (bool, error)
+}
+
+type CredentialStore interface {
+	Create(m *model.Credential) error
+	Update(m *model.Credential) error
+	GetById(id uint) (*model.Credential, error)
+	GetList(pageNo, pageSize uint) ([]model.Credential, int64, error)
+	DeleteById(id uint) error
+	Exists(id uint) (bool, error)
+
+	IsUniqueName(name string) (bool, error)
+	IsUniqueNameExcludeItself(name string, id uint) (bool, error)
 }
 
 type EnvironmentStore interface {

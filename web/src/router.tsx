@@ -15,13 +15,16 @@ import ComposeLibraryItems from "./app/compose-library/compose-library-items"
 import ComposeContainers from "./app/compose/compose/containers"
 import ComposeLogs from "./app/compose/compose/logs"
 import ComposeActions from "./app/compose/compose/actions"
-import CreateComposeProject from "./app/compose-library/create-compose-project"
-import EditComposeProject from "./app/compose-library/edit-compose-project"
+import CreateFileSystemComposeProject from "./app/compose-library/create-filesystem-compose-project"
+import EditFileSystemComposeProject from "./app/compose-library/edit-filesystem-compose-project"
 import NodeCompose from "./app/compose/node-compose"
 import Nodes from "./app/nodes/nodes"
 import NodeDetails from "./app/nodes/node-details"
 import Environments from "./app/environments/environments"
 import Variables from "./app/variables/variables"
+import CreateGitHubComposeProject from "./app/compose-library/create-github-compose-project"
+import Credentials from "./app/credentials/credentials"
+import EditGitHubComposeProject from "./app/compose-library/edit-github-compose-project"
 
 const router = createBrowserRouter([
   {
@@ -86,12 +89,20 @@ const router = createBrowserRouter([
         element: <ComposeLibraryItems />,
       },
       {
-        path: "composelibrary/create",
-        element: <CreateComposeProject />,
+        path: "composelibrary/filesystem/create",
+        element: <CreateFileSystemComposeProject />,
       },
       {
-        path: "composelibrary/:composeProjectName/edit",
-        element: <EditComposeProject />,
+        path: "composelibrary/github/create",
+        element: <CreateGitHubComposeProject />,
+      },
+      {
+        path: "composelibrary/filesystem/:composeProjectName/edit",
+        element: <EditFileSystemComposeProject />,
+      },
+      {
+        path: "composelibrary/github/:composeProjectId/edit",
+        element: <EditGitHubComposeProject />,
       },
       {
         path: "environments",
@@ -100,6 +111,10 @@ const router = createBrowserRouter([
       {
         path: "variables",
         element: <Variables />,
+      },
+      {
+        path: "credentials",
+        element: <Credentials />,
       },
       {
         path: "nodes/:nodeId/compose/:composeProjectId/actions",

@@ -10,6 +10,7 @@ import (
 type nodeComposeProjectItemHead struct {
 	Id                 uint `json:"id"`
 	ProjectName        string `json:"projectName"`
+	LibraryProjectId   *uint `json:"libraryProjectId"`
 	LibraryProjectName string `json:"libraryProjectName"`
 	Status             string `json:"status"`
 }
@@ -18,6 +19,7 @@ func newNodeComposeProjectItemHead(ncp *model.NodeComposeProject, dci *dockerapi
 	res := nodeComposeProjectItemHead{
 		Id: ncp.Id,
 		ProjectName: ncp.ProjectName,
+		LibraryProjectId: ncp.LibraryProjectId,
 		LibraryProjectName: ncp.LibraryProjectName,
 		Status: "",
 	}

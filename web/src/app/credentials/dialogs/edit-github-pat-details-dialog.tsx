@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -27,47 +27,55 @@ import {
   cn,
   trimString,
 } from "@/lib/utils"
-import useEnvironments from "@/hooks/useEnvironments"
+import useCredentials from "@/hooks/useCredentials"
 import apiBaseUrl from "@/lib/api-base-url"
-import { IEnvironmentHead } from "@/lib/api-models"
+import { ICredentialHead } from "@/lib/api-models"
+import useCredential from "@/hooks/useCredential"
 
-export default function EditEnvironmentDialog({
+export default function EditGithubPATDetailsDialog({
   openState,
   setOpenState,
-  environmentHead,
+  credentialHead,
 }: {
   openState: boolean
   setOpenState: Dispatch<SetStateAction<boolean>>
-  environmentHead: IEnvironmentHead
+  credentialHead: ICredentialHead
 }) {
   const [isSaving, setIsSaving] = useState(false)
-  const { mutateEnvironments } = useEnvironments()
+  const { mutateCredentials } = useCredentials()
+  const { credential, mutateCredential } = useCredential(credentialHead.id)
 
   const formSchema = z.object({
     name: z.preprocess(
       trimString,
       z
         .string()
-        .min(1, "Name is required")
+        .min(1, "Required")
         .max(20)
         .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
         .refine(async (value) => {
           const res = await fetch(
-            `${apiBaseUrl()}/environments/${
-              environmentHead.id
+            `${apiBaseUrl()}/credentials/${
+              credentialHead.id
             }/uniquename?value=${value}`
           )
           return (await res.json()).unique
-        }, "Another environment with this name already exists")
+        }, "Another credential with this name already exists")
     ),
+    service: z.string().default("github"),
+    type: z.string().default("pat"),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
 
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
-    defaultValues: environmentHead,
+    defaultValues: { name: "", service: "github", type: "pat" },
   })
+
+  useEffect(() => {
+    if (credential) form.reset(credential)
+  }, [credential])
 
   const handleCloseForm = () => {
     setOpenState(false)
@@ -77,7 +85,7 @@ export default function EditEnvironmentDialog({
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
     const response = await fetch(
-      `${apiBaseUrl()}/environments/${environmentHead.id}`,
+      `${apiBaseUrl()}/credentials/${credentialHead.id}`,
       {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -89,14 +97,15 @@ export default function EditEnvironmentDialog({
       toast({
         variant: "destructive",
         title: "Something went wrong.",
-        description: "There was a problem saving the environment. Try again!",
+        description: "There was a problem saving the credential. Try again!",
       })
     } else {
-      mutateEnvironments()
+      mutateCredential()
+      mutateCredentials()
       handleCloseForm()
       toast({
         title: "Success!",
-        description: "Environment has been saved.",
+        description: "Credential has been saved.",
       })
     }
     setIsSaving(false)
@@ -109,7 +118,7 @@ export default function EditEnvironmentDialog({
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset className={cn("group")} disabled={isSaving}>
               <DialogHeader>
-                <DialogTitle>Edit Environment</DialogTitle>
+                <DialogTitle>Edit GitHub Credential Details</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4 group-disabled:opacity-50">
                 <FormField
@@ -117,7 +126,7 @@ export default function EditEnvironmentDialog({
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>Credential Name</FormLabel>
                       <FormControl>
                         <Input {...field} autoFocus />
                       </FormControl>

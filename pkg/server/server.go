@@ -53,6 +53,8 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	}
 
 	db.AutoMigrate(
+		&model.ComposeLibraryItem{},
+		&model.Credential{},
 		&model.Environment{},
 		&model.Node{},
 		&model.NodeComposeProject{},
@@ -67,6 +69,8 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 
 	h := handler.NewHandler(
 		composeProjectsPath,
+		store.NewSqlComposeLibraryStore(db),
+		store.NewSqlCredentialStore(db),
 		store.NewSqlEnvironmentStore(db),
 		store.NewSqlUserStore(db),
 		store.NewSqlNodeStore(db),
@@ -74,7 +78,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 		store.NewSqlSettingStore(db),
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
-		store.NewFileSystemComposeLibraryStore(db, composeProjectsPath),
+		store.NewLocalFileSystemComposeLibraryStore(db, composeProjectsPath),
 		)
 
 	// Init encryption key

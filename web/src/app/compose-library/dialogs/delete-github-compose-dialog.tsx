@@ -14,9 +14,13 @@ import apiBaseUrl from "@/lib/api-base-url"
 import { useNavigate, useParams } from "react-router-dom"
 import { DialogTrigger } from "@radix-ui/react-dialog"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
+import useGitHubComposeLibraryItem from "@/hooks/useGitHubComposeLibraryItem"
 
-export default function DeleteComposeDialog() {
-  const { composeProjectName } = useParams()
+export default function DeleteGitHubComposeDialog() {
+  const { composeProjectId } = useParams()
+  const { gitHubComposeLibraryItem } = useGitHubComposeLibraryItem(
+    composeProjectId!
+  )
   const navigate = useNavigate()
 
   const [open, setOpen] = useState(false)
@@ -27,7 +31,7 @@ export default function DeleteComposeDialog() {
     setIsSaving(true)
 
     const response = await fetch(
-      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
+      `${apiBaseUrl()}/composelibrary/github/${composeProjectId}`,
       {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
@@ -65,7 +69,7 @@ export default function DeleteComposeDialog() {
           <DialogTitle>Delete Compose Project</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4 group-disabled:opacity-50">
-          <p>{`Are you sure you want to delete project '${composeProjectName}'?`}</p>
+          <p>{`Are you sure you want to delete project '${gitHubComposeLibraryItem?.projectName}'?`}</p>
         </div>
         <DialogFooter>
           <fieldset disabled={isSaving} className="group">

@@ -8,6 +8,7 @@ import (
 
 type nodeComposeProjectCreateRequest struct {
 	ProjectName      	string  `json:"projectName" validate:"required,max=50"`
+	LibraryProjectId	*uint	`json:"libraryProjectId"`
 	LibraryProjectName	string  `json:"libraryProjectName" validate:"required,max=50"`
 }
 
@@ -20,6 +21,7 @@ func (r *nodeComposeProjectCreateRequest) bind(c echo.Context, m *model.NodeComp
 		return err
 	}
 
+	m.LibraryProjectId = r.LibraryProjectId
 	m.ProjectName = r.ProjectName
 	m.LibraryProjectName = r.LibraryProjectName
 
