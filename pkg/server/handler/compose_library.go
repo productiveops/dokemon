@@ -94,9 +94,17 @@ func (h *Handler) isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(newValue
 		}
 	}
 
-	unique_local, err := h.fileSystemComposeLibraryStore.IsUniqueNameExcludeItself(newValue, currentValue)
-	if err != nil {
-		return false, err
+	unique_local := true
+	if currentValue != "" {
+		unique_local, err = h.fileSystemComposeLibraryStore.IsUniqueNameExcludeItself(newValue, currentValue)
+		if err != nil {
+			return false, err
+		}	
+	} else {
+		unique_local, err = h.fileSystemComposeLibraryStore.IsUniqueName(newValue)
+		if err != nil {
+			return false, err
+		}	
 	}
 
 	return unique_github && unique_local, nil
@@ -169,6 +177,15 @@ func (h *Handler) UpdateFileSystemComposeProject(c echo.Context) error {
 	r := &fileSystemComposeProjectUpdateRequest{ProjectName: projectName}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
+	}
+
+	isUnique, err := h.isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(m.NewProjectName, m.ProjectName, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	if !isUnique {
+		return unprocessableEntity(c, duplicateNameError())
 	}
 
 	if err := h.fileSystemComposeLibraryStore.Update(&m); err != nil {
@@ -244,7 +261,7 @@ func (h *Handler) UpdateGitHubComposeProject(c echo.Context) error {
 		return unprocessableEntity(c, err)
 	}
 
-	isUnique, err := h.composeLibraryStore.IsUniqueNameExcludeItself(r.ProjectName, r.Id)
+	isUnique, err := h.isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(m.ProjectName, "", m.Id)
 	if err != nil {
 		panic(err)
 	}

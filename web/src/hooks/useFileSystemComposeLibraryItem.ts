@@ -15,14 +15,14 @@ export default function useFileSystemComposeLibraryItem(
       { revalidateOnFocus: false }
     )
 
-  const mutateLocalComposeLibraryItem = async () => {
+  const mutateFileSystemComposeLibraryItem = async () => {
     mutate()
   }
 
   return {
     isLoading,
     isError: error,
-    localComposeLibraryItem: data,
-    mutateLocalComposeLibraryItem,
+    fileSystemComposeLibraryItem: data,
+    mutateFileSystemComposeLibraryItem,
   }
 }

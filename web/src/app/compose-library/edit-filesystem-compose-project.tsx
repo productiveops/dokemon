@@ -38,11 +38,11 @@ import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 
-export default function EditComposeProject() {
+export default function EditFileSystemComposeProject() {
   const { composeProjectName } = useParams()
   const {
-    localComposeLibraryItem: composeLibraryItem,
-    mutateLocalComposeLibraryItem,
+    fileSystemComposeLibraryItem: composeLibraryItem,
+    mutateFileSystemComposeLibraryItem,
   } = useFileSystemComposeLibraryItem(composeProjectName!)
   const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
   const [isSaving, setIsSaving] = useState(false)
@@ -102,7 +102,7 @@ export default function EditComposeProject() {
           "There was a problem when saving the definition. Try again!",
       })
     } else {
-      mutateLocalComposeLibraryItem()
+      mutateFileSystemComposeLibraryItem()
       mutateComposeLibraryItemList()
       toast({
         title: "Success!",

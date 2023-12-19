@@ -15,8 +15,8 @@ import ComposeLibraryItems from "./app/compose-library/compose-library-items"
 import ComposeContainers from "./app/compose/compose/containers"
 import ComposeLogs from "./app/compose/compose/logs"
 import ComposeActions from "./app/compose/compose/actions"
-import CreateComposeProject from "./app/compose-library/create-compose-project"
-import EditComposeProject from "./app/compose-library/edit-compose-project"
+import CreateFileSystemComposeProject from "./app/compose-library/create-filesystem-compose-project"
+import EditFileSystemComposeProject from "./app/compose-library/edit-filesystem-compose-project"
 import NodeCompose from "./app/compose/node-compose"
 import Nodes from "./app/nodes/nodes"
 import NodeDetails from "./app/nodes/node-details"
@@ -90,7 +90,7 @@ const router = createBrowserRouter([
       },
       {
         path: "composelibrary/filesystem/create",
-        element: <CreateComposeProject />,
+        element: <CreateFileSystemComposeProject />,
       },
       {
         path: "composelibrary/github/create",
@@ -98,7 +98,7 @@ const router = createBrowserRouter([
       },
       {
         path: "composelibrary/filesystem/:composeProjectName/edit",
-        element: <EditComposeProject />,
+        element: <EditFileSystemComposeProject />,
       },
       {
         path: "composelibrary/github/:composeProjectId/edit",

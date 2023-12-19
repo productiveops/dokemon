@@ -35,7 +35,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 
-export default function CreateComposeProject() {
+export default function CreateFileSystemComposeProject() {
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const definitionDefaultValue = `# Add compose definition here
