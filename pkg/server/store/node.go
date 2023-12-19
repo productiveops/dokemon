@@ -69,11 +69,17 @@ func (s *SqlNodeStore) Exists(id uint) (bool, error) {
 }
 
 func (s *SqlNodeStore) DeleteById(id uint) error {
-	if err := s.db.Delete(&model.Node{}, id).Error; err != nil {
-		return err
-	}
+	return s.db.Transaction(func(tx *gorm.DB) error { 
+		if err := tx.Where("node_id = ?", id).Delete(&model.NodeComposeProject{}).Error; err != nil {
+			return err
+		}
 
-	return nil
+		if err := tx.Delete(&model.Node{}, id).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (s *SqlNodeStore) GetList(pageNo, pageSize uint) ([]model.Node, int64, error) {

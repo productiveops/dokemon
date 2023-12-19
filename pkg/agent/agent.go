@@ -147,11 +147,14 @@ func listen() {
 	}
 	messages.Send[messages.ConnectMessage](c, initialConnectMessage)
 	mu.Unlock()
+	
 	connectResponse, err := messages.Receive[messages.ConnectResponseMessage](c)
- 	if(err != nil){
+ 	if err != nil {
  		log.Fatal().Err(err)
  	}
- 	if(!connectResponse.Success) {
+	if connectResponse == nil {
+		log.Fatal().Msg("Connection with server failed")
+	} else if !connectResponse.Success {
  		log.Fatal().Msg(connectResponse.Message)
  	}
 
