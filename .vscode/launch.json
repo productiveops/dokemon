@@ -9,14 +9,7 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "cmd/server/main.go",
-      "env": {
-        "NODE": "127.0.0.1:9090",
-        "ENCRYPTION_KEY": "ZsuCF1rjwC2FyNyWkdSvpjonetOIK7eOcgh3c2+Ognc=",
-        "DB_CONNECTION_STRING": "root:Password123!@tcp(127.0.0.1:3306)",
-        "RABBITMQ_URL": "amqp://user:password@127.0.0.1:5672",
-        "DB_NAME": "kd_test"
-      }
+      "program": "cmd/server/main.go"
     }
   ]
 }
