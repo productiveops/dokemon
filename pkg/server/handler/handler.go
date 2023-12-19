@@ -131,6 +131,8 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	composelibrary := v1.Group("/composelibrary")
 	composelibrary.GET("", h.GetComposeProjectList)
+	composelibrary.GET("/uniquename", h.IsUniqueComposeProjectName)
+	composelibrary.GET("/uniquenameexcludeitself", h.IsUniqueComposeProjectNameExcludeItself)
 
 	filesystemcomposelibrary := composelibrary.Group("/filesystem")
 	filesystemcomposelibrary.POST("", h.CreateFileSystemComposeProject)

@@ -64,6 +64,79 @@ func (h *Handler) GetComposeProjectList(c echo.Context) error {
 	return ok(c, newPageResponse[composeLibraryItemHead](newComposeLibraryItemHeadList(rows), uint(p), uint(s), uint(totalRows)))
 }
 
+func (h *Handler) isUniqueComposeProjectNameAcrossAllTypes(value string) (bool, error) {
+	unique_github, err := h.composeLibraryStore.IsUniqueName(value)
+	if err != nil {
+		return false, err
+	}
+
+	unique_local, err := h.fileSystemComposeLibraryStore.IsUniqueName(value)
+	if err != nil {
+		return false, err
+	}
+
+	return unique_github && unique_local, nil
+}
+
+func (h *Handler) isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(newValue string, currentValue string, id uint) (bool, error) {
+	var err error
+
+	unique_github := true
+	if id != 0 {
+		unique_github, err = h.composeLibraryStore.IsUniqueNameExcludeItself(newValue, id)
+		if err != nil {
+			return false, err
+		}
+	} else {
+		unique_github, err = h.composeLibraryStore.IsUniqueName(newValue)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	unique_local, err := h.fileSystemComposeLibraryStore.IsUniqueNameExcludeItself(newValue, currentValue)
+	if err != nil {
+		return false, err
+	}
+
+	return unique_github && unique_local, nil
+}
+
+func (h *Handler) IsUniqueComposeProjectName(c echo.Context) error {
+	value := c.QueryParam("value")
+
+	unique, err := h.isUniqueComposeProjectNameAcrossAllTypes(value)
+	if err != nil {
+		panic(err)
+	}
+
+	return ok(c, newUniqueResponse(unique))
+}
+
+func (h *Handler) IsUniqueComposeProjectNameExcludeItself(c echo.Context) error {
+	var err error
+
+	newValue := c.QueryParam("newvalue")
+	currentValue := c.QueryParam("currentvalue")
+	idstring := c.QueryParam("id")
+
+	var id uint = 0
+	if idstring != "" {
+		idint, err := strconv.Atoi(idstring)
+		if err != nil {
+			return unprocessableEntity(c, routeIntExpectedError("id"))
+		}
+		id = uint(idint)
+	}
+
+	unique, err := h.isUniqueComposeProjectNameExcludeItselfAcrossAllTypes(newValue, currentValue, id)
+	if err != nil {
+		panic(err)
+	}
+
+	return ok(c, newUniqueResponse(unique))
+}
+
 // File System
 
 func (h *Handler) CreateFileSystemComposeProject(c echo.Context) error {
@@ -73,8 +146,17 @@ func (h *Handler) CreateFileSystemComposeProject(c echo.Context) error {
 		return unprocessableEntity(c, err)
 	}
 
-	if err := h.fileSystemComposeLibraryStore.Create(&m); err != nil {
+	isUnique, err := h.isUniqueComposeProjectNameAcrossAllTypes(m.ProjectName)
+	if err != nil {
 		panic(err)
+	}
+
+	if !isUnique {
+		return unprocessableEntity(c, duplicateNameError())
+	}
+
+	if err := h.fileSystemComposeLibraryStore.Create(&m); err != nil {
+		return unprocessableEntity(c, err)
 	}
 
 	return created(c, m.ProjectName)
@@ -126,7 +208,7 @@ func (h *Handler) CreateGitHubComposeProject(c echo.Context) error {
 		return unprocessableEntity(c, err)
 	}
 
-	isUnique, err := h.composeLibraryStore.IsUniqueName(r.ProjectName)
+	isUnique, err := h.isUniqueComposeProjectNameAcrossAllTypes(m.ProjectName)
 	if err != nil {
 		panic(err)
 	}

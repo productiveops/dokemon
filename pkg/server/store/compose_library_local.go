@@ -179,3 +179,36 @@ func (s *LocalFileSystemComposeLibraryStore) GetList() ([]model.FileSystemCompos
 	return composeItemHeads, int64(len(entries)), nil
 }
 
+func (s *LocalFileSystemComposeLibraryStore) IsUniqueName(projectName string) (bool, error) {
+	composeProjectDirPath := filepath.Join(s.composeLibraryPath, projectName)
+	_, err := os.ReadDir(filepath.Join(composeProjectDirPath))
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return true, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return false, nil 
+}
+
+func (s *LocalFileSystemComposeLibraryStore) IsUniqueNameExcludeItself(newProjectName string, existingProjectName string) (bool, error) {
+	if newProjectName == existingProjectName {
+		return true, nil
+	}
+
+	composeProjectDirPath := filepath.Join(s.composeLibraryPath, newProjectName)
+	_, err := os.ReadDir(filepath.Join(composeProjectDirPath))
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return true, nil
+		} else {
+			return false, err
+		}
+	}
+
+	return false, nil 
+}
+
+

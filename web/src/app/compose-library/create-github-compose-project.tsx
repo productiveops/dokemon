@@ -63,7 +63,13 @@ export default function CreateGitHubComposeProject() {
       .string()
       .min(1, "Name is required")
       .max(20)
-      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE),
+      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
+      .refine(async (value) => {
+        const res = await fetch(
+          `${apiBaseUrl()}/composelibrary/uniquename?value=${value}`
+        )
+        return (await res.json()).unique
+      }, "Another project with this name already exists"),
     url: z.string().url(),
     credentialId: z.number().nullable(),
   })

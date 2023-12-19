@@ -67,7 +67,13 @@ export default function EditGitHubComposeProject() {
       .string()
       .min(1, "Name is required")
       .max(20)
-      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE),
+      .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
+      .refine(async (value) => {
+        const res = await fetch(
+          `${apiBaseUrl()}/composelibrary/uniquenameexcludeitself?newvalue=${value}&currentvalue=${gitHubComposeLibraryItem?.projectName}&id=${gitHubComposeLibraryItem?.id}`
+        )
+        return (await res.json()).unique
+      }, "Another project with this name already exists"),
     url: z.string().url(),
     credentialId: z.number().nullable(),
   })

@@ -62,6 +62,8 @@ type FileSystemComposeLibraryStore interface {
 	GetByName(projectName string) (*model.FileSystemComposeLibraryItem, error)
 	DeleteByName(projectName string) error
 	GetList() ([]model.FileSystemComposeLibraryItemHead, int64, error)
+	IsUniqueName(projectName string) (bool, error)
+	IsUniqueNameExcludeItself(newProjectName string, existingProjectName string) (bool, error)
 }
 
 type ComposeLibraryStore interface {
