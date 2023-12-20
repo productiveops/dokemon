@@ -7,7 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { VERSION } from "@/lib/version"
 import useSetting from "@/hooks/useSetting"
 
 export default function RegisterNodeDialog({

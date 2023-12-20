@@ -26,7 +26,6 @@ import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
 import useSetting from "@/hooks/useSetting"
 import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
-import { VERSION } from "@/lib/version"
 
 export default function Nodes() {
   const navigate = useNavigate()
