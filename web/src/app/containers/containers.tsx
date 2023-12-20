@@ -198,8 +198,10 @@ export default function Containers() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">Id</TableHead>
               <TableHead scope="col">Name</TableHead>
+              <TableHead scope="col" className="hidden 2xl:block">
+                Image
+              </TableHead>
               <TableHead scope="col">Ports</TableHead>
               <TableHead scope="col">State</TableHead>
               <TableHead scope="col">
@@ -224,8 +226,16 @@ export default function Containers() {
                     navigate(`/nodes/${nodeId}/containers/${item.name}/logs`)
                   }}
                 >
-                  <TableCell>{item.id.substring(0, 12)}</TableCell>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    <span className="font-bold" title={`Image: ${item.image}`}>
+                      {item.name}
+                    </span>
+                    <br />
+                    <span className="text-xs">{item.id.substring(0, 12)}</span>
+                  </TableCell>
+                  <TableCell className="hidden 2xl:block">
+                    {item.image}
+                  </TableCell>
                   <TableCell>{getPortsHtml(item.ports)}</TableCell>
                   <TableCell>
                     {item.state == "exited" ? (

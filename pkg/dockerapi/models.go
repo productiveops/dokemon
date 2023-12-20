@@ -15,6 +15,7 @@ type Port struct {
 type Container struct {
 	Id     string `json:"id"`
 	Name   string `json:"name"`
+	Image   string `json:"image"`
 	Status string `json:"status"`
 	State  string `json:"state"`
 	Ports  []Port `json:"ports"`
@@ -60,6 +61,7 @@ type Image struct {
 	Name    string `json:"name"`
 	Tag     string `json:"tag"`
 	Size    int64  `json:"size"`
+	Dangling bool  `json:"dangling"`
 	Created int64  `json:"created"`
 }
 

@@ -64,6 +64,7 @@ export interface IPort {
 export interface IContainer {
   id: string
   name: string
+  image: string
   status: string
   state: string
   ports: IPort[]
@@ -74,6 +75,7 @@ export interface IImage {
   name: string
   tag: string
   size: number
+  dangling: boolean
   created: number
 }
 

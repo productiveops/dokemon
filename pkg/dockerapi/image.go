@@ -26,8 +26,13 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 	for i, item := range dimages {
 		name := "<none>"
 		tag := "<none>"
+		dangling := len(item.RepoTags) == 0
 
-		if len(item.RepoTags) >= 1 {
+		if dangling {
+			if len(item.RepoDigests) >= 1 {
+				name = strings.Split(item.RepoDigests[0], "@")[0]
+			}
+		} else {
 			nameAndTag := strings.Split(item.RepoTags[0], ":")
 			if len(nameAndTag) == 2 {
 				name = nameAndTag[0]
@@ -40,6 +45,7 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 			Name: 		name,
 			Tag: 		tag,
 			Size:   	item.Size,
+			Dangling: 	dangling,
 			Created: 	item.Created,
 		}
 	}
