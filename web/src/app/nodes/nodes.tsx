@@ -141,6 +141,11 @@ export default function Nodes() {
                       </span>
                     )}
                     {item.name}
+                    {item.id === 1 ? (
+                      <span title="Dokemon Server"> *</span>
+                    ) : (
+                      ""
+                    )}
                   </TableCell>
                   <TableCell>
                     {item.environment ? item.environment : "-"}
