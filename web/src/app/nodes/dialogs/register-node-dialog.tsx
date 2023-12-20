@@ -42,7 +42,7 @@ docker run \\
     -e TOKEN={HIDDEN} \\
     -v /var/run/docker.sock:/var/run/docker.sock \\
     --name dokemon-agent --restart unless-stopped \\
-    -d productiveops/dokemon-agent:${VERSION}
+    -d productiveops/dokemon-agent:latest
   `
     if (navigator?.clipboard) return c
     return c.replace("{HIDDEN}", token)
