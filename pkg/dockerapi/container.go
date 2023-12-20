@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -31,9 +32,11 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 			ports[j] = Port(port)
 		}
 
+		image := strings.Split(c.Image, "@")[0]
 		containers[i] = Container{
 			Id:     c.ID,
 			Name:   c.Names[0][1:],
+			Image: image,
 			Status: c.Status,
 			State: c.State,
 			Ports: ports,
