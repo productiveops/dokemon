@@ -25,7 +25,6 @@ import { INodeHead } from "@/lib/api-models"
 import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
 import useSetting from "@/hooks/useSetting"
-import { VERSION } from "@/lib/version"
 import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
 
 export default function Nodes() {
@@ -100,6 +99,7 @@ export default function Nodes() {
                 <span className="ml-3">Name</span>
               </TableHead>
               <TableHead scope="col">Environment</TableHead>
+              <TableHead scope="col">Agent Version</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -145,8 +145,15 @@ export default function Nodes() {
                   <TableCell>
                     {item.environment ? item.environment : "-"}
                   </TableCell>
+                  <TableCell>
+                    {item.id === 1
+                      ? "N/A (Dokemon Server)"
+                      : item.agentVersion
+                        ? item.agentVersion
+                        : "-"}
+                  </TableCell>
                   <TableCell className="text-right">
-                    {item.id !== 1 &&
+                    {/* {item.id !== 1 &&
                       item.registered &&
                       item.agentVersion !== VERSION && (
                         <Button
@@ -159,7 +166,7 @@ export default function Nodes() {
                         >
                           Update Agent
                         </Button>
-                      )}
+                      )} */}
                     {!item.registered && (
                       <Button
                         className="mr-4"

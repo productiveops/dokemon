@@ -74,10 +74,6 @@ func (h *Handler) DeleteEnvironmentById(c echo.Context) error {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
 	}
 
-	if id == 1 {
-		return unprocessableEntity(c, errors.New("Environment cannot be deleted"))
-	}
-
 	exists, err := h.environmentStore.Exists(uint(id))
 	if err != nil {
 		panic(err)
@@ -85,6 +81,15 @@ func (h *Handler) DeleteEnvironmentById(c echo.Context) error {
 
 	if !exists {
 		return resourceNotFound(c, "Environment")
+	}
+
+	inUse, err := h.environmentStore.IsInUse(uint(id))
+	if err != nil {
+		panic(err)
+	}
+
+	if inUse {
+		return unprocessableEntity(c, errors.New("Environment is in use and cannot be deleted"))
 	}
 
 	if err := h.environmentStore.DeleteById(uint(id)); err != nil {

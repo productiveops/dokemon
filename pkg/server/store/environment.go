@@ -50,7 +50,27 @@ func (s *SqlEnvironmentStore) Exists(id uint) (bool, error) {
 	return count > 0, nil
 }
 
+func (s *SqlEnvironmentStore) IsInUse(id uint) (bool, error) {
+	var node_ref_count int64
+
+	if err := s.db.Model(&model.Node{}).Where("environment_id = ?", id).Count(&node_ref_count).Error; err != nil {
+		return false, err
+	}
+
+	return node_ref_count > 0, nil
+}
+
+
 func (s *SqlEnvironmentStore) DeleteById(id uint) error {
+	inUse, err := s.IsInUse(id)
+	if err != nil {
+		return err
+	}
+
+	if inUse {
+		return errors.New("Environment is in use and cannot be deleted")
+	}
+
 	if err := s.db.Delete(&model.Environment{}, id).Error; err != nil {
 		return err
 	}

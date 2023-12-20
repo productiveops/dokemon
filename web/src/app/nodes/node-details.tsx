@@ -149,7 +149,7 @@ export default function NodeDetails() {
                           <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                              <Input {...field} disabled={node?.id == 1} />
+                              <Input {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

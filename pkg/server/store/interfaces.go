@@ -96,6 +96,7 @@ type EnvironmentStore interface {
 	GetById(id uint) (*model.Environment, error)
 	GetList(pageNo, pageSize uint) ([]model.Environment, int64, error)
 	GetMap() (map[string]string, error)
+	IsInUse(id uint) (bool, error)
 	DeleteById(id uint) error
 	Exists(id uint) (bool, error)
 
