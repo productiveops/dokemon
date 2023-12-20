@@ -75,6 +75,7 @@ export interface IImage {
   name: string
   tag: string
   size: number
+  dangling: boolean
   created: number
 }
 

@@ -61,6 +61,7 @@ type Image struct {
 	Name    string `json:"name"`
 	Tag     string `json:"tag"`
 	Size    int64  `json:"size"`
+	Dangling bool  `json:"dangling"`
 	Created int64  `json:"created"`
 }
 

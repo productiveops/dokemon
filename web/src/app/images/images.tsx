@@ -89,7 +89,14 @@ export default function Images() {
                 <TableRow key={item.id}>
                   <TableCell>{item.id.substring(7, 19)}</TableCell>
                   <TableCell>{item.name}</TableCell>
-                  <TableCell>{item.tag}</TableCell>
+                  <TableCell>
+                    {item.tag}{" "}
+                    {item.dangling ? (
+                      <span className="text-xs text-red-400"> (Dangling)</span>
+                    ) : (
+                      ""
+                    )}
+                  </TableCell>
                   <TableCell>{convertByteToMb(item.size)}</TableCell>
                   <TableCell className="text-right">
                     <Button
