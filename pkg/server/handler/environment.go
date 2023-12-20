@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/productiveops/dokemon/pkg/server/model"
@@ -72,10 +71,6 @@ func (h *Handler) DeleteEnvironmentById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return unprocessableEntity(c, routeIntExpectedError("id"))
-	}
-
-	if id == 1 {
-		return unprocessableEntity(c, errors.New("Environment cannot be deleted"))
 	}
 
 	exists, err := h.environmentStore.Exists(uint(id))
