@@ -125,7 +125,7 @@ func (h *Handler) GetNodeComposeContainerList(c echo.Context) error {
 	return ok(c, res)
 }
 
-func (h *Handler) CreateNodeComposeProject(c echo.Context) error {
+func (h *Handler) AddNodeComposeProjectFromLibrary(c echo.Context) error {
 	nodeId, err := strconv.Atoi(c.Param("nodeId"))
 	if err != nil {
 		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
@@ -135,6 +135,23 @@ func (h *Handler) CreateNodeComposeProject(c echo.Context) error {
 	r := &nodeComposeProjectCreateRequest{}
 	if err := r.bind(c, &m); err != nil {
 		return unprocessableEntity(c, err)
+	}
+
+	if r.LibraryProjectId != nil { // GitHub project
+		gitHubLibraryProject, err := h.composeLibraryStore.GetById(*r.LibraryProjectId)
+		if err != nil {
+			return unprocessableEntity(c, errors.New("Library Project not found"))
+		}
+		m.CredentialId = gitHubLibraryProject.CredentialId
+		m.Type = gitHubLibraryProject.Type
+		m.Url = &gitHubLibraryProject.Url
+	} else {
+		m.Type = "local"
+		fileSystemLibraryProject, err := h.fileSystemComposeLibraryStore.GetByName(r.LibraryProjectName)
+		if err != nil {
+			return unprocessableEntity(c, errors.New("Library Project not found"))
+		}
+		m.Definition = &fileSystemLibraryProject.Definition
 	}
 
 	isUnique, err := h.nodeComposeProjectStore.IsUniqueName(uint(nodeId), r.ProjectName)
@@ -171,21 +188,12 @@ func (h *Handler) IsUniqueNodeComposeProjectName(c echo.Context) error {
 
 func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (string, error) {
 	definition := ""
-	if ncp.LibraryProjectId == nil {
-		clp, err := h.fileSystemComposeLibraryStore.GetByName(ncp.LibraryProjectName)
-		if err != nil {
-			return "", errors.New("Library Project not found")
-		}	
-		definition = clp.Definition
-	} else {
-		gclp, err := h.composeLibraryStore.GetById(*ncp.LibraryProjectId)
-		if err != nil {
-			return "", errors.New("Library Project not found")
-		}
-
+	if ncp.Type == "local" {
+		definition = *ncp.Definition
+	} else if ncp.Type == "github" {
 		decryptedSecret := ""
-		if gclp.CredentialId != nil {
-			credential, err := h.credentialStore.GetById(*gclp.CredentialId)
+		if ncp.CredentialId != nil {
+			credential, err := h.credentialStore.GetById(*ncp.CredentialId)
 			if err != nil {
 				return "", errors.New("Credentials not found")
 			}
@@ -196,7 +204,7 @@ func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (st
 			}
 		}
 
-		content, err := getGitHubFileContent(gclp.Url, decryptedSecret)
+		content, err := getGitHubFileContent(*ncp.Url, decryptedSecret)
 		if err != nil {
 			return "", errors.New("Error while retrieving file content from GitHub")
 		}

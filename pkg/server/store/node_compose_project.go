@@ -10,11 +10,13 @@ import (
 
 type SqlNodeComposeProjectStore struct {
 	db *gorm.DB
+	composeLibraryPath string
 }
 
-func NewSqlNodeComposeProjectStore(db *gorm.DB) *SqlNodeComposeProjectStore {
+func NewSqlNodeComposeProjectStore(db *gorm.DB, composeLibraryPath string) *SqlNodeComposeProjectStore {
 	return &SqlNodeComposeProjectStore{
 		db: db,
+		composeLibraryPath: composeLibraryPath,
 	}
 }
 
@@ -89,4 +91,41 @@ func (s *SqlNodeComposeProjectStore) IsUniqueNameExcludeItself(nodeId uint, name
 	}
 
 	return count == 0, nil 
+}
+
+func (s *SqlNodeComposeProjectStore) UpdateOldVersionRecords() error {
+	var (
+		l []model.NodeComposeProject
+	)
+
+	if err := s.db.Where("type is null or type = ''").Find(&l).Error; err != nil {
+		return err
+	}
+
+	for _, item := range l {
+		if item.LibraryProjectId != nil { // GitHub project
+			composeLibraryStore := NewSqlComposeLibraryStore(s.db)
+			gitHubLibraryProject, err := composeLibraryStore.GetById(*item.LibraryProjectId)
+			if err != nil {
+				return err
+			}
+			item.CredentialId = gitHubLibraryProject.CredentialId
+			item.Type = gitHubLibraryProject.Type
+			item.Url = &gitHubLibraryProject.Url
+		} else { // FileSystem project
+			fileSystemComposeLibraryStore := NewLocalFileSystemComposeLibraryStore(s.db, s.composeLibraryPath)
+			fileSystemLibraryProject, err := fileSystemComposeLibraryStore.GetByName(item.LibraryProjectName)
+			if err != nil {
+				return err
+			}
+			item.Type = "local"
+			item.Definition = &fileSystemLibraryProject.Definition
+		}
+
+		if err := s.db.Save(item).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -148,7 +148,7 @@ func (h *Handler) Register(e *echo.Echo) {
 
 	node_compose := nodes.Group("/:nodeId/compose")
 	node_compose.GET("", h.GetNodeComposeProjectList)
-	node_compose.POST("", h.CreateNodeComposeProject)
+	node_compose.POST("/addfromlibrary", h.AddNodeComposeProjectFromLibrary)
 	node_compose.GET("/uniquename", h.IsUniqueNodeComposeProjectName)
 	node_compose.GET("/:id", h.GetNodeComposeProject)
 	node_compose.DELETE("/:id", h.DeleteNodeComposeProject)
