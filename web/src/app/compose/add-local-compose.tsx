@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -34,8 +34,11 @@ import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
+import useNodeHead from "@/hooks/useNodeHead"
 
-export default function CreateFileSystemComposeProject() {
+export default function AddLocalCompose() {
+  const { nodeId } = useParams()
+  const { nodeHead } = useNodeHead(nodeId!)
   const navigate = useNavigate()
   const [isSaving, setIsSaving] = useState(false)
   const definitionDefaultValue = ``
@@ -49,7 +52,7 @@ export default function CreateFileSystemComposeProject() {
       .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
       .refine(async (value) => {
         const res = await fetch(
-          `${apiBaseUrl()}/composelibrary/uniquename?value=${value}`
+          `${apiBaseUrl()}/nodes/${nodeId}/compose/uniquename?value=${value}`
         )
         return (await res.json()).unique
       }, "Another project with this name already exists"),
@@ -68,11 +71,14 @@ export default function CreateFileSystemComposeProject() {
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     data.definition = editorRef.current?.getValue()
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/composelibrary/filesystem`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/create/local`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
       const r = await response.json()
       toast({
@@ -81,11 +87,12 @@ export default function CreateFileSystemComposeProject() {
         description: r.errors?.body,
       })
     } else {
+      const r = await response.json()
       toast({
         title: "Success!",
         description: "Project has been created.",
       })
-      navigate(`/composelibrary/filesystem/${data.projectName}/edit`)
+      navigate(`/nodes/${nodeId}/compose/${r.id}/definition`)
     }
     setIsSaving(false)
   }
@@ -111,9 +118,15 @@ export default function CreateFileSystemComposeProject() {
     <MainArea>
       <TopBar>
         <Breadcrumb>
-          <BreadcrumbLink to="/composelibrary">Compose Library</BreadcrumbLink>
+          <BreadcrumbLink to="/nodes">Nodes</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbCurrent>Create</BreadcrumbCurrent>
+          <BreadcrumbCurrent>{nodeHead?.name}</BreadcrumbCurrent>
+          <BreadcrumbSeparator />
+          <BreadcrumbLink to={`/nodes/${nodeId}/compose`}>
+            Compose
+          </BreadcrumbLink>
+          <BreadcrumbSeparator />
+          <BreadcrumbCurrent>Add from GitHub</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
@@ -127,7 +140,7 @@ export default function CreateFileSystemComposeProject() {
         <Button
           variant="secondary"
           className="w-24"
-          onClick={() => navigate("/composelibrary")}
+          onClick={() => navigate(`/nodes/${nodeId}/compose`)}
         >
           Cancel
         </Button>
@@ -139,13 +152,13 @@ export default function CreateFileSystemComposeProject() {
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                   <fieldset className={cn("group")} disabled={isSaving}>
-                    <div className="max-w-2xl pb-4">
+                    <div className="mb-4 flex max-w-2xl flex-col gap-4 pb-4">
                       <FormField
                         control={form.control}
                         name="projectName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Library Project Name</FormLabel>
+                            <FormLabel>Project Name</FormLabel>
                             <FormControl>
                               <Input {...field} autoFocus />
                             </FormControl>
@@ -161,7 +174,9 @@ export default function CreateFileSystemComposeProject() {
                         height="50vh"
                         defaultLanguage="yaml"
                         defaultValue={definitionDefaultValue}
-                        options={{ minimap: { enabled: false } }}
+                        options={{
+                          minimap: { enabled: false },
+                        }}
                         onMount={handleEditorDidMount}
                       />
                     </div>

@@ -104,22 +104,22 @@ func (s *SqlNodeComposeProjectStore) UpdateOldVersionRecords() error {
 
 	for _, item := range l {
 		if item.LibraryProjectId != nil { // GitHub project
-			composeLibraryStore := NewSqlComposeLibraryStore(s.db)
-			gitHubLibraryProject, err := composeLibraryStore.GetById(*item.LibraryProjectId)
-			if err != nil {
-				return err
-			}
-			item.CredentialId = gitHubLibraryProject.CredentialId
-			item.Type = gitHubLibraryProject.Type
-			item.Url = &gitHubLibraryProject.Url
+			item.Type = "github"
+			// composeLibraryStore := NewSqlComposeLibraryStore(s.db)
+			// gitHubLibraryProject, err := composeLibraryStore.GetById(*item.LibraryProjectId)
+			// if err != nil {
+			// 	return err
+			// }
+			// item.CredentialId = gitHubLibraryProject.CredentialId
+			// item.Url = &gitHubLibraryProject.Url
 		} else { // FileSystem project
-			fileSystemComposeLibraryStore := NewLocalFileSystemComposeLibraryStore(s.db, s.composeLibraryPath)
-			fileSystemLibraryProject, err := fileSystemComposeLibraryStore.GetByName(item.LibraryProjectName)
-			if err != nil {
-				return err
-			}
 			item.Type = "local"
-			item.Definition = &fileSystemLibraryProject.Definition
+			// fileSystemComposeLibraryStore := NewLocalFileSystemComposeLibraryStore(s.db, s.composeLibraryPath)
+			// fileSystemLibraryProject, err := fileSystemComposeLibraryStore.GetByName(item.LibraryProjectName)
+			// if err != nil {
+			// 	return err
+			// }
+			// item.Definition = &fileSystemLibraryProject.Definition
 		}
 
 		if err := s.db.Save(item).Error; err != nil {

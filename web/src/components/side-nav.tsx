@@ -27,6 +27,10 @@ export default function SideNav() {
       element: <SideNavTopLevel />,
     },
     {
+      path: "nodes/:nodeId/compose/create/*",
+      element: <SideNavNode />,
+    },
+    {
       path: "nodes/:nodeId/compose/:composeProjectId/*",
       element: <SideNavCompose />,
     },
@@ -201,6 +205,17 @@ function SideNavCompose() {
           >
             <PlayIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
             Actions
+          </SideBarItem>
+        </li>
+        <li>
+          <SideBarItem
+            to={`/nodes/${nodeId}/compose/${composeProjectId}/definition`}
+          >
+            <Bars3BottomLeftIcon
+              className="h-6 w-6 shrink-0"
+              aria-hidden="true"
+            />
+            Definition
           </SideBarItem>
         </li>
         <li>

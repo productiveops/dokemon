@@ -87,7 +87,7 @@ export default function AddNodeComposeProjectDialog() {
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
     const response = await fetch(
-      `${apiBaseUrl()}/nodes/${nodeId}/compose/addfromlibrary`,
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/create/library`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

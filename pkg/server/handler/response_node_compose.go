@@ -10,8 +10,9 @@ import (
 type nodeComposeProjectItemHead struct {
 	Id                 uint `json:"id"`
 	ProjectName        string `json:"projectName"`
+	Type        	   string `json:"type"`
 	LibraryProjectId   *uint `json:"libraryProjectId"`
-	LibraryProjectName string `json:"libraryProjectName"`
+	LibraryProjectName *string `json:"libraryProjectName"`
 	Status             string `json:"status"`
 }
 
@@ -19,6 +20,7 @@ func newNodeComposeProjectItemHead(ncp *model.NodeComposeProject, dci *dockerapi
 	res := nodeComposeProjectItemHead{
 		Id: ncp.Id,
 		ProjectName: ncp.ProjectName,
+		Type: ncp.Type,
 		LibraryProjectId: ncp.LibraryProjectId,
 		LibraryProjectName: ncp.LibraryProjectName,
 		Status: "",
@@ -41,6 +43,38 @@ func newNodeComposeProjectItemList(ncplist []model.NodeComposeProject, dcilist [
 			dci = &dcilist[idx]
 		}
 		res[i] = newNodeComposeProjectItemHead(&ncp, dci)
+	}
+
+	return res
+}
+
+type nodeComposeProjectItem struct {
+	Id                 	uint `json:"id"`
+	ProjectName        	string `json:"projectName"`
+	Type        	   	string `json:"type"`
+	LibraryProjectId   	*uint `json:"libraryProjectId"`
+	LibraryProjectName 	*string `json:"libraryProjectName"`
+	Url        	   		*string `json:"url"`
+	CredentialId       	*uint `json:"credentialId"`
+	Definition       	*string `json:"definition"`
+	Status             	string `json:"status"`
+}
+
+func newNodeComposeProjectItem(ncp *model.NodeComposeProject, dci *dockerapi.ComposeItem) nodeComposeProjectItem {
+	res := nodeComposeProjectItem{
+		Id: ncp.Id,
+		ProjectName: ncp.ProjectName,
+		Type: ncp.Type,
+		LibraryProjectId: ncp.LibraryProjectId,
+		LibraryProjectName: ncp.LibraryProjectName,
+		Url: ncp.Url,
+		CredentialId: ncp.CredentialId,
+		Definition: ncp.Definition,
+		Status: "",
+	}
+
+	if dci != nil {
+		res.Status = dci.Status
 	}
 
 	return res

@@ -112,6 +112,7 @@ export interface IGitHubComposeLibraryItem {
 export interface INodeComposeItemHead {
   id: number
   projectName: string
+  type: string
   libraryProjectId?: number
   libraryProjectName: string
   status: string
@@ -120,7 +121,12 @@ export interface INodeComposeItemHead {
 export interface INodeComposeItem {
   id: number
   projectName: string
+  type: string
+  libraryProjectId?: number
   libraryProjectName: string
+  url?: string
+  credentialId?: number
+  definition?: string
   status: string
 }
 

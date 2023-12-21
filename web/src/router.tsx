@@ -25,6 +25,9 @@ import Variables from "./app/variables/variables"
 import CreateGitHubComposeProject from "./app/compose-library/create-github-compose-project"
 import Credentials from "./app/credentials/credentials"
 import EditGitHubComposeProject from "./app/compose-library/edit-github-compose-project"
+import AddGitHubCompose from "./app/compose/add-github-compose"
+import ComposeDefinition from "./app/compose/compose/definition"
+import AddLocalCompose from "./app/compose/add-local-compose"
 
 const router = createBrowserRouter([
   {
@@ -77,12 +80,36 @@ const router = createBrowserRouter([
         element: <Networks />,
       },
       {
+        path: "nodes/:nodeId/details",
+        element: <NodeDetails />,
+      },
+      {
         path: "nodes/:nodeId/compose",
         element: <NodeCompose />,
       },
       {
-        path: "nodes/:nodeId/details",
-        element: <NodeDetails />,
+        path: "nodes/:nodeId/compose/create/github",
+        element: <AddGitHubCompose />,
+      },
+      {
+        path: "nodes/:nodeId/compose/create/local",
+        element: <AddLocalCompose />,
+      },
+      {
+        path: "nodes/:nodeId/compose/:composeProjectId/actions",
+        element: <ComposeActions />,
+      },
+      {
+        path: "nodes/:nodeId/compose/:composeProjectId/definition",
+        element: <ComposeDefinition />,
+      },
+      {
+        path: "nodes/:nodeId/compose/:composeProjectId/containers",
+        element: <ComposeContainers />,
+      },
+      {
+        path: "nodes/:nodeId/compose/:composeProjectId/logs",
+        element: <ComposeLogs />,
       },
       {
         path: "composelibrary",
@@ -115,18 +142,6 @@ const router = createBrowserRouter([
       {
         path: "credentials",
         element: <Credentials />,
-      },
-      {
-        path: "nodes/:nodeId/compose/:composeProjectId/actions",
-        element: <ComposeActions />,
-      },
-      {
-        path: "nodes/:nodeId/compose/:composeProjectId/containers",
-        element: <ComposeContainers />,
-      },
-      {
-        path: "nodes/:nodeId/compose/:composeProjectId/logs",
-        element: <ComposeLogs />,
       },
     ],
   },
