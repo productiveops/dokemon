@@ -86,11 +86,14 @@ export default function AddNodeComposeProjectDialog() {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/nodes/${nodeId}/compose`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/create/library`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
       handleCloseForm()
       toast({
@@ -112,14 +115,14 @@ export default function AddNodeComposeProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Add Project</Button>
+        <Button>Add From Library</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset className={cn("group")} disabled={isSaving}>
               <DialogHeader>
-                <DialogTitle>Add Project</DialogTitle>
+                <DialogTitle>Add From Library</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4 group-disabled:opacity-50">
                 <FormField

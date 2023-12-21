@@ -24,6 +24,7 @@ import useNodeHead from "@/hooks/useNodeHead"
 import AddNodeComposeProjectDialog from "./dialogs/add-node-compose-project"
 import { ArrowUpRight } from "lucide-react"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export default function NodeCompose() {
   const { nodeId } = useParams()
@@ -44,6 +45,22 @@ export default function NodeCompose() {
           <BreadcrumbCurrent>Compose</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
+          <Button
+            variant={"default"}
+            onClick={() => {
+              navigate(`/nodes/${nodeId}/compose/create/local`)
+            }}
+          >
+            Create
+          </Button>
+          <Button
+            variant={"default"}
+            onClick={() => {
+              navigate(`/nodes/${nodeId}/compose/create/github`)
+            }}
+          >
+            Add from GitHub
+          </Button>
           <AddNodeComposeProjectDialog />
         </TopBarActions>
       </TopBar>
@@ -52,6 +69,7 @@ export default function NodeCompose() {
           <TableHeader>
             <TableRow>
               <TableHead scope="col">Project Name</TableHead>
+              <TableHead scope="col">Type</TableHead>
               <TableHead scope="col">Library Project Name</TableHead>
               <TableHead scope="col">Status</TableHead>
             </TableRow>
@@ -75,24 +93,31 @@ export default function NodeCompose() {
                 >
                   <TableCell>{item.projectName}</TableCell>
                   <TableCell>
-                    <span
-                      className="p-1 text-amber-600 hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        if (item.libraryProjectId) {
-                          window.open(
-                            `${location.protocol}//${location.host}/composelibrary/github/${item.libraryProjectId}/edit`
-                          )
-                        } else {
-                          window.open(
-                            `${location.protocol}//${location.host}/composelibrary/filesystem/${item.libraryProjectName}/edit`
-                          )
-                        }
-                      }}
-                    >
-                      {item.libraryProjectName}
-                      <ArrowUpRight className="ml-1 inline w-4" />
-                    </span>
+                    {item.type === "local" ? "Local" : "GitHub"}
+                  </TableCell>
+                  <TableCell>
+                    {!item.libraryProjectName ? (
+                      "-"
+                    ) : (
+                      <span
+                        className="p-1 text-amber-600 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (item.libraryProjectId) {
+                            window.open(
+                              `${location.protocol}//${location.host}/composelibrary/github/${item.libraryProjectId}/edit`
+                            )
+                          } else {
+                            window.open(
+                              `${location.protocol}//${location.host}/composelibrary/filesystem/${item.libraryProjectName}/edit`
+                            )
+                          }
+                        }}
+                      >
+                        {item.libraryProjectName}
+                        <ArrowUpRight className="ml-1 inline w-4" />
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
                     {item.status && item.status.startsWith("running") && (

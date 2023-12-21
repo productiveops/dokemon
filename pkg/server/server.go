@@ -67,6 +67,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	db.FirstOrCreate(&model.Setting{Id: "SERVER_URL", Value: ""})
 	db.FirstOrCreate(&model.Node{Id: 1, Name: "[Dokemon Server]", TokenHash: nil, LastPing: nil})
 
+	sqlNodeComposeProjectStore := store.NewSqlNodeComposeProjectStore(db, composeProjectsPath)
 	h := handler.NewHandler(
 		composeProjectsPath,
 		store.NewSqlComposeLibraryStore(db),
@@ -74,7 +75,7 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 		store.NewSqlEnvironmentStore(db),
 		store.NewSqlUserStore(db),
 		store.NewSqlNodeStore(db),
-		store.NewSqlNodeComposeProjectStore(db),
+		sqlNodeComposeProjectStore,
 		store.NewSqlSettingStore(db),
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
@@ -102,6 +103,11 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	}
 	ske.Init(string(keyBytes))
 
+	err = sqlNodeComposeProjectStore.UpdateOldVersionRecords()
+	if err != nil {
+		log.Error().Err(err).Msg("Error while updating old version data")
+	}
+
 	// Web Server
 	s.handler = h
 	s.Echo = router.New()
@@ -121,13 +127,10 @@ func (s *Server) Run(addr string) {
 	}
 
 	err := s.Echo.Start(addr)
-	//err := s.Echo.StartTLS(addr, "./dev/devserver.crt", "./dev/devserver.key")
 	if err != nil {
 		panic(err)
 	}
 }
-
-//var noAuthUrls = []string{"/healthz", "/ws"}
 
 func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

@@ -21,7 +21,7 @@ type ComposeLibraryItem struct {
 	Id				uint
 	CredentialId 	*uint
 	Credential 		*Credential
-	ProjectName 	string
-	Type 			string	// github
-	Url 			string
+	ProjectName 	string `gorm:"size:50"`
+	Type 			string `gorm:"size:20,default:''"` // github (filesystem projects are not stored in this table so this type is not allowed here)
+	Url 			string `gorm:"size:255"`
 }
