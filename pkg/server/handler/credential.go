@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/productiveops/dokemon/pkg/server/model"
@@ -107,6 +108,15 @@ func (h *Handler) DeleteCredentialById(c echo.Context) error {
 
 	if !exists {
 		return resourceNotFound(c, "Credential")
+	}
+
+	inUse, err := h.credentialStore.IsInUse(uint(id))
+	if err != nil {
+		panic(err)
+	}
+
+	if inUse {
+		return unprocessableEntity(c, errors.New("Credentials are in use and cannot be deleted"))
 	}
 
 	if err := h.credentialStore.DeleteById(uint(id)); err != nil {

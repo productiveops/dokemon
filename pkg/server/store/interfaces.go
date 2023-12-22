@@ -83,6 +83,7 @@ type CredentialStore interface {
 	Update(m *model.Credential) error
 	GetById(id uint) (*model.Credential, error)
 	GetList(pageNo, pageSize uint) ([]model.Credential, int64, error)
+	IsInUse(id uint) (bool, error)
 	DeleteById(id uint) error
 	Exists(id uint) (bool, error)
 

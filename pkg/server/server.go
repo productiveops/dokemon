@@ -4,11 +4,13 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"time"
 
 	"github.com/productiveops/dokemon/pkg/common"
 	"github.com/productiveops/dokemon/pkg/crypto/ske"
+	"github.com/productiveops/dokemon/pkg/crypto/ssl"
 	"github.com/productiveops/dokemon/pkg/server/handler"
 	"github.com/productiveops/dokemon/pkg/server/model"
 	"github.com/productiveops/dokemon/pkg/server/requestutil"
@@ -28,19 +30,24 @@ import (
 type Server struct {
 	Echo *echo.Echo
 	handler *handler.Handler
+	dataPath string
+	sslEnabled bool
 }
 
-func (s *Server) Init(dbConnectionString string, dataPath string, logLevel string) {
+func (s *Server) Init(dbConnectionString string, dataPath string, logLevel string, sslEnabled string) {
 	setLogLevel(logLevel)
 	log.Info().Msg("Starting Dokemon v" + common.Version)
 
 	if dataPath == "" {
 		dataPath = "/data"
 	}
+	s.dataPath = dataPath
 
 	if dbConnectionString == "" {
 		dbConnectionString = dataPath + "/db"
 	}
+	
+	s.sslEnabled = sslEnabled == "1"
 
 	// Init compose projects directory
 	composeProjectsPath := dataPath + "/compose"
@@ -126,7 +133,18 @@ func (s *Server) Run(addr string) {
 		addr = ":9090"
 	}
 
-	err := s.Echo.Start(addr)
+	var err error
+	if s.sslEnabled {
+		certsDirPath := path.Join(s.dataPath, "certs")
+		certPath := path.Join(certsDirPath, "server.crt")
+		keyPath := path.Join(certsDirPath, "server.key")
+		s.generateSelfSignedCerts(certsDirPath, certPath, keyPath)
+
+		err = s.Echo.StartTLS(addr, certPath, keyPath)
+	} else {
+		err = s.Echo.Start(addr)
+	}
+
 	if err != nil {
 		panic(err)
 	}
@@ -151,6 +169,41 @@ func (s *Server) authMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("userName", cc.UserName)
 
 		return next(c)
+	}
+}
+
+func (s *Server) generateSelfSignedCerts(certDirPath string, certPath string, keyPath string) {
+	if _, err := os.Stat(certDirPath); errors.Is(err, os.ErrNotExist) {
+		err := os.MkdirAll(certDirPath, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
+	}
+	if _, err := os.Stat(certPath); errors.Is(err, os.ErrNotExist) {
+		log.Debug().Msg("SSL certificate file does not exist. Generating self-signed certificate...")
+
+		cert, key, err := ssl.GenerateSelfSignedCert()
+		if err != nil {
+			panic(err)
+		}
+
+		certFile, err := os.Create(certPath)
+		if err != nil {
+			panic(err)
+		}
+		_, err = certFile.WriteString(cert)
+		if err != nil {
+			panic(err)
+		}
+
+		keyFile, err := os.Create(keyPath)
+		if err != nil {
+			panic(err)
+		}
+		_, err = keyFile.WriteString(key)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
