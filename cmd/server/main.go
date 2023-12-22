@@ -12,6 +12,7 @@ func main() {
 		os.Getenv("DB_CONNECTION_STRING"),
 		os.Getenv("DATA_PATH"),
 		os.Getenv("LOG_LEVEL"),
+		os.Getenv("SSL_ENABLED"),
 	)
 	s.Run(os.Getenv("BIND_ADDRESS"))
 }
