@@ -60,7 +60,6 @@ func (s *SqlEnvironmentStore) IsInUse(id uint) (bool, error) {
 	return node_ref_count > 0, nil
 }
 
-
 func (s *SqlEnvironmentStore) DeleteById(id uint) error {
 	inUse, err := s.IsInUse(id)
 	if err != nil {

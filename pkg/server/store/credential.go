@@ -49,7 +49,30 @@ func (s *SqlCredentialStore) Exists(id uint) (bool, error) {
 	return count > 0, nil
 }
 
+func (s *SqlCredentialStore) IsInUse(id uint) (bool, error) {
+	var ncp_ref_count, cli_ref_count int64
+
+	if err := s.db.Model(&model.NodeComposeProject{}).Where("credential_id = ?", id).Count(&ncp_ref_count).Error; err != nil {
+		return false, err
+	}
+
+	if err := s.db.Model(&model.ComposeLibraryItem{}).Where("credential_id = ?", id).Count(&cli_ref_count).Error; err != nil {
+		return false, err
+	}
+
+	return (ncp_ref_count + cli_ref_count) > 0, nil
+}
+
 func (s *SqlCredentialStore) DeleteById(id uint) error {
+	inUse, err := s.IsInUse(id)
+	if err != nil {
+		return err
+	}
+
+	if inUse {
+		return errors.New("Credentials are in use and cannot be deleted")
+	}
+
 	if err := s.db.Delete(&model.Credential{}, id).Error; err != nil {
 		return err
 	}
