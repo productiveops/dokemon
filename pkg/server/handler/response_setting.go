@@ -10,5 +10,8 @@ type settingResponse struct {
 }
 
 func newSettingResponse(m *model.Setting) *settingResponse {
-	return &settingResponse{Id: m.Id, Value: m.Value}
+	return &settingResponse{
+		Id: m.Id,
+		Value: m.Value,
+	}
 }

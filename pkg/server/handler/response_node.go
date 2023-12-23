@@ -64,5 +64,7 @@ type agentRegistrationTokenResponse struct {
 }
 
 func newAgentRegistrationTokenResponse(token string) *agentRegistrationTokenResponse {
-	return &agentRegistrationTokenResponse{Token: token}
+	return &agentRegistrationTokenResponse{
+		Token: token,
+	}
 }
