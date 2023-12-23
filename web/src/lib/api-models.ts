@@ -130,6 +130,13 @@ export interface INodeComposeItem {
   status: string
 }
 
+export interface INodeComposeVariable {
+  id: number
+  name: string
+  isSecret: boolean
+  value: string
+}
+
 export interface INodeComposeContainer {
   name: string
   image: string

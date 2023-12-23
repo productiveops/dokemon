@@ -19,6 +19,7 @@ type Handler struct {
 	userStore store.UserStore
 	nodeStore store.NodeStore
 	nodeComposeProjectStore store.NodeComposeProjectStore
+	nodeComposeProjectVariableStore store.NodeComposeProjectVariableStore
 	settingStore store.SettingStore
 	variableStore store.VariableStore
 	variableValueStore store.VariableValueStore
@@ -37,6 +38,7 @@ func NewHandler(
 	userStore store.UserStore,
 	nodeStore store.NodeStore,
 	nodeComposeProjectStore store.NodeComposeProjectStore,
+	nodeComposeProjectVariableStore store.NodeComposeProjectVariableStore,
 	settingStore store.SettingStore,
 	variableStore store.VariableStore,
 	variableValueStore store.VariableValueStore,
@@ -50,6 +52,7 @@ func NewHandler(
 		userStore: userStore,
 		nodeStore: nodeStore,
 		nodeComposeProjectStore: nodeComposeProjectStore,
+		nodeComposeProjectVariableStore: nodeComposeProjectVariableStore,
 		settingStore: settingStore,
 		variableStore: variableStore,
 		variableValueStore: variableValueStore,
@@ -146,22 +149,31 @@ func (h *Handler) Register(e *echo.Echo) {
 	githubcomposelibrary.DELETE("/:id", h.DeleteGitHubComposeProject)
 	githubcomposelibrary.GET("/:id", h.GetGitHubComposeProjectById)
 
-	node_compose := nodes.Group("/:nodeId/compose")
-	node_compose.GET("", h.GetNodeComposeProjectList)
-	node_compose.POST("/create/github", h.CreateGitHubNodeComposeProject)
-	node_compose.POST("/create/local", h.CreateLocalNodeComposeProject)
-	node_compose.POST("/create/library", h.AddNodeComposeProjectFromLibrary)
-	node_compose.GET("/uniquename", h.IsUniqueNodeComposeProjectName)
-	node_compose.GET("/:id/uniquename", h.IsUniqueNodeComposeProjectNameExcludeItself)
-	node_compose.PUT("/:id/github", h.UpdateGitHubNodeComposeProject)
-	node_compose.PUT("/:id/local", h.UpdateLocalNodeComposeProject)
-	node_compose.GET("/:id", h.GetNodeComposeProject)
-	node_compose.DELETE("/:id", h.DeleteNodeComposeProject)
-	node_compose.GET("/:id/containers", h.GetNodeComposeContainerList)
-	node_compose.GET("/:id/logs", h.GetNodeComposeLogs)
-	node_compose.GET("/:id/pull", h.GetNodeComposePull)
-	node_compose.GET("/:id/up", h.GetNodeComposeUp)
-	node_compose.GET("/:id/down", h.GetNodeComposeDown)
+	node_compose_project := nodes.Group("/:nodeId/compose")
+	node_compose_project.GET("", h.GetNodeComposeProjectList)
+	node_compose_project.POST("/create/github", h.CreateGitHubNodeComposeProject)
+	node_compose_project.POST("/create/local", h.CreateLocalNodeComposeProject)
+	node_compose_project.POST("/create/library", h.AddNodeComposeProjectFromLibrary)
+	node_compose_project.GET("/uniquename", h.IsUniqueNodeComposeProjectName)
+	node_compose_project.GET("/:id/uniquename", h.IsUniqueNodeComposeProjectNameExcludeItself)
+	node_compose_project.PUT("/:id/github", h.UpdateGitHubNodeComposeProject)
+	node_compose_project.PUT("/:id/local", h.UpdateLocalNodeComposeProject)
+	node_compose_project.GET("/:id", h.GetNodeComposeProject)
+	node_compose_project.DELETE("/:id", h.DeleteNodeComposeProject)
+	node_compose_project.GET("/:id/containers", h.GetNodeComposeContainerList)
+	node_compose_project.GET("/:id/logs", h.GetNodeComposeLogs)
+	node_compose_project.GET("/:id/pull", h.GetNodeComposePull)
+	node_compose_project.GET("/:id/up", h.GetNodeComposeUp)
+	node_compose_project.GET("/:id/down", h.GetNodeComposeDown)
+
+	node_compose_project_variables := node_compose_project.Group("/:node_compose_project_id/variables")
+	node_compose_project_variables.POST("", h.CreateNodeComposeProjectVariable)
+	node_compose_project_variables.PUT("/:id", h.UpdateNodeComposeProjectVariable)
+	node_compose_project_variables.GET("", h.GetNodeComposeProjectVariableList)
+	node_compose_project_variables.GET("/:id", h.GetNodeComposeProjectVariableById)
+	node_compose_project_variables.DELETE("/:id", h.DeleteNodeComposeProjectVariableById)
+	node_compose_project_variables.GET("/uniquename", h.IsUniqueNodeComposeProjectVariableName)
+	node_compose_project_variables.GET("/:id/uniquename", h.IsUniqueNodeComposeProjectVariableNameExcludeItself)
 
 	variables := v1.Group("/variables")
 	variables.POST("", h.CreateVariable)

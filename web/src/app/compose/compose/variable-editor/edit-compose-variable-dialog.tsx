@@ -1,11 +1,10 @@
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Form,
@@ -22,15 +21,30 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn, trimString } from "@/lib/utils"
-import useVariables from "@/hooks/useVariables"
 import { Checkbox } from "@/components/ui/checkbox"
 import apiBaseUrl from "@/lib/api-base-url"
+import { INodeComposeVariable } from "@/lib/api-models"
 import { toast } from "@/components/ui/use-toast"
+import useNodeComposeVariables from "@/hooks/useNodeComposeVariables"
 
-export default function AddVariableDialog() {
-  const [open, setOpen] = useState(false)
+export default function EditComposeVariableDialog({
+  openState,
+  setOpenState,
+  variable,
+  nodeId,
+  nodeComposeProjectId,
+}: {
+  openState: boolean
+  setOpenState: Dispatch<SetStateAction<boolean>>
+  variable: INodeComposeVariable
+  nodeId: string
+  nodeComposeProjectId: string
+}) {
   const [isSaving, setIsSaving] = useState(false)
-  const { mutateVariables } = useVariables()
+  const { mutateNodeComposeVariables } = useNodeComposeVariables(
+    nodeId,
+    nodeComposeProjectId
+  )
 
   const formSchema = z.object({
     name: z.preprocess(
@@ -41,12 +55,16 @@ export default function AddVariableDialog() {
         .max(100)
         .refine(async (value) => {
           const res = await fetch(
-            `${apiBaseUrl()}/variables/uniquename?value=${value}`
+            `${apiBaseUrl()}/nodes/${nodeId}/compose/${nodeComposeProjectId}/variables/${
+              variable.id
+            }/uniquename?value=${value}`
           )
           return (await res.json()).unique
         }, "Another variable with this name already exists")
     ),
     isSecret: z.boolean(),
+    value: z.string(),
+    nodeComposeProjectId: z.number(),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
@@ -54,37 +72,42 @@ export default function AddVariableDialog() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      isSecret: false,
+      ...variable,
+      nodeComposeProjectId: Number(nodeComposeProjectId),
     },
   })
 
   const handleCloseForm = () => {
-    setOpen(false)
+    setOpenState(false)
     form.reset()
   }
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/variables`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/${nodeComposeProjectId}/variables/${
+        variable.id
+      }`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
       handleCloseForm()
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem when saving new variable. Try again!",
+        title: "Something went wrong.",
+        description: "There was a problem when saving the variable. Try again!",
       })
     } else {
-      mutateVariables()
+      mutateNodeComposeVariables()
       setTimeout(() => {
         handleCloseForm()
         toast({
           title: "Success!",
-          description: "New variable has been added.",
+          description: "Variable has been saved.",
         })
       }, 500)
     }
@@ -92,16 +115,13 @@ export default function AddVariableDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add Variable</Button>
-      </DialogTrigger>
+    <Dialog open={openState} onOpenChange={setOpenState}>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <fieldset className={cn("group")} disabled={isSaving}>
               <DialogHeader>
-                <DialogTitle>Add Variable</DialogTitle>
+                <DialogTitle>Edit Variable</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4 group-disabled:opacity-50">
                 <FormField
@@ -131,6 +151,24 @@ export default function AddVariableDialog() {
                           />
                         </FormControl>
                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={
+                            form.getValues()["isSecret"] ? "password" : "text"
+                          }
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

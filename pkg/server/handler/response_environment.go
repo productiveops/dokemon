@@ -19,7 +19,10 @@ type environmentHead struct {
 }
 
 func newEnvironmentHead(m *model.Environment) environmentHead {
-	return environmentHead{Id: m.Id, Name: m.Name}
+	return environmentHead{
+		Id: m.Id,
+		Name: m.Name,
+	}
 }
 
 func newEnvironmentHeadList(rows []model.Environment) []environmentHead {

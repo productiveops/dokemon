@@ -75,7 +75,7 @@ export default function NodeCompose() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!nodeComposeItems?.items && (
+            {nodeComposeItems?.totalRows === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
                   No data to display

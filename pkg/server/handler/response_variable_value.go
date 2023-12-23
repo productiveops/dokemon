@@ -27,5 +27,7 @@ func newVariableValueResponse(m *model.VariableValue) *variableValueResponse {
 		}
 	}
 
-	return &variableValueResponse{Value: decryptedValue}
+	return &variableValueResponse{
+		Value: decryptedValue,
+	}
 }

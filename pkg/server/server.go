@@ -34,7 +34,9 @@ type Server struct {
 	sslEnabled bool
 }
 
-func (s *Server) Init(dbConnectionString string, dataPath string, logLevel string, sslEnabled string) {
+func NewServer(dbConnectionString string, dataPath string, logLevel string, sslEnabled string) (*Server) {
+	s := Server{}
+
 	setLogLevel(logLevel)
 	log.Info().Msg("Starting Dokemon v" + common.Version)
 
@@ -49,31 +51,15 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	
 	s.sslEnabled = sslEnabled == "1"
 
-	// Init compose projects directory
-	composeProjectsPath := dataPath + "/compose"
-	os.MkdirAll(composeProjectsPath, os.ModePerm)
-
-	// Initialize database
-	db, err := gorm.Open(sqlite.Open(dbConnectionString), &gorm.Config{})
+	composeProjectsPath := path.Join(dataPath, "/compose")
+	initCompose(composeProjectsPath)
+	initEncryption(dataPath)
+	db, err := initDatabase(dbConnectionString)
 	if err != nil {
-		panic(err)
+		log.Fatal().Err(err).Msg("Error while initializing database")
 	}
 
-	db.AutoMigrate(
-		&model.ComposeLibraryItem{},
-		&model.Credential{},
-		&model.Environment{},
-		&model.Node{},
-		&model.NodeComposeProject{},
-		&model.Setting{},
-		&model.User{},
-		&model.Variable{},
-		&model.VariableValue{},
-	)
-
-	db.FirstOrCreate(&model.Setting{Id: "SERVER_URL", Value: ""})
-	db.FirstOrCreate(&model.Node{Id: 1, Name: "[Dokemon Server]", TokenHash: nil, LastPing: nil})
-
+	// Setup stores
 	sqlNodeComposeProjectStore := store.NewSqlNodeComposeProjectStore(db, composeProjectsPath)
 	h := handler.NewHandler(
 		composeProjectsPath,
@@ -83,13 +69,38 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 		store.NewSqlUserStore(db),
 		store.NewSqlNodeStore(db),
 		sqlNodeComposeProjectStore,
+		store.NewSqlNodeComposeProjectVariableStore(db),
 		store.NewSqlSettingStore(db),
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
 		store.NewLocalFileSystemComposeLibraryStore(db, composeProjectsPath),
 		)
 
-	// Init encryption key
+	err = sqlNodeComposeProjectStore.UpdateOldVersionRecords()
+	if err != nil {
+		log.Error().Err(err).Msg("Error while updating old version data")
+	}
+
+	// Web Server
+	s.handler = h
+	s.Echo = router.New()
+	s.Echo.HideBanner = true
+	s.Echo.Use(s.authMiddleware)
+	s.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"*"},
+		AllowMethods: []string{"*"}, 
+	}))
+	h.Register(s.Echo)
+
+	return &s
+}
+
+func initCompose(composeProjectsPath string) {
+	os.MkdirAll(composeProjectsPath, os.ModePerm)
+}
+
+func initEncryption(dataPath string) {
 	keyFile := dataPath + "/key"
 	if _, err := os.Stat(keyFile); errors.Is(err, os.ErrNotExist) {
 		log.Info().Msg("key file does not exist. Generating new key.")
@@ -108,24 +119,43 @@ func (s *Server) Init(dbConnectionString string, dataPath string, logLevel strin
 	if err != nil {
 		log.Fatal().Err(err).Msg("Error while reading key file")
 	}
-	ske.Init(string(keyBytes))
 
-	err = sqlNodeComposeProjectStore.UpdateOldVersionRecords()
+	ske.Init(string(keyBytes))
+}
+
+func initDatabase(dbConnectionString string) (*gorm.DB, error) {
+	db, err := gorm.Open(sqlite.Open(dbConnectionString), &gorm.Config{})
 	if err != nil {
-		log.Error().Err(err).Msg("Error while updating old version data")
+		return nil, err
 	}
 
-	// Web Server
-	s.handler = h
-	s.Echo = router.New()
-	s.Echo.HideBanner = true
-	s.Echo.Use(s.authMiddleware)
-	s.Echo.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"*"},
-		AllowMethods: []string{"*"}, 
-	}))
-	h.Register(s.Echo)
+	err = db.AutoMigrate(
+		&model.ComposeLibraryItem{},
+		&model.Credential{},
+		&model.Environment{},
+		&model.Node{},
+		&model.NodeComposeProject{},
+		&model.NodeComposeProjectVariable{},
+		&model.Setting{},
+		&model.User{},
+		&model.Variable{},
+		&model.VariableValue{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.FirstOrCreate(&model.Setting{Id: "SERVER_URL", Value: ""}).Error
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.FirstOrCreate(&model.Node{Id: 1, Name: "[Dokemon Server]", TokenHash: nil, LastPing: nil}).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func (s *Server) Run(addr string) {

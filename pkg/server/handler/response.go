@@ -25,11 +25,18 @@ type uniqueResponse struct {
 }
 
 func newPageResponse[T any](rows []T, pageNo, pageSize, totalRows uint) *pageResponse[T] {
-	return &pageResponse[T]{Items: rows, PageNo: pageNo, PageSize: pageSize, TotalRows: totalRows}
+	return &pageResponse[T]{
+		Items: rows,
+		PageNo: pageNo,
+		PageSize: pageSize,
+		TotalRows: totalRows,
+	}
 }
 
 func newUniqueResponse(unique bool) *uniqueResponse {
-	return &uniqueResponse{Unique: unique}
+	return &uniqueResponse{
+		Unique: unique,
+	}
 }
 
 func ok(c echo.Context, r interface{}) error {

@@ -35,5 +35,7 @@ type userCountResponse struct {
 }
 
 func newUserCountResponse(count int64) *userCountResponse {
-	return &userCountResponse{Count: count}
+	return &userCountResponse{
+		Count: count,
+	}
 }

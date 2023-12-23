@@ -106,9 +106,9 @@ export default function Nodes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!nodes?.items && (
+            {nodes?.totalRows === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>
@@ -153,20 +153,6 @@ export default function Nodes() {
                         : "-"}
                   </TableCell>
                   <TableCell className="text-right">
-                    {/* {item.id !== 1 &&
-                      item.registered &&
-                      item.agentVersion !== VERSION && (
-                        <Button
-                          className="mr-4"
-                          size={"sm"}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleRegister(item.id, true)
-                          }}
-                        >
-                          Update Agent
-                        </Button>
-                      )} */}
                     {!item.registered && (
                       <Button
                         className="mr-4"

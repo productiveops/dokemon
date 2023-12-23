@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	s := server.Server{}
-	s.Init(
+	s := server.NewServer(
 		os.Getenv("DB_CONNECTION_STRING"),
 		os.Getenv("DATA_PATH"),
 		os.Getenv("LOG_LEVEL"),

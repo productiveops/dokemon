@@ -22,15 +22,24 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn, trimString } from "@/lib/utils"
-import useVariables from "@/hooks/useVariables"
 import { Checkbox } from "@/components/ui/checkbox"
 import apiBaseUrl from "@/lib/api-base-url"
 import { toast } from "@/components/ui/use-toast"
+import useNodeComposeVariables from "@/hooks/useNodeComposeVariables"
 
-export default function AddVariableDialog() {
+export default function AddComposeVariableDialog({
+  nodeId,
+  nodeComposeProjectId,
+}: {
+  nodeId: string
+  nodeComposeProjectId: string
+}) {
   const [open, setOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const { mutateVariables } = useVariables()
+  const { mutateNodeComposeVariables } = useNodeComposeVariables(
+    nodeId,
+    nodeComposeProjectId
+  )
 
   const formSchema = z.object({
     name: z.preprocess(
@@ -41,12 +50,14 @@ export default function AddVariableDialog() {
         .max(100)
         .refine(async (value) => {
           const res = await fetch(
-            `${apiBaseUrl()}/variables/uniquename?value=${value}`
+            `${apiBaseUrl()}/nodes/${nodeId}/compose/${nodeComposeProjectId}/variables/uniquename?value=${value}`
           )
           return (await res.json()).unique
         }, "Another variable with this name already exists")
     ),
     isSecret: z.boolean(),
+    value: z.string(),
+    nodeComposeProjectId: z.number(),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>
@@ -54,8 +65,10 @@ export default function AddVariableDialog() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      nodeComposeProjectId: Number(nodeComposeProjectId),
       name: "",
       isSecret: false,
+      value: "",
     },
   })
 
@@ -66,11 +79,14 @@ export default function AddVariableDialog() {
 
   const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/variables`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/${nodeComposeProjectId}/variables`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    )
     if (!response.ok) {
       handleCloseForm()
       toast({
@@ -79,7 +95,7 @@ export default function AddVariableDialog() {
         description: "There was a problem when saving new variable. Try again!",
       })
     } else {
-      mutateVariables()
+      mutateNodeComposeVariables()
       setTimeout(() => {
         handleCloseForm()
         toast({
@@ -131,6 +147,24 @@ export default function AddVariableDialog() {
                           />
                         </FormControl>
                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="value"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Value</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={
+                            form.getValues()["isSecret"] ? "password" : "text"
+                          }
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

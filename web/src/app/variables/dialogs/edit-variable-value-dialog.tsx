@@ -103,7 +103,10 @@ export default function EditVariableValueDialog({
                     <FormItem>
                       <FormLabel>Value</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input
+                          {...field}
+                          type={variableHead.isSecret ? "password" : "text"}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

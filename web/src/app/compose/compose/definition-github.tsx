@@ -51,6 +51,7 @@ import useCredentials from "@/hooks/useCredentials"
 import useNodeHead from "@/hooks/useNodeHead"
 import AddGitHubPATDialog from "@/app/credentials/dialogs/add-github-pat-dialog"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
+import ComposeVariableEditor from "./variable-editor/compose-variable-editor"
 
 export default function ComposeDefinitionGitHub() {
   const { nodeId } = useParams()
@@ -394,6 +395,14 @@ export default function ComposeDefinitionGitHub() {
                   </fieldset>
                 </form>
               </Form>
+            </SectionBody>
+          </Section>
+          <Section>
+            <SectionBody>
+              <ComposeVariableEditor
+                nodeId={nodeId!}
+                nodeComposeProjectId={composeProjectId!}
+              />
             </SectionBody>
           </Section>
         </MainContainer>

@@ -105,21 +105,8 @@ func (s *SqlNodeComposeProjectStore) UpdateOldVersionRecords() error {
 	for _, item := range l {
 		if item.LibraryProjectId != nil { // GitHub project
 			item.Type = "github"
-			// composeLibraryStore := NewSqlComposeLibraryStore(s.db)
-			// gitHubLibraryProject, err := composeLibraryStore.GetById(*item.LibraryProjectId)
-			// if err != nil {
-			// 	return err
-			// }
-			// item.CredentialId = gitHubLibraryProject.CredentialId
-			// item.Url = &gitHubLibraryProject.Url
 		} else { // FileSystem project
 			item.Type = "local"
-			// fileSystemComposeLibraryStore := NewLocalFileSystemComposeLibraryStore(s.db, s.composeLibraryPath)
-			// fileSystemLibraryProject, err := fileSystemComposeLibraryStore.GetByName(item.LibraryProjectName)
-			// if err != nil {
-			// 	return err
-			// }
-			// item.Definition = &fileSystemLibraryProject.Definition
 		}
 
 		if err := s.db.Save(item).Error; err != nil {
