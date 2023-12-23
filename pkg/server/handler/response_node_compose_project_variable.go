@@ -10,12 +10,20 @@ type nodeComposeProjectVariableResponse struct {
 	Value      				string 	`json:"value"`
 }
 
-func newNodeComposeProjectVariableResponse(m *model.NodeComposeProjectVariable) *nodeComposeProjectVariableResponse {
-	return &nodeComposeProjectVariableResponse{
+func newNodeComposeProjectVariableResponse(m *model.NodeComposeProjectVariable) nodeComposeProjectVariableResponse {
+	return nodeComposeProjectVariableResponse{
 		Id: m.Id,
 		NodeComposeProjectId: m.NodeComposeProjectId,
 		Name: m.Name,
 		IsSecret: m.IsSecret,
 		Value: m.Value,
 	}
+}
+
+func newNodeComposeProjectVariableList(rows []model.NodeComposeProjectVariable) []nodeComposeProjectVariableResponse {
+	headRows := make([]nodeComposeProjectVariableResponse, len(rows))
+	for i, r := range rows {
+		headRows[i] = newNodeComposeProjectVariableResponse(&r)
+	}
+	return headRows
 }

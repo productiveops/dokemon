@@ -48,6 +48,18 @@ type NodeComposeProjectStore interface {
 	IsUniqueNameExcludeItself(nodeId uint, name string, id uint) (bool, error)
 }
 
+type NodeComposeProjectVariableStore interface {
+	Create(m *model.NodeComposeProjectVariable) error
+	Update(m *model.NodeComposeProjectVariable) error
+	GetById(nodeComposeProjectId uint, id uint) (*model.NodeComposeProjectVariable, error)
+	GetList(nodeComposeProjectId uint, pageNo, pageSize uint) ([]model.NodeComposeProjectVariable, int64, error)
+	DeleteById(nodeComposeProjectId uint, id uint) error
+	Exists(nodeComposeProjectId uint, id uint) (bool, error)
+
+	IsUniqueName(nodeComposeProjectId uint, name string) (bool, error)
+	IsUniqueNameExcludeItself(nodeComposeProjectId uint, name string, id uint) (bool, error)
+}
+
 type SettingStore interface {
 	Create(m *model.Setting) error
 	Update(m *model.Setting) error

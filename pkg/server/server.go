@@ -69,6 +69,7 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 		store.NewSqlUserStore(db),
 		store.NewSqlNodeStore(db),
 		sqlNodeComposeProjectStore,
+		store.NewSqlNodeComposeProjectVariableStore(db),
 		store.NewSqlSettingStore(db),
 		store.NewSqlVariableStore(db),
 		store.NewSqlVariableValueStore(db),
