@@ -14,5 +14,5 @@ go build .\cmd\server\
 $env:DB_CONNECTION_STRING="c:\temp\dokemondata\db"
 $env:DATA_PATH="c:\temp\dokemondata"
 $env:LOG_LEVEL="DEBUG"
-$env:SSL_ENABLED="1"
+$env:SSL_ENABLED="0"
 .\server.exe

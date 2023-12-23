@@ -119,7 +119,10 @@ func (s *SqlVariableValueStore) GetMapByEnvironment(environmentId uint) (map[str
 			value = decryptedValue
 		}
 
-		ret[variable.Name] = VariableValue{Value: &value, IsSecret: variable.IsSecret }
+		ret[variable.Name] = VariableValue{
+			Value: &value,
+			IsSecret: variable.IsSecret,
+		}
 	}
 
 	return ret, nil

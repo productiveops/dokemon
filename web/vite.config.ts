@@ -8,11 +8,11 @@ export default defineConfig(({ command, mode }) => {
   if (mode === "development") {
     proxy = {
       "/api": {
-        target: "https://localhost:9090",
+        target: "http://localhost:9090",
         secure: false, // Allow self-signed certificates
       },
       "/ws": {
-        target: "https://localhost:9090",
+        target: "http://localhost:9090",
         ws: true,
         secure: false, // Allow self-signed certificates
       },

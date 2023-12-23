@@ -438,6 +438,37 @@ func (h *Handler) getComposeProjectDefinition(ncp *model.NodeComposeProject) (st
 	return definition, nil
 }
 
+func (h *Handler) getComposeVariables(environmentId *uint, nodeComposeProjectId uint) map[string]store.VariableValue {
+	var err error
+
+	variables := make(map[string]store.VariableValue)
+	if environmentId != nil {
+		variables, err = h.variableValueStore.GetMapByEnvironment(*environmentId)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	composeVariables, _, err := h.nodeComposeProjectVariableStore.GetList(nodeComposeProjectId, 1, 10000)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, v := range composeVariables {
+		decryptedValue, err := ske.Decrypt(v.Value)
+		if err != nil {
+			panic(err)
+		}
+
+		variables[v.Name] = store.VariableValue{
+			IsSecret: v.IsSecret,
+			Value: &decryptedValue,
+		}
+	}
+
+	return variables
+}
+
 func (h *Handler) GetNodeComposePull(c echo.Context) error {
 	nodeId, err := strconv.Atoi(c.Param("nodeId"))
 	if err != nil {
@@ -469,13 +500,7 @@ func (h *Handler) GetNodeComposePull(c echo.Context) error {
 		environmentId = node.EnvironmentId
 	}
 
-	variables := make(map[string]store.VariableValue)
-	if environmentId != nil {
-		variables, err = h.variableValueStore.GetMapByEnvironment(*environmentId)
-		if err != nil {
-			panic(err)			
-		}
-	}
+	variables := h.getComposeVariables(environmentId, uint(id))
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
@@ -531,13 +556,7 @@ func (h *Handler) GetNodeComposeUp(c echo.Context) error {
 		environmentId = node.EnvironmentId
 	}
 
-	variables := make(map[string]store.VariableValue)
-	if environmentId != nil {
-		variables, err = h.variableValueStore.GetMapByEnvironment(*environmentId)
-		if err != nil {
-			panic(err)			
-		}
-	}
+	variables := h.getComposeVariables(environmentId, uint(id))
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
 	if err != nil {
