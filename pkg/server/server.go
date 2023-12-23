@@ -134,6 +134,7 @@ func initDatabase(dbConnectionString string) (*gorm.DB, error) {
 		&model.Environment{},
 		&model.Node{},
 		&model.NodeComposeProject{},
+		&model.NodeComposeProjectVariable{},
 		&model.Setting{},
 		&model.User{},
 		&model.Variable{},
