@@ -85,7 +85,7 @@ func (s *SqlNodeComposeProjectVariableStore) IsUniqueNameExcludeItself(nodeCompo
 	var count int64
 
 	if err := s.db.Model(&model.NodeComposeProjectVariable{}).
-					Where("nodeComposeProjectId = ? and name = ? COLLATE NOCASE and id <> ?", nodeComposeProjectId, name, id).
+					Where("node_compose_project_id = ? and name = ? COLLATE NOCASE and id <> ?", nodeComposeProjectId, name, id).
 					Count(&count).Error; err != nil {
 		return false, err
 	}

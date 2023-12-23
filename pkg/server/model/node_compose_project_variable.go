@@ -3,8 +3,8 @@ package model
 type NodeComposeProjectVariable struct {
 	Id                   uint
 	NodeComposeProjectId uint
-	NodeComposeProject   uint
-	Name                 string `gorm:"unique;size:100"`
+	NodeComposeProject   NodeComposeProject
+	Name                 string `gorm:"size:100"`
 	IsSecret             bool
 	Value                string
 }

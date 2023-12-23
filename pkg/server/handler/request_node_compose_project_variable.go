@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/productiveops/dokemon/pkg/crypto/ske"
 	"github.com/productiveops/dokemon/pkg/server/model"
 
 	"github.com/labstack/echo/v4"
@@ -25,7 +26,12 @@ func (r *nodeComposeProjectVariableCreateRequest) bind(c echo.Context, m *model.
 	m.NodeComposeProjectId = r.NodeComposeProjectId
 	m.Name = r.Name
 	m.IsSecret = r.IsSecret
-	m.Value = r.Value
+
+	enryptedValue, err := ske.Encrypt(r.Value)
+	if err != nil {
+		return err
+	}
+	m.Value = enryptedValue
 
 	return nil
 }
@@ -51,7 +57,12 @@ func (r *nodeComposeProjectVariableUpdateRequest) bind(c echo.Context, m *model.
 	m.NodeComposeProjectId = r.NodeComposeProjectId
 	m.Name = r.Name
 	m.IsSecret = r.IsSecret
-	m.Value = r.Value
+	
+	enryptedValue, err := ske.Encrypt(r.Value)
+	if err != nil {
+		return err
+	}
+	m.Value = enryptedValue
 
 	return nil
 }

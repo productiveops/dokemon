@@ -36,6 +36,7 @@ import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
+import ComposeVariableEditor from "./variable-editor/compose-variable-editor"
 
 export default function ComposeDefinitionLocal() {
   const { nodeId } = useParams()
@@ -234,6 +235,14 @@ export default function ComposeDefinitionLocal() {
                   </fieldset>
                 </form>
               </Form>
+            </SectionBody>
+          </Section>
+          <Section>
+            <SectionBody>
+              <ComposeVariableEditor
+                nodeId={nodeId!}
+                nodeComposeProjectId={composeProjectId!}
+              />
             </SectionBody>
           </Section>
         </MainContainer>
