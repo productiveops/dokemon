@@ -79,9 +79,9 @@ export default function Environments() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!environments?.items && (
+            {environments?.totalRows === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={2} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>

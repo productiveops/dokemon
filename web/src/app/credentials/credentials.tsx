@@ -91,9 +91,9 @@ export default function Credentials() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!credentials?.items && (
+            {credentials?.totalRows === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={3} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>

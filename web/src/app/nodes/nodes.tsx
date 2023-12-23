@@ -106,9 +106,9 @@ export default function Nodes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!nodes?.items && (
+            {nodes?.totalRows === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>

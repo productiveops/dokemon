@@ -102,9 +102,9 @@ export default function Variables() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!variables?.items && (
+            {variables?.totalRows === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={4} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>

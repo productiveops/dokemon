@@ -210,7 +210,7 @@ export default function Containers() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!containers?.items && (
+            {containers?.items?.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center">
                   No data to display

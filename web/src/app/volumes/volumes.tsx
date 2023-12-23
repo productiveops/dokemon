@@ -76,9 +76,9 @@ export default function Volumes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {!volumes?.items && (
+            {volumes?.items?.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={3} className="text-center">
                   No data to display
                 </TableCell>
               </TableRow>
