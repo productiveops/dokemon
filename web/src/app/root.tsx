@@ -1,36 +1,10 @@
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import SideNav from "../components/side-nav/side-nav"
-import axios from "axios"
-import apiBaseUrl from "@/lib/api-base-url"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { LifebuoyIcon, UserCircleIcon } from "@heroicons/react/24/outline"
-import { cn, toastFailed } from "@/lib/utils"
 import { VERSION } from "@/lib/version"
 import { ModeToggle } from "@/components/ui/mode-toggle"
+import { SideNavLeftBottom } from "@/components/side-nav/side-nav-left-bottom"
 
 export default function Root() {
-  const navigate = useNavigate()
-
-  async function handleSignout() {
-    try {
-      await axios(`${apiBaseUrl()}/users/logout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-
-      navigate("/login")
-    } catch (e) {
-      if (axios.isAxiosError(e)) {
-        toastFailed(e.response?.data.errors?.body)
-      }
-    }
-  }
-
   return (
     <>
       <div>
@@ -51,51 +25,7 @@ export default function Root() {
                   <SideNav />
                 </li>
                 <li className="mt-auto pb-2">
-                  <ul role="list" className="-mx-2 space-y-1">
-                    <li>
-                      <a
-                        href="https://discord.gg/Nfevu4gJVG"
-                        target="_blank"
-                        className={cn(
-                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:bg-gray-800 hover:text-white"
-                        )}
-                      >
-                        <LifebuoyIcon
-                          className="h-6 w-6 shrink-0"
-                          aria-hidden="true"
-                        />
-                        Support
-                      </a>
-                    </li>
-                    <li>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <a
-                            href="#"
-                            className="group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-400 hover:text-white focus:outline-none"
-                          >
-                            <UserCircleIcon
-                              className="h-6 w-6 shrink-0"
-                              aria-hidden="true"
-                            />
-                            {localStorage.getItem("userName")}
-                          </a>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56">
-                          <DropdownMenuItem
-                            onClick={() => {
-                              navigate("/changepassword")
-                            }}
-                          >
-                            Change Password
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={handleSignout}>
-                            Sign Out
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </li>
-                  </ul>
+                  <SideNavLeftBottom />
                 </li>
               </ul>
             </nav>
