@@ -16,18 +16,27 @@ import useEnvironments from "@/hooks/useEnvironments"
 import AddEnvironmentDialog from "./dialogs/add-environment-dialog"
 import { useState } from "react"
 import { IEnvironmentHead } from "@/lib/api-models"
-import DeleteEnvironmentDialog from "./dialogs/delete-environment-dialog"
 import EditEnvironmentDialog from "./dialogs/edit-environment-dialog"
-import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  toastFailed,
+  toastSuccess,
+} from "@/lib/utils"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import apiBaseUrl from "@/lib/api-base-url"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Environments() {
-  const { isLoading, environments } = useEnvironments()
-  const [editEnvironmentOpen, setEditEnvironmentOpen] = useState(false)
-  const [deleteEnvironmentOpen, setDeleteEnvironmentOpen] = useState(false)
+  const { isLoading, environments, mutateEnvironments } = useEnvironments()
   const [environmentHead, setEnvironmentHead] =
     useState<IEnvironmentHead | null>(null)
+  const [editEnvironmentOpen, setEditEnvironmentOpen] = useState(false)
+  const [
+    deleteEnvironmentConfirmationOpen,
+    setDeleteEnvironmentConfirmationOpen,
+  ] = useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
@@ -36,9 +45,34 @@ export default function Environments() {
     setEditEnvironmentOpen(true)
   }
 
-  const handleDeleteEnvironment = (environmentHead: IEnvironmentHead) => {
+  const handleDeleteEnvironmentConfirmation = (
+    environmentHead: IEnvironmentHead
+  ) => {
     setEnvironmentHead({ ...environmentHead })
-    setDeleteEnvironmentOpen(true)
+    setDeleteEnvironmentConfirmationOpen(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/environments/${environmentHead?.id}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteEnvironmentConfirmationOpen(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateEnvironments()
+      setTimeout(() => {
+        setDeleteEnvironmentConfirmationOpen(false)
+        toastSuccess("Environment deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
@@ -50,11 +84,15 @@ export default function Environments() {
           environmentHead={environmentHead!}
         />
       )}
-      {deleteEnvironmentOpen && (
-        <DeleteEnvironmentDialog
-          openState={deleteEnvironmentOpen}
-          setOpenState={setDeleteEnvironmentOpen}
-          environmentHead={environmentHead!}
+      {deleteEnvironmentConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteEnvironmentConfirmationOpen}
+          setOpenState={setDeleteEnvironmentConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Environment"
+          message={`Are you sure you want to delete environment '${environmentHead?.name}?'`}
         />
       )}
       <TopBar>
@@ -91,7 +129,7 @@ export default function Environments() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteEnvironment(item)
+                        handleDeleteEnvironmentConfirmation(item)
                       }}
                     />
                   </TableCell>
