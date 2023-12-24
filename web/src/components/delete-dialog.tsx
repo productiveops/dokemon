@@ -8,64 +8,45 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn, toastFailed, toastSuccess } from "@/lib/utils"
-import apiBaseUrl from "@/lib/api-base-url"
-import { useNavigate, useParams } from "react-router-dom"
+import { cn } from "@/lib/utils"
 import { DialogTrigger } from "@radix-ui/react-dialog"
-import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 
-export default function DeleteComposeDialog() {
-  const { composeProjectName } = useParams()
-  const navigate = useNavigate()
-
+export default function DeleteDialog({
+  deleteCaption,
+  title,
+  message,
+  deleteHandler,
+  isProcessing,
+}: {
+  deleteCaption: string
+  title: string
+  message: string
+  deleteHandler: React.MouseEventHandler
+  isProcessing: boolean
+}) {
   const [open, setOpen] = useState(false)
-  const [isSaving, setIsSaving] = useState(false)
-  const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
-
-  const handleDelete = async () => {
-    setIsSaving(true)
-
-    const response = await fetch(
-      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
-      {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
-    if (!response.ok) {
-      const r = await response.json()
-      toastFailed(r.errors?.body)
-    } else {
-      mutateComposeLibraryItemList()
-      setTimeout(() => {
-        toastSuccess("Compose project deleted.")
-        navigate("/composelibrary")
-      }, 500)
-    }
-    setIsSaving(false)
-  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant={"destructive"} className="ml-auto w-24">
-          Delete
+          {deleteCaption}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Delete Compose Project</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4 group-disabled:opacity-50">
-          <p>{`Are you sure you want to delete project '${composeProjectName}'?`}</p>
+          <p>{message}</p>
         </div>
         <DialogFooter>
-          <fieldset disabled={isSaving} className="group">
+          <fieldset disabled={isProcessing} className="group">
             <Button
               variant={"destructive"}
               className={cn("relative w-24 group-disabled:pointer-events-none")}
-              disabled={isSaving}
-              onClick={() => handleDelete()}
+              disabled={isProcessing}
+              onClick={deleteHandler}
             >
               <Icons.spinner
                 className={cn(

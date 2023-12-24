@@ -40,10 +40,10 @@ import {
 import Editor, { OnMount } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
-import DeleteComposeDialog from "./dialogs/delete-compose-dialog"
 import useFileSystemComposeLibraryItem from "@/hooks/useFileSystemComposeLibraryItem"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { useTheme } from "@/components/ui/theme-provider"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function EditFileSystemComposeProject() {
   const { composeProjectName } = useParams()
@@ -130,6 +130,29 @@ export default function EditFileSystemComposeProject() {
     setEditorMounted(editorMounted + 1)
   }
 
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/composelibrary/filesystem/${composeProjectName}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      toastFailed(r.errors?.body)
+    } else {
+      mutateComposeLibraryItemList()
+      setTimeout(() => {
+        toastSuccess("Compose project deleted.")
+        navigate("/composelibrary")
+      }, 500)
+    }
+    setDeleteInProgress(false)
+  }
+
   return (
     <MainArea>
       <TopBar>
@@ -149,7 +172,13 @@ export default function EditFileSystemComposeProject() {
         >
           Save
         </Button>
-        <DeleteComposeDialog />
+        <DeleteDialog
+          deleteCaption="Delete"
+          title="Delete Compose Project"
+          message={`Are you sure you want to delete project '${composeProjectName}'?`}
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+        />
       </div>
       <MainContent>
         <MainContainer>

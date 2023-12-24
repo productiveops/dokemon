@@ -124,6 +124,7 @@ export function toastSomethingWentWrong(message: string) {
 
 export function toastFailed(message: string) {
   toast({
+    variant: "destructive",
     title: "Failed!",
     description: message,
   })

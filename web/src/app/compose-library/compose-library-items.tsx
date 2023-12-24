@@ -54,7 +54,7 @@ export default function ComposeLibraryItems() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {composeLibraryItems?.totalRows === 0 && (
+            {composeLibraryItems?.totalRows === -1 && (
               <TableNoData colSpan={3} />
             )}
             {composeLibraryItems?.items &&

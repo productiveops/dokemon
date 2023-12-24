@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import {
   Breadcrumb,
   BreadcrumbCurrent,
@@ -57,17 +57,20 @@ import {
 import useCredentials from "@/hooks/useCredentials"
 import AddGitHubPATDialog from "../credentials/dialogs/add-github-pat-dialog"
 import useGitHubComposeLibraryItem from "@/hooks/useGitHubComposeLibraryItem"
-import DeleteGitHubComposeDialog from "./dialogs/delete-github-compose-dialog"
+import DeleteDialog from "@/components/delete-dialog"
+import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 
 export default function EditGitHubComposeProject() {
   const { composeProjectId } = useParams()
   const { gitHubComposeLibraryItem } = useGitHubComposeLibraryItem(
     composeProjectId!
   )
+  const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
   const [isSaving, setIsSaving] = useState(false)
   const { credentials } = useCredentials()
   const [credentialsComboOpen, setCredentialsComboOpen] = useState(false)
   const { theme } = useTheme()
+  const navigate = useNavigate()
 
   initMonaco()
 
@@ -160,6 +163,29 @@ export default function EditGitHubComposeProject() {
     }
   }
 
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/composelibrary/github/${composeProjectId}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      toastFailed(r.errors?.body)
+    } else {
+      mutateComposeLibraryItemList()
+      setTimeout(() => {
+        toastSuccess("Compose project deleted.")
+        navigate("/composelibrary")
+      }, 500)
+    }
+    setDeleteInProgress(false)
+  }
+
   return (
     <MainArea>
       <TopBar>
@@ -181,7 +207,13 @@ export default function EditGitHubComposeProject() {
         >
           Save
         </Button>
-        <DeleteGitHubComposeDialog />
+        <DeleteDialog
+          deleteCaption="Delete"
+          title="Delete Compose Project"
+          message={`Are you sure you want to delete project '${gitHubComposeLibraryItem?.projectName}'?`}
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+        />
       </div>
       <MainContent>
         <MainContainer>
