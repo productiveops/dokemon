@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button"
 import apiBaseUrl from "@/lib/api-base-url"
 import { IContainer, IPort } from "@/lib/api-models"
 import { useState } from "react"
-import DeleteContainerDialog from "./dialogs/delete-container-dialog"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainArea from "@/components/widgets/main-area"
@@ -37,6 +36,7 @@ import {
 } from "@/lib/utils"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Containers() {
   const { nodeId } = useParams()
@@ -44,8 +44,10 @@ export default function Containers() {
 
   const navigate = useNavigate()
   const { isLoading, mutateContainers, containers } = useContainers(nodeId!)
-  const [deleteContainerOpen, setDeleteContainerOpen] = useState(false)
   const [container, setContainer] = useState<IContainer | null>(null)
+  const [deleteContainerConfirmationOpen, setDeleteContainerConfirmationOpen] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
@@ -102,9 +104,34 @@ export default function Containers() {
     }
   }
 
-  const handleDeleteContainer = (container: IContainer) => {
+  const handleDeleteContainerConfirmation = (container: IContainer) => {
     setContainer({ ...container })
-    setDeleteContainerOpen(true)
+    setDeleteContainerConfirmationOpen(true)
+  }
+
+  const handleDeleteContainer = async () => {
+    setDeleteInProgress(true)
+
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/containers/remove`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: container?.id, force: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteContainerConfirmationOpen(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateContainers()
+      setTimeout(() => {
+        setDeleteContainerConfirmationOpen(false)
+        toastSuccess("Container deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   function getPortsHtml(ports: IPort[]) {
@@ -151,11 +178,15 @@ export default function Containers() {
 
   return (
     <MainArea>
-      {deleteContainerOpen && (
-        <DeleteContainerDialog
-          openState={deleteContainerOpen}
-          setOpenState={setDeleteContainerOpen}
-          container={container!}
+      {deleteContainerConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteContainerConfirmationOpen}
+          setOpenState={setDeleteContainerConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDeleteContainer}
+          isProcessing={deleteInProgress}
+          title="Delete Container"
+          message={`Are you sure you want to delete container '${container?.name}?'`}
         />
       )}
       <TopBar>
@@ -261,7 +292,7 @@ export default function Containers() {
                       <TableButtonDelete
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDeleteContainer(item)
+                          handleDeleteContainerConfirmation(item)
                         }}
                       />
                     </>

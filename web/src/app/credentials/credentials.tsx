@@ -17,22 +17,31 @@ import AddGitHubPATDialog from "./dialogs/add-github-pat-dialog"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { ICredentialHead } from "@/lib/api-models"
-import DeleteCredentialDialog from "./dialogs/delete-credential-dialog"
 import EditGithubPATDetailsDialog from "./dialogs/edit-github-pat-details-dialog"
-import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  toastFailed,
+  toastSuccess,
+} from "@/lib/utils"
 import EditGithubPATSecretDialog from "./dialogs/edit-github-pat-secret-dialog"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import apiBaseUrl from "@/lib/api-base-url"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Credentials() {
-  const { isLoading, credentials } = useCredentials()
+  const { isLoading, credentials, mutateCredentials } = useCredentials()
   const [editCredentialOpen, setEditCredentialOpen] = useState(false)
   const [editCredentialSecretOpen, setEditCredentialSecretOpen] =
     useState(false)
-  const [deleteCredentialOpen, setDeleteCredentialOpen] = useState(false)
+  const [
+    deleteCredentialConfirmationOpen,
+    setDeleteCredentialConfirmationOpen,
+  ] = useState(false)
   const [credentialHead, setCredentialHead] = useState<ICredentialHead | null>(
     null
   )
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
@@ -41,9 +50,34 @@ export default function Credentials() {
     setEditCredentialOpen(true)
   }
 
-  const handleDeleteCredential = (credentialHead: ICredentialHead) => {
+  const handleDeleteCredentialConfirmation = (
+    credentialHead: ICredentialHead
+  ) => {
     setCredentialHead({ ...credentialHead })
-    setDeleteCredentialOpen(true)
+    setDeleteCredentialConfirmationOpen(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/credentials/${credentialHead?.id}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteCredentialConfirmationOpen(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateCredentials()
+      setTimeout(() => {
+        setDeleteCredentialConfirmationOpen(false)
+        toastSuccess("Credential deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
@@ -62,11 +96,15 @@ export default function Credentials() {
           credentialHead={credentialHead!}
         />
       )}
-      {deleteCredentialOpen && (
-        <DeleteCredentialDialog
-          openState={deleteCredentialOpen}
-          setOpenState={setDeleteCredentialOpen}
-          credentialHead={credentialHead!}
+      {deleteCredentialConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteCredentialConfirmationOpen}
+          setOpenState={setDeleteCredentialConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Credentials"
+          message={`Are you sure you want to delete credentials '${credentialHead?.name}?'`}
         />
       )}
       <TopBar>
@@ -119,7 +157,7 @@ export default function Credentials() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteCredential(item)
+                        handleDeleteCredentialConfirmation(item)
                       }}
                     />
                   </TableCell>
