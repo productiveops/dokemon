@@ -2,32 +2,32 @@ import { createBrowserRouter, Navigate } from "react-router-dom"
 import "./index.css"
 import Root from "@/app/root"
 import ErrorPage from "./error-page"
-import Containers from "./app/containers/containers"
-import Images from "./app/images/images"
-import ContainerLogs from "./app/containers/container/logs"
-import ContainerTerminal from "./app/containers/container/terminal"
-import Volumes from "./app/volumes/volumes"
-import Networks from "./app/networks/networks"
+import ContainerList from "./app/containers/container-list"
+import ImageList from "./app/images/image-list"
+import ContainerLogs from "./app/containers/container-logs"
+import ContainerTerminal from "./app/containers/container-terminal"
+import VolumeList from "./app/volumes/volume-list"
+import NetworkList from "./app/networks/network-list"
 import ChangePassword from "./app/auth/change-password"
 import Login from "./app/auth/login"
 import Setup from "./app/auth/setup"
-import ComposeLibraryItems from "./app/compose-library/compose-library-items"
-import ComposeContainers from "./app/compose/compose/containers"
-import ComposeLogs from "./app/compose/compose/logs"
-import ComposeActions from "./app/compose/compose/actions"
-import CreateFileSystemComposeProject from "./app/compose-library/create-filesystem-compose-project"
-import EditFileSystemComposeProject from "./app/compose-library/edit-filesystem-compose-project"
-import NodeCompose from "./app/compose/node-compose"
-import Nodes from "./app/nodes/nodes"
+import ComposeLibraryList from "./app/compose-library/compose-library-list"
+import ComposeContainerList from "./app/compose/compose-container-list"
+import ComposeLogs from "./app/compose/compose-logs"
+import ComposeActions from "./app/compose/compose-actions"
+import ComposeLibraryCreateFileSystemProject from "./app/compose-library/compose-library-create-filesystem-project"
+import ComposeLibraryEditFileSystemProject from "./app/compose-library/compose-library-edit-filesystem-project"
+import ComposeList from "./app/compose/compose-list"
+import NodeList from "./app/nodes/node-list"
 import NodeDetails from "./app/nodes/node-details"
-import Environments from "./app/environments/environments"
-import Variables from "./app/variables/variables"
-import CreateGitHubComposeProject from "./app/compose-library/create-github-compose-project"
-import Credentials from "./app/credentials/credentials"
-import EditGitHubComposeProject from "./app/compose-library/edit-github-compose-project"
-import AddGitHubCompose from "./app/compose/add-github-compose"
-import ComposeDefinition from "./app/compose/compose/definition"
-import AddLocalCompose from "./app/compose/add-local-compose"
+import EnvironmentList from "./app/environments/environment-list"
+import VariableList from "./app/variables/variable-list"
+import ComposeLibraryCreateGitHubProject from "./app/compose-library/compose-library-create-github-project"
+import CredentialList from "./app/credentials/credential-list"
+import ComposeLibraryEditGitHubProject from "./app/compose-library/compose-library-edit-github-project"
+import ComposeAddGitHub from "./app/compose/compose-add-github"
+import ComposeDefinition from "./app/compose/compose-definition"
+import ComposeAddLocal from "./app/compose/compose-add-local"
 
 const router = createBrowserRouter([
   {
@@ -53,11 +53,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "nodes",
-        element: <Nodes />,
+        element: <NodeList />,
       },
       {
         path: "nodes/:nodeId/containers",
-        element: <Containers />,
+        element: <ContainerList />,
       },
       {
         path: "nodes/:nodeId/containers/:containerId/logs",
@@ -69,15 +69,15 @@ const router = createBrowserRouter([
       },
       {
         path: "nodes/:nodeId/images",
-        element: <Images />,
+        element: <ImageList />,
       },
       {
         path: "nodes/:nodeId/volumes",
-        element: <Volumes />,
+        element: <VolumeList />,
       },
       {
         path: "nodes/:nodeId/networks",
-        element: <Networks />,
+        element: <NetworkList />,
       },
       {
         path: "nodes/:nodeId/details",
@@ -85,15 +85,15 @@ const router = createBrowserRouter([
       },
       {
         path: "nodes/:nodeId/compose",
-        element: <NodeCompose />,
+        element: <ComposeList />,
       },
       {
         path: "nodes/:nodeId/compose/create/github",
-        element: <AddGitHubCompose />,
+        element: <ComposeAddGitHub />,
       },
       {
         path: "nodes/:nodeId/compose/create/local",
-        element: <AddLocalCompose />,
+        element: <ComposeAddLocal />,
       },
       {
         path: "nodes/:nodeId/compose/:composeProjectId/actions",
@@ -105,7 +105,7 @@ const router = createBrowserRouter([
       },
       {
         path: "nodes/:nodeId/compose/:composeProjectId/containers",
-        element: <ComposeContainers />,
+        element: <ComposeContainerList />,
       },
       {
         path: "nodes/:nodeId/compose/:composeProjectId/logs",
@@ -113,35 +113,35 @@ const router = createBrowserRouter([
       },
       {
         path: "composelibrary",
-        element: <ComposeLibraryItems />,
+        element: <ComposeLibraryList />,
       },
       {
         path: "composelibrary/filesystem/create",
-        element: <CreateFileSystemComposeProject />,
+        element: <ComposeLibraryCreateFileSystemProject />,
       },
       {
         path: "composelibrary/github/create",
-        element: <CreateGitHubComposeProject />,
+        element: <ComposeLibraryCreateGitHubProject />,
       },
       {
         path: "composelibrary/filesystem/:composeProjectName/edit",
-        element: <EditFileSystemComposeProject />,
+        element: <ComposeLibraryEditFileSystemProject />,
       },
       {
         path: "composelibrary/github/:composeProjectId/edit",
-        element: <EditGitHubComposeProject />,
+        element: <ComposeLibraryEditGitHubProject />,
       },
       {
         path: "environments",
-        element: <Environments />,
+        element: <EnvironmentList />,
       },
       {
         path: "variables",
-        element: <Variables />,
+        element: <VariableList />,
       },
       {
         path: "credentials",
-        element: <Credentials />,
+        element: <CredentialList />,
       },
     ],
   },
