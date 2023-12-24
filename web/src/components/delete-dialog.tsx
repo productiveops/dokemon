@@ -20,8 +20,8 @@ export default function DeleteDialog({
   deleteHandler,
   isProcessing,
 }: {
-  openState: boolean | undefined
-  setOpenState: React.Dispatch<React.SetStateAction<boolean>> | undefined
+  openState?: boolean
+  setOpenState?: React.Dispatch<React.SetStateAction<boolean>>
   deleteCaption: string
   title: string
   message: string
