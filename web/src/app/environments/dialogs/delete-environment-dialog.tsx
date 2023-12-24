@@ -8,8 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
-import { toast } from "@/components/ui/use-toast"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import { IEnvironmentHead } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
 import useEnvironments from "@/hooks/useEnvironments"
@@ -39,19 +38,12 @@ export default function DeleteEnvironmentDialog({
     if (!response.ok) {
       const r = await response.json()
       setOpenState(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateEnvironments()
       setTimeout(() => {
         setOpenState(false)
-        toast({
-          title: "Success!",
-          description: "Environment deleted.",
-        })
+        toastSuccess("Environment deleted.")
       }, 500)
     }
     setIsSaving(false)

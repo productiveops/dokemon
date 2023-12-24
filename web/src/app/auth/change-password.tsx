@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
-import { toast } from "@/components/ui/use-toast"
 import apiBaseUrl from "@/lib/api-base-url"
-import { cn, trimString } from "@/lib/utils"
+import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useMemo, useState } from "react"
@@ -55,18 +54,11 @@ export default function ChangePassword() {
       if (response?.status === 204) {
         navigate("/nodes")
       } else {
-        toast({
-          variant: "destructive",
-          description: "Password update failed",
-        })
+        toastFailed("Password update failed")
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast({
-          variant: "destructive",
-          title: "Failed",
-          description: e.response?.data,
-        })
+        toastFailed(e.response?.data)
       }
     }
 

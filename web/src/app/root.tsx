@@ -2,7 +2,6 @@ import { Outlet, useNavigate } from "react-router-dom"
 import SideNav from "../components/side-nav"
 import axios from "axios"
 import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LifebuoyIcon, UserCircleIcon } from "@heroicons/react/24/outline"
-import { cn } from "@/lib/utils"
+import { cn, toastFailed } from "@/lib/utils"
 import { VERSION } from "@/lib/version"
 import { ModeToggle } from "@/components/ui/mode-toggle"
 
@@ -27,11 +26,7 @@ export default function Root() {
       navigate("/login")
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast({
-          variant: "destructive",
-          title: "Failed",
-          description: e.response?.data.errors?.body,
-        })
+        toastFailed(e.response?.data.errors?.body)
       }
     }
   }

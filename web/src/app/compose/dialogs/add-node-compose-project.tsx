@@ -21,12 +21,13 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "@/components/ui/use-toast"
 import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   hasUniqueName,
+  toastFailed,
+  toastSuccess,
 } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
@@ -102,18 +103,11 @@ export default function AddNodeComposeProjectDialog() {
     )
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem when adding project. Try again!",
-      })
+      toastFailed("There was a problem when adding project. Try again!")
     } else {
       mutateNodeComposeList()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "Project has been added.",
-      })
+      toastSuccess("Project has been added.")
     }
     setIsSaving(false)
   }

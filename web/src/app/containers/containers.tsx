@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { toast } from "@/components/ui/use-toast"
 import apiBaseUrl from "@/lib/api-base-url"
 import { IContainer, IPort } from "@/lib/api-models"
 import { useState } from "react"
@@ -31,7 +30,11 @@ import axios from "axios"
 import useNodeHead from "@/hooks/useNodeHead"
 import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/dialogs/edit-containerbaseurl-dialog"
-import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  toastFailed,
+  toastSuccess,
+} from "@/lib/utils"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
 
@@ -55,17 +58,10 @@ export default function Containers() {
       })
 
       mutateContainers()
-      toast({
-        title: "Success!",
-        description: "Container started.",
-      })
+      toastSuccess("Container started.")
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast({
-          variant: "destructive",
-          title: "Failed",
-          description: e.response?.data,
-        })
+        toastFailed(e.response?.data)
       }
     }
   }
@@ -81,17 +77,10 @@ export default function Containers() {
     )
     if (!response.ok) {
       const r = await response.json()
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateContainers()
-      toast({
-        title: "Success!",
-        description: "Container stopped.",
-      })
+      toastSuccess("Container stopped.")
     }
   }
 
@@ -106,17 +95,10 @@ export default function Containers() {
     )
     if (!response.ok) {
       const r = await response.json()
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateContainers()
-      toast({
-        title: "Success!",
-        description: "Container restarted.",
-      })
+      toastSuccess("Container restarted.")
     }
   }
 

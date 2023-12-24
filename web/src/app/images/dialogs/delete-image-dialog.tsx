@@ -8,9 +8,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import useImages from "@/hooks/useImages"
-import { toast } from "@/components/ui/use-toast"
 import { IImage } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
@@ -42,19 +41,12 @@ export default function DeleteImageDialog({
     if (!response.ok) {
       const r = await response.json()
       setOpenState(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateImages()
       setTimeout(() => {
         setOpenState(false)
-        toast({
-          title: "Success!",
-          description: "Image deleted.",
-        })
+        toastSuccess("Image deleted.")
       }, 500)
     }
     setIsSaving(false)

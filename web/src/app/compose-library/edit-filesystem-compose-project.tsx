@@ -26,6 +26,8 @@ import {
   cn,
   hasUniqueName,
   initMonaco,
+  toastFailed,
+  toastSuccess,
 } from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -41,7 +43,6 @@ import { Input } from "@/components/ui/input"
 import DeleteComposeDialog from "./dialogs/delete-compose-dialog"
 import useFileSystemComposeLibraryItem from "@/hooks/useFileSystemComposeLibraryItem"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
-import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 
 export default function EditFileSystemComposeProject() {
@@ -104,19 +105,11 @@ export default function EditFileSystemComposeProject() {
       }
     )
     if (!response.ok) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description:
-          "There was a problem when saving the definition. Try again!",
-      })
+      toastFailed("There was a problem when saving the definition. Try again!")
     } else {
       mutateFileSystemComposeLibraryItem()
       mutateComposeLibraryItemList()
-      toast({
-        title: "Success!",
-        description: "Definition has been saved.",
-      })
+      toastSuccess("Definition has been saved.")
       navigate(`/composelibrary/filesystem/${data.newProjectName}/edit`)
     }
     setIsSaving(false)

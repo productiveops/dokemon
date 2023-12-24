@@ -26,6 +26,8 @@ import {
   cn,
   hasUniqueName,
   initMonaco,
+  toastFailed,
+  toastSuccess,
 } from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -38,7 +40,6 @@ import {
 import Editor, { OnMount } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
@@ -108,17 +109,10 @@ export default function ComposeDefinitionLocal() {
     )
     if (!response.ok) {
       const r = await response.json()
-      toast({
-        variant: "destructive",
-        title: "Error saving project",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateNodeComposeItem()
-      toast({
-        title: "Success!",
-        description: "Project has been saved.",
-      })
+      toastSuccess("Project has been saved.")
     }
     setIsSaving(false)
   }

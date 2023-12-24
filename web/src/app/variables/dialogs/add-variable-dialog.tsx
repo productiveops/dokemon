@@ -21,11 +21,16 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, hasUniqueName, trimString } from "@/lib/utils"
+import {
+  cn,
+  hasUniqueName,
+  toastFailed,
+  toastSuccess,
+  trimString,
+} from "@/lib/utils"
 import useVariables from "@/hooks/useVariables"
 import { Checkbox } from "@/components/ui/checkbox"
 import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 
 export default function AddVariableDialog() {
   const [open, setOpen] = useState(false)
@@ -74,19 +79,12 @@ export default function AddVariableDialog() {
     })
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem when saving new variable. Try again!",
-      })
+      toastFailed("There was a problem when saving new variable. Try again!")
     } else {
       mutateVariables()
       setTimeout(() => {
         handleCloseForm()
-        toast({
-          title: "Success!",
-          description: "New variable has been added.",
-        })
+        toastSuccess("New variable has been added.")
       }, 500)
     }
     setIsSaving(false)

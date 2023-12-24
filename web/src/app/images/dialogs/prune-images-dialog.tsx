@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn, convertByteToMb } from "@/lib/utils"
+import { cn, convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
 import useImages from "@/hooks/useImages"
-import { toast } from "@/components/ui/use-toast"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
 
@@ -36,11 +35,7 @@ export default function PruneImagesDialog() {
     if (!response.ok) {
       const r = await response.json()
       setOpen(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateImages()
       const r = await response.json()
@@ -52,10 +47,7 @@ export default function PruneImagesDialog() {
       }
       setTimeout(async () => {
         setOpen(false)
-        toast({
-          title: "Success!",
-          description: description,
-        })
+        toastSuccess(description)
       }, 500)
     }
     setIsSaving(false)

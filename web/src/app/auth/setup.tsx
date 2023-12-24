@@ -10,10 +10,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
-import { toast } from "@/components/ui/use-toast"
 import Loading from "@/components/widgets/loading"
 import apiBaseUrl from "@/lib/api-base-url"
-import { cn, trimString } from "@/lib/utils"
+import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
@@ -42,11 +41,7 @@ export default function Setup() {
         }
       } catch (e) {
         if (axios.isAxiosError(e)) {
-          toast({
-            variant: "destructive",
-            title: "Failed",
-            description: e.response?.data.errors?.body,
-          })
+          toastFailed(e.response?.data.errors?.body)
         }
       }
     }
@@ -90,11 +85,7 @@ export default function Setup() {
       window.location.reload()
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast({
-          variant: "destructive",
-          title: "Failed",
-          description: e.response?.data,
-        })
+        toastFailed(e.response?.data)
       }
     }
 

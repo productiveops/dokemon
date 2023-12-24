@@ -8,8 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
-import { toast } from "@/components/ui/use-toast"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useNavigate, useParams } from "react-router-dom"
 import { DialogTrigger } from "@radix-ui/react-dialog"
@@ -37,18 +36,11 @@ export default function DeleteNodeComposeDialog() {
     )
     if (!response.ok) {
       const r = await response.json()
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateComposeLibraryItemList()
       setTimeout(() => {
-        toast({
-          title: "Success!",
-          description: "Compose project deleted.",
-        })
+        toastSuccess("Compose project deleted.")
         navigate(`/nodes/${nodeId}/compose`)
       }, 500)
     }

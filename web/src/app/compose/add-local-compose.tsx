@@ -26,6 +26,8 @@ import {
   cn,
   hasUniqueName,
   initMonaco,
+  toastFailed,
+  toastSuccess,
 } from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -38,7 +40,6 @@ import {
 import Editor, { OnMount } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/components/ui/use-toast"
 import { useTheme } from "@/components/ui/theme-provider"
 import useNodeHead from "@/hooks/useNodeHead"
 
@@ -90,17 +91,10 @@ export default function AddLocalCompose() {
     )
     if (!response.ok) {
       const r = await response.json()
-      toast({
-        variant: "destructive",
-        title: "Error creating project",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       const r = await response.json()
-      toast({
-        title: "Success!",
-        description: "Project has been created.",
-      })
+      toastSuccess("Project has been created.")
       navigate(`/nodes/${nodeId}/compose/${r.id}/definition`)
     }
     setIsSaving(false)

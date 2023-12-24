@@ -26,11 +26,12 @@ import {
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   hasUniqueName,
+  toastSomethingWentWrong,
+  toastSuccess,
   trimString,
 } from "@/lib/utils"
 import useEnvironments from "@/hooks/useEnvironments"
 import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 
 export default function AddEnvironmentDialog() {
   const [open, setOpen] = useState(false)
@@ -78,19 +79,13 @@ export default function AddEnvironmentDialog() {
     })
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description:
-          "There was a problem when creating new environment. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem when creating new environment. Try again!"
+      )
     } else {
       mutateEnvironments()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "New environment has been added.",
-      })
+      toastSuccess("New environment has been added.")
     }
     setIsSaving(false)
   }

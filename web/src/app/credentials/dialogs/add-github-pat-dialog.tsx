@@ -26,11 +26,12 @@ import {
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   hasUniqueName,
+  toastFailed,
+  toastSuccess,
   trimString,
 } from "@/lib/utils"
 import useCredentials from "@/hooks/useCredentials"
 import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 
 export default function AddGitHubPATDialog({
   buttonCaption,
@@ -88,19 +89,13 @@ export default function AddGitHubPATDialog({
     })
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description:
-          "There was a problem when creating new credential. Try again!",
-      })
+      toastFailed(
+        "There was a problem when creating new credential. Try again!"
+      )
     } else {
       mutateCredentials()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "New credential has been added.",
-      })
+      toastSuccess("New credential has been added.")
     }
     setIsSaving(false)
   }

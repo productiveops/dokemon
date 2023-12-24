@@ -20,12 +20,13 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "@/components/ui/use-toast"
 import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   hasUniqueName,
+  toastSomethingWentWrong,
+  toastSuccess,
   trimString,
 } from "@/lib/utils"
 import useEnvironments from "@/hooks/useEnvironments"
@@ -88,18 +89,13 @@ export default function EditEnvironmentDialog({
     )
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem saving the environment. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem saving the environment. Try again!"
+      )
     } else {
       mutateEnvironments()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "Environment has been saved.",
-      })
+      toastSuccess("Environment has been saved.")
     }
     setIsSaving(false)
   }

@@ -8,8 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
-import { toast } from "@/components/ui/use-toast"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import { ICredentialHead } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
 import useCredentials from "@/hooks/useCredentials"
@@ -39,19 +38,12 @@ export default function DeleteCredentialDialog({
     if (!response.ok) {
       const r = await response.json()
       setOpenState(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateCredentials()
       setTimeout(() => {
         setOpenState(false)
-        toast({
-          title: "Success!",
-          description: "Credential deleted.",
-        })
+        toastSuccess("Credential deleted.")
       }, 500)
     }
     setIsSaving(false)

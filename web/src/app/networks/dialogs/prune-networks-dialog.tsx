@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import useNetworks from "@/hooks/useNetworks"
-import { toast } from "@/components/ui/use-toast"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
 
@@ -36,11 +35,7 @@ export default function PruneNetworksDialog() {
     if (!response.ok) {
       const r = await response.json()
       setOpen(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateNetworks()
       const r = await response.json()
@@ -50,10 +45,7 @@ export default function PruneNetworksDialog() {
       }
       setTimeout(async () => {
         setOpen(false)
-        toast({
-          title: "Success!",
-          description: description,
-        })
+        toastSuccess(description)
       }, 500)
     }
     setIsSaving(false)

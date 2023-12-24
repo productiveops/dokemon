@@ -8,9 +8,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import useContainers from "@/hooks/useContainers"
-import { toast } from "@/components/ui/use-toast"
 import { IContainer } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
@@ -42,19 +41,12 @@ export default function DeleteContainerDialog({
     if (!response.ok) {
       const r = await response.json()
       setOpenState(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateContainers()
       setTimeout(() => {
         setOpenState(false)
-        toast({
-          title: "Success!",
-          description: "Container deleted.",
-        })
+        toastSuccess("Container deleted.")
       }, 500)
     }
     setIsSaving(false)

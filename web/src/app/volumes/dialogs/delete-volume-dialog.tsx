@@ -8,9 +8,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Icons } from "@/components/icons"
-import { cn } from "@/lib/utils"
+import { cn, toastFailed, toastSuccess } from "@/lib/utils"
 import useVolumes from "@/hooks/useVolumes"
-import { toast } from "@/components/ui/use-toast"
 import { IVolume } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
@@ -43,19 +42,12 @@ export default function DeleteVolumeDialog({
     if (!response.ok) {
       const r = await response.json()
       setOpenState(false)
-      toast({
-        variant: "destructive",
-        title: "Failed",
-        description: r.errors?.body,
-      })
+      toastFailed(r.errors?.body)
     } else {
       mutateVolumes()
       setTimeout(() => {
         setOpenState(false)
-        toast({
-          title: "Success!",
-          description: "Volume deleted.",
-        })
+        toastSuccess("Volume deleted.")
       }, 500)
     }
     setIsSaving(false)

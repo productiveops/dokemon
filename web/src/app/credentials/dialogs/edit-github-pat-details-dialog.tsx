@@ -20,12 +20,13 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "@/components/ui/use-toast"
 import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
   hasUniqueName,
+  toastSomethingWentWrong,
+  toastSuccess,
   trimString,
 } from "@/lib/utils"
 import useCredentials from "@/hooks/useCredentials"
@@ -96,19 +97,14 @@ export default function EditGithubPATDetailsDialog({
     )
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem saving the credential. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem saving the credential. Try again!"
+      )
     } else {
       mutateCredential()
       mutateCredentials()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "Credential has been saved.",
-      })
+      toastSuccess("Credential has been saved.")
     }
     setIsSaving(false)
   }
