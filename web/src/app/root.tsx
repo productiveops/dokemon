@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom"
-import SideNav from "../components/side-nav"
+import SideNav from "../components/side-nav/side-nav"
 import axios from "axios"
 import apiBaseUrl from "@/lib/api-base-url"
 import {
