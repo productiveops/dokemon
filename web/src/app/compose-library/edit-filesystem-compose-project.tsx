@@ -20,7 +20,12 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { z } from "zod"
-import { REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE, cn } from "@/lib/utils"
+import {
+  REGEX_IDENTIFIER,
+  REGEX_IDENTIFIER_MESSAGE,
+  cn,
+  initMonaco,
+} from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -50,6 +55,8 @@ export default function EditFileSystemComposeProject() {
   const [editorMounted, setEditorMounted] = useState(1)
   const navigate = useNavigate()
   const { theme } = useTheme()
+
+  initMonaco()
 
   const formSchema = z.object({
     newProjectName: z
@@ -127,17 +134,6 @@ export default function EditFileSystemComposeProject() {
     editorRef.current = editor
     setEditorMounted(editorMounted + 1)
   }
-
-  loader.init().then((monaco) => {
-    monaco.editor.defineTheme("dark", {
-      base: "vs-dark",
-      inherit: true,
-      rules: [],
-      colors: {
-        "editor.background": "#000000",
-      },
-    })
-  })
 
   return (
     <MainArea>

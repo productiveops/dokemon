@@ -20,7 +20,12 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { z } from "zod"
-import { REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE, cn } from "@/lib/utils"
+import {
+  REGEX_IDENTIFIER,
+  REGEX_IDENTIFIER_MESSAGE,
+  cn,
+  initMonaco,
+} from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -29,7 +34,7 @@ import {
   Section,
   SectionBody,
 } from "@/components/widgets/main-container"
-import Editor, { loader, OnMount } from "@monaco-editor/react"
+import Editor, { OnMount } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
@@ -50,6 +55,8 @@ export default function ComposeDefinitionLocal() {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
   const [editorMounted, setEditorMounted] = useState(1)
   const { theme } = useTheme()
+
+  initMonaco()
 
   const isLibraryProject = () =>
     !!(nodeComposeItem?.libraryProjectId || nodeComposeItem?.libraryProjectName)
@@ -128,17 +135,6 @@ export default function ComposeDefinitionLocal() {
     editorRef.current = editor
     setEditorMounted(editorMounted + 1)
   }
-
-  loader.init().then((monaco) => {
-    monaco.editor.defineTheme("dark", {
-      base: "vs-dark",
-      inherit: true,
-      rules: [],
-      colors: {
-        "editor.background": "#000000",
-      },
-    })
-  })
 
   return (
     <MainArea>

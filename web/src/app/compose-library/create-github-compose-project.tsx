@@ -20,7 +20,12 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { z } from "zod"
-import { REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE, cn } from "@/lib/utils"
+import {
+  REGEX_IDENTIFIER,
+  REGEX_IDENTIFIER_MESSAGE,
+  cn,
+  initMonaco,
+} from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -57,6 +62,8 @@ export default function CreateGitHubComposeProject() {
   const [credentialsComboOpen, setCredentialsComboOpen] = useState(false)
   const definitionDefaultValue = ``
   const { theme } = useTheme()
+
+  initMonaco()
 
   const formSchema = z.object({
     projectName: z
@@ -139,17 +146,6 @@ export default function CreateGitHubComposeProject() {
       editorRef.current?.setValue(data.content)
     }
   }
-
-  loader.init().then((monaco) => {
-    monaco.editor.defineTheme("dark", {
-      base: "vs-dark",
-      inherit: true,
-      rules: [],
-      colors: {
-        "editor.background": "#000000",
-      },
-    })
-  })
 
   return (
     <MainArea>
