@@ -16,7 +16,6 @@ import {
 import { INetwork } from "@/lib/api-models"
 import { useState } from "react"
 import useNetworks from "@/hooks/useNetworks"
-import PruneNetworksDialog from "./dialogs/prune-networks-dialog"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
@@ -37,7 +36,10 @@ export default function Networks() {
   const [network, setNetwork] = useState<INetwork | null>(null)
   const [deleteNetworkOpenConfirmation, setDeleteNetworkOpenConfirmation] =
     useState(false)
+  const [pruneNetworksOpenConfirmation, setPruneNetworksOpenConfirmation] =
+    useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const [pruneInProgress, setPruneInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
@@ -70,6 +72,35 @@ export default function Networks() {
     setDeleteInProgress(false)
   }
 
+  const handlePrune = async () => {
+    setPruneInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/networks/prune`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setPruneNetworksOpenConfirmation(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateNetworks()
+      const r = await response.json()
+      let description = "Nothing found to delete"
+      if (r.networksDeleted?.length > 0) {
+        description = `${r.networksDeleted.length} unused networks deleted`
+      }
+      setTimeout(async () => {
+        setPruneNetworksOpenConfirmation(false)
+        toastSuccess(description)
+      }, 500)
+    }
+    setPruneInProgress(false)
+  }
+
   return (
     <MainArea>
       {deleteNetworkOpenConfirmation && (
@@ -92,7 +123,14 @@ export default function Networks() {
           <BreadcrumbCurrent>Networks</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
-          <PruneNetworksDialog />
+          <DeleteDialog
+            widthClass="w-42"
+            deleteCaption="Delete Unused (Prune All)"
+            deleteHandler={handlePrune}
+            isProcessing={pruneInProgress}
+            title="Delete Unused"
+            message={`Are you sure you want to delete all unused networks?`}
+          />
         </TopBarActions>
       </TopBar>
       <MainContent>

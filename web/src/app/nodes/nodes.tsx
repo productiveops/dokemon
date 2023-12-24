@@ -16,37 +16,36 @@ import MainContent from "@/components/widgets/main-content"
 import AddNodeDialog from "./dialogs/add-node-dialog"
 import { Button } from "@/components/ui/button"
 import RegisterNodeDialog from "./dialogs/register-node-dialog"
-import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
 import { INodeHead } from "@/lib/api-models"
-import { apiNodesGenerateToken } from "@/lib/api"
+import { apiNodesDelete, apiNodesGenerateToken } from "@/lib/api"
 import {
   CLASSES_CLICKABLE_TABLE_ROW,
   cn,
+  toastFailed,
   toastSomethingWentWrong,
+  toastSuccess,
 } from "@/lib/utils"
 import { useNavigate } from "react-router-dom"
 import useNodes from "@/hooks/useNodes"
 import { useState } from "react"
 import useSetting from "@/hooks/useSetting"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Nodes() {
   const navigate = useNavigate()
-  const { isLoading, nodes } = useNodes()
+  const { isLoading, nodes, mutateNodes } = useNodes()
   const { setting } = useSetting("SERVER_URL")
   const [token, setToken] = useState("")
   const [updateAgent, setUpdateAgent] = useState(false)
   const [registerNodeOpen, setRegisterNodeOpen] = useState(false)
-  const [deleteNodeOpen, setDeleteNodeOpen] = useState(false)
   const [nodeHead, setNodeHead] = useState<INodeHead | null>(null)
+  const [deleteNodeOpenConfirmation, setDeleteNodeOpenConfirmation] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
-
-  const handleDeleteNode = (nodeHead: INodeHead) => {
-    setNodeHead({ ...nodeHead })
-    setDeleteNodeOpen(true)
-  }
 
   const handleRegister = async (nodeId: number, update: boolean) => {
     const response = await apiNodesGenerateToken(nodeId)
@@ -63,13 +62,39 @@ export default function Nodes() {
     }
   }
 
+  const handleDeleteNodeConfirmation = (nodeHead: INodeHead) => {
+    setNodeHead({ ...nodeHead })
+    setDeleteNodeOpenConfirmation(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await apiNodesDelete(Number(nodeHead?.id))
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteNodeOpenConfirmation(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateNodes()
+      setTimeout(() => {
+        setDeleteNodeOpenConfirmation(false)
+        toastSuccess("Node deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
+  }
+
   return (
     <MainArea>
-      {deleteNodeOpen && (
-        <DeleteNodeDialog
-          openState={deleteNodeOpen}
-          setOpenState={setDeleteNodeOpen}
-          nodeHead={nodeHead!}
+      {deleteNodeOpenConfirmation && (
+        <DeleteDialog
+          openState={deleteNodeOpenConfirmation}
+          setOpenState={setDeleteNodeOpenConfirmation}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Node"
+          message={`Are you sure you want to delete node '${nodeHead?.name}?'`}
         />
       )}
       <TopBar>
@@ -139,7 +164,7 @@ export default function Nodes() {
                       <TableButtonDelete
                         onClick={(e) => {
                           e.stopPropagation()
-                          handleDeleteNode(item)
+                          handleDeleteNodeConfirmation(item)
                         }}
                       />
                     )}

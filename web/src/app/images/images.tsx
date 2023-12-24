@@ -17,7 +17,6 @@ import { IImage } from "@/lib/api-models"
 import { useState } from "react"
 import useImages from "@/hooks/useImages"
 import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
-import PruneImagesDialog from "./dialogs/prune-images-dialog"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
@@ -37,6 +36,7 @@ export default function Images() {
   const [deleteImageConfirmationOpen, setDeleteImageConfirmationOpen] =
     useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const [pruneInProgress, setPruneInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
@@ -69,6 +69,35 @@ export default function Images() {
     setDeleteInProgress(false)
   }
 
+  const handlePrune = async () => {
+    setPruneInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/images/prune`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      toastFailed(r.errors?.body)
+    } else {
+      mutateImages()
+      const r = await response.json()
+      let description = "Nothing found to delete"
+      if (r.imagesDeleted?.length > 0) {
+        description = `Unused images deleted. Space reclaimed: ${convertByteToMb(
+          r.spaceReclaimed
+        )}`
+      }
+      setTimeout(async () => {
+        toastSuccess(description)
+      }, 500)
+    }
+    setPruneInProgress(false)
+  }
+
   return (
     <MainArea>
       {deleteImageConfirmationOpen && (
@@ -91,7 +120,14 @@ export default function Images() {
           <BreadcrumbCurrent>Images</BreadcrumbCurrent>
         </Breadcrumb>
         <TopBarActions>
-          <PruneImagesDialog />
+          <DeleteDialog
+            widthClass="w-42"
+            deleteCaption="Delete Unused (Prune All)"
+            deleteHandler={handlePrune}
+            isProcessing={pruneInProgress}
+            title="Delete Unused"
+            message={`Are you sure you want to delete all unused images?`}
+          />
         </TopBarActions>
       </TopBar>
       <MainContent>

@@ -19,6 +19,7 @@ export default function DeleteDialog({
   message,
   deleteHandler,
   isProcessing,
+  widthClass,
 }: {
   openState?: boolean
   setOpenState?: React.Dispatch<React.SetStateAction<boolean>>
@@ -27,6 +28,7 @@ export default function DeleteDialog({
   message: string
   deleteHandler: React.MouseEventHandler
   isProcessing: boolean
+  widthClass?: string
 }) {
   const [open, setOpen] = useState(false)
 
@@ -37,7 +39,10 @@ export default function DeleteDialog({
     >
       {openState === undefined && (
         <DialogTrigger asChild>
-          <Button variant={"destructive"} className="ml-auto w-24">
+          <Button
+            variant={"destructive"}
+            className={cn("ml-auto", widthClass ? widthClass : "w-24")}
+          >
             {deleteCaption}
           </Button>
         </DialogTrigger>
@@ -55,7 +60,12 @@ export default function DeleteDialog({
               variant={"destructive"}
               className={cn("relative w-24 group-disabled:pointer-events-none")}
               disabled={isProcessing}
-              onClick={deleteHandler}
+              onClick={async (e) => {
+                await deleteHandler(e)
+                setOpenState !== undefined
+                  ? setOpenState(false)
+                  : setOpen(false)
+              }}
             >
               <Icons.spinner
                 className={cn(
