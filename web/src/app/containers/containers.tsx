@@ -33,6 +33,7 @@ import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/dialogs/edit-containerbaseurl-dialog"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Containers() {
   const { nodeId } = useParams()
@@ -203,13 +204,7 @@ export default function Containers() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {containers?.items?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {containers?.items?.length === 0 && <TableNoData colSpan={5} />}
             {containers?.items &&
               containers?.items.map((item) => (
                 <TableRow

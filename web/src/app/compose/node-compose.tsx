@@ -25,6 +25,7 @@ import AddNodeComposeProjectDialog from "./dialogs/add-node-compose-project"
 import { ArrowUpRight } from "lucide-react"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function NodeCompose() {
   const { nodeId } = useParams()
@@ -75,13 +76,7 @@ export default function NodeCompose() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {nodeComposeItems?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {nodeComposeItems?.totalRows === 0 && <TableNoData colSpan={5} />}
             {nodeComposeItems?.items &&
               nodeComposeItems?.items.map((item) => (
                 <TableRow

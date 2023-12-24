@@ -25,6 +25,7 @@ import PruneVolumesDialog from "./dialogs/prune-volumes-dialog"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Volumes() {
   const { nodeId } = useParams()
@@ -74,13 +75,7 @@ export default function Volumes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {volumes?.items?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {volumes?.items?.length === 0 && <TableNoData colSpan={3} />}
             {volumes?.items &&
               volumes?.items.map((item) => (
                 <TableRow key={item.name}>

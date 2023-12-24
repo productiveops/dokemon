@@ -22,6 +22,7 @@ import EditGithubPATDetailsDialog from "./dialogs/edit-github-pat-details-dialog
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import EditGithubPATSecretDialog from "./dialogs/edit-github-pat-secret-dialog"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Credentials() {
   const { isLoading, credentials } = useCredentials()
@@ -88,13 +89,7 @@ export default function Credentials() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {credentials?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {credentials?.totalRows === 0 && <TableNoData colSpan={3} />}
             {credentials?.items &&
               credentials?.items.map((item) => (
                 <TableRow

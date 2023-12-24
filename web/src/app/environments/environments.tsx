@@ -20,6 +20,7 @@ import DeleteEnvironmentDialog from "./dialogs/delete-environment-dialog"
 import EditEnvironmentDialog from "./dialogs/edit-environment-dialog"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Environments() {
   const { isLoading, environments } = useEnvironments()
@@ -75,13 +76,7 @@ export default function Environments() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {environments?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={2} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {environments?.totalRows === 0 && <TableNoData colSpan={2} />}
             {environments?.items &&
               environments?.items.map((item) => (
                 <TableRow

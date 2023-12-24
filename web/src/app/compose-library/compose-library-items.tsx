@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function ComposeLibraryItems() {
   const navigate = useNavigate()
@@ -54,11 +55,7 @@ export default function ComposeLibraryItems() {
           </TableHeader>
           <TableBody>
             {composeLibraryItems?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
+              <TableNoData colSpan={3} />
             )}
             {composeLibraryItems?.items &&
               composeLibraryItems?.items.map((item) => (

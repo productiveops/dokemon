@@ -29,6 +29,7 @@ import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
 import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "@/app/nodes/dialogs/edit-containerbaseurl-dialog"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function ComposeContainers() {
   const { nodeId, composeProjectId } = useParams()
@@ -127,13 +128,7 @@ function ContainersTable({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {!composeContainers?.items && (
-          <TableRow>
-            <TableCell colSpan={5} className="text-center">
-              No data to display
-            </TableCell>
-          </TableRow>
-        )}
+        {!composeContainers?.items && <TableNoData colSpan={5} />}
         {composeContainers?.items &&
           composeContainers?.items.map((item) => (
             <TableRow key={item.name}>

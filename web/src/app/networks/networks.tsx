@@ -25,6 +25,7 @@ import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Networks() {
   const { nodeId } = useParams()
@@ -76,13 +77,7 @@ export default function Networks() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {networks?.items?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {networks?.items?.length === 0 && <TableNoData colSpan={5} />}
             {networks?.items &&
               networks?.items.map((item) => (
                 <TableRow key={item.id}>

@@ -23,6 +23,7 @@ import EditVariableDialog from "./dialogs/edit-variable-dialog"
 import EditVariableValueDialog from "./dialogs/edit-variable-value-dialog"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import TableButtonEdit from "@/components/widgets/table-button-edit"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Variables() {
   const { isLoading: mapIsLoading, environmentsMap } = useEnvironmentsMap()
@@ -100,13 +101,7 @@ export default function Variables() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {variables?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {variables?.totalRows === 0 && <TableNoData colSpan={4} />}
             {variables?.items &&
               variables?.items.map((item) => (
                 <TableRow key={item.name}>

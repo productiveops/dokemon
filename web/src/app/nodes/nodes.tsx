@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom"
 import useNodes from "@/hooks/useNodes"
 import { useState } from "react"
 import useSetting from "@/hooks/useSetting"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Nodes() {
   const navigate = useNavigate()
@@ -101,13 +102,7 @@ export default function Nodes() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {nodes?.totalRows === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {nodes?.totalRows === 0 && <TableNoData colSpan={4} />}
             {nodes?.items &&
               nodes?.items.map((item) => (
                 <TableRow

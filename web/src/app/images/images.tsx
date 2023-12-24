@@ -26,6 +26,7 @@ import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { TableNoData } from "@/components/widgets/table-no-data"
 
 export default function Images() {
   const { nodeId } = useParams()
@@ -76,13 +77,7 @@ export default function Images() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {images?.items?.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No data to display
-                </TableCell>
-              </TableRow>
-            )}
+            {images?.items?.length === 0 && <TableNoData colSpan={5} />}
             {images?.items &&
               images?.items.map((item) => (
                 <TableRow key={item.id}>
