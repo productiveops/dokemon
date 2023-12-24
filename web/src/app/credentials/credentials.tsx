@@ -16,15 +16,12 @@ import useCredentials from "@/hooks/useCredentials"
 import AddGitHubPATDialog from "./dialogs/add-github-pat-dialog"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { TrashIcon } from "@heroicons/react/24/solid"
 import { ICredentialHead } from "@/lib/api-models"
 import DeleteCredentialDialog from "./dialogs/delete-credential-dialog"
 import EditGithubPATDetailsDialog from "./dialogs/edit-github-pat-details-dialog"
-import {
-  CLASSES_CLICKABLE_TABLE_ROW,
-  CLASSES_TABLE_ACTION_ICON,
-} from "@/lib/utils"
+import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import EditGithubPATSecretDialog from "./dialogs/edit-github-pat-secret-dialog"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Credentials() {
   const { isLoading, credentials } = useCredentials()
@@ -124,17 +121,12 @@ export default function Credentials() {
                     >
                       Update Token
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
+                    <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
                         handleDeleteCredential(item)
                       }}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    />
                   </TableCell>
                 </TableRow>
               ))}

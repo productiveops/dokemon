@@ -1,9 +1,4 @@
-import {
-  PlayIcon,
-  StopIcon,
-  TrashIcon,
-  ArrowPathIcon,
-} from "@heroicons/react/24/solid"
+import { PlayIcon, StopIcon, ArrowPathIcon } from "@heroicons/react/24/solid"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -36,10 +31,8 @@ import axios from "axios"
 import useNodeHead from "@/hooks/useNodeHead"
 import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/dialogs/edit-containerbaseurl-dialog"
-import {
-  CLASSES_CLICKABLE_TABLE_ROW,
-  CLASSES_TABLE_ACTION_ICON,
-} from "@/lib/utils"
+import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Containers() {
   const { nodeId } = useParams()
@@ -288,20 +281,12 @@ export default function Containers() {
                           <StopIcon className="w-4 text-red-600 dark:text-red-500" />
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        title="Delete"
+                      <TableButtonDelete
                         onClick={(e) => {
                           e.stopPropagation()
                           handleDeleteContainer(item)
                         }}
-                      >
-                        <TrashIcon
-                          className={CLASSES_TABLE_ACTION_ICON}
-                          color="#1c1b1a"
-                        />
-                      </Button>
+                      />
                     </>
                   </TableCell>
                 </TableRow>

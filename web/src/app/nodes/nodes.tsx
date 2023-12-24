@@ -20,12 +20,11 @@ import { useState } from "react"
 import apiBaseUrl from "@/lib/api-base-url"
 import { toast } from "@/components/ui/use-toast"
 import RegisterNodeDialog from "./dialogs/register-node-dialog"
-import { TrashIcon } from "@heroicons/react/24/solid"
 import { INodeHead } from "@/lib/api-models"
 import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
 import useSetting from "@/hooks/useSetting"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Nodes() {
   const navigate = useNavigate()
@@ -165,18 +164,13 @@ export default function Nodes() {
                         Register
                       </Button>
                     )}
-                    {item.id !== 1 && (
-                      <Button
-                        variant="ghost"
-                        size={"sm"}
-                        title="Delete"
+                    {!isDokemonNode(item) && (
+                      <TableButtonDelete
                         onClick={(e) => {
                           e.stopPropagation()
                           handleDeleteNode(item)
                         }}
-                      >
-                        <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                      </Button>
+                      />
                     )}
                   </TableCell>
                 </TableRow>
@@ -186,4 +180,8 @@ export default function Nodes() {
       </MainContent>
     </MainArea>
   )
+}
+
+function isDokemonNode(nodeHead: INodeHead) {
+  return nodeHead.id === 1
 }

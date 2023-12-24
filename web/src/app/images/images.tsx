@@ -1,4 +1,3 @@
-import { TrashIcon } from "@heroicons/react/24/solid"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -14,12 +13,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { IImage } from "@/lib/api-models"
 import { useState } from "react"
 import useImages from "@/hooks/useImages"
 import DeleteImageDialog from "./dialogs/delete-image-dialog"
-import { CLASSES_TABLE_ACTION_ICON, convertByteToMb } from "@/lib/utils"
+import { convertByteToMb } from "@/lib/utils"
 import PruneImagesDialog from "./dialogs/prune-images-dialog"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
@@ -27,6 +25,7 @@ import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Images() {
   const { nodeId } = useParams()
@@ -99,14 +98,12 @@ export default function Images() {
                   </TableCell>
                   <TableCell>{convertByteToMb(item.size)}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
-                      onClick={() => handleDeleteImage(item)}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    <TableButtonDelete
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteImage(item)
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

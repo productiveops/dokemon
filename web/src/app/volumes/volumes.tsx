@@ -1,4 +1,3 @@
-import { TrashIcon } from "@heroicons/react/24/solid"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -14,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { IVolume } from "@/lib/api-models"
 import { useState } from "react"
 import MainArea from "@/components/widgets/main-area"
@@ -26,7 +24,7 @@ import DeleteVolumeDialog from "./dialogs/delete-volume-dialog"
 import PruneVolumesDialog from "./dialogs/prune-volumes-dialog"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Volumes() {
   const { nodeId } = useParams()
@@ -89,14 +87,12 @@ export default function Volumes() {
                   <TableCell>{item.driver}</TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
-                      onClick={() => handleDeleteVolume(item)}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    <TableButtonDelete
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteVolume(item)
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

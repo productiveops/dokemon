@@ -13,18 +13,16 @@ import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
 import useVariables from "@/hooks/useVariables"
-import { Button } from "@/components/ui/button"
-import { TrashIcon } from "@heroicons/react/24/solid"
 import AddVariableDialog from "./dialogs/add-variable-dialog"
 import { useState } from "react"
 import { IVariableHead } from "@/lib/api-models"
 import DeleteVariableDialog from "./dialogs/delete-variable-dialog"
 import useEnvironmentsMap from "@/hooks/useEnvironmentsMap"
 import { Checkbox } from "@/components/ui/checkbox"
-import { PencilIcon } from "@heroicons/react/24/outline"
 import EditVariableDialog from "./dialogs/edit-variable-dialog"
 import EditVariableValueDialog from "./dialogs/edit-variable-value-dialog"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
+import TableButtonEdit from "@/components/widgets/table-button-edit"
 
 export default function Variables() {
   const { isLoading: mapIsLoading, environmentsMap } = useEnvironmentsMap()
@@ -113,22 +111,13 @@ export default function Variables() {
               variables?.items.map((item) => (
                 <TableRow key={item.name}>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Edit"
-                      onClick={() => handleEditVariable(item)}
-                    >
-                      <PencilIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
-                      onClick={() => handleDeleteVariable(item)}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    <TableButtonEdit onClick={() => handleEditVariable(item)} />
+                    <TableButtonDelete
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteVariable(item)
+                      }}
+                    />
                   </TableCell>
                   <TableCell>{item.name}</TableCell>
                   <TableCell>

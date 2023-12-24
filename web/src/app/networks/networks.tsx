@@ -1,4 +1,3 @@
-import { TrashIcon } from "@heroicons/react/24/solid"
 import Loading from "@/components/widgets/loading"
 import {
   Breadcrumb,
@@ -14,7 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { INetwork } from "@/lib/api-models"
 import { useState } from "react"
 import useNetworks from "@/hooks/useNetworks"
@@ -26,7 +24,7 @@ import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
-import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Networks() {
   const { nodeId } = useParams()
@@ -93,14 +91,12 @@ export default function Networks() {
                   <TableCell>{item.driver}</TableCell>
                   <TableCell>{item.scope}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
-                      onClick={() => handleDeleteNetwork(item)}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    <TableButtonDelete
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteNetwork(item)
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

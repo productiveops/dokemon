@@ -14,16 +14,12 @@ import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
 import useEnvironments from "@/hooks/useEnvironments"
 import AddEnvironmentDialog from "./dialogs/add-environment-dialog"
-import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import { TrashIcon } from "@heroicons/react/24/solid"
 import { IEnvironmentHead } from "@/lib/api-models"
 import DeleteEnvironmentDialog from "./dialogs/delete-environment-dialog"
 import EditEnvironmentDialog from "./dialogs/edit-environment-dialog"
-import {
-  CLASSES_CLICKABLE_TABLE_ROW,
-  CLASSES_TABLE_ACTION_ICON,
-} from "@/lib/utils"
+import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 
 export default function Environments() {
   const { isLoading, environments } = useEnvironments()
@@ -97,17 +93,12 @@ export default function Environments() {
                 >
                   <TableCell>{item.name}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size={"sm"}
-                      title="Delete"
+                    <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
                         handleDeleteEnvironment(item)
                       }}
-                    >
-                      <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />
-                    </Button>
+                    />
                   </TableCell>
                 </TableRow>
               ))}
