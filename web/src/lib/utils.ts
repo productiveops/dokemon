@@ -2,6 +2,7 @@ import { Terminal } from "@xterm/xterm"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { loader } from "@monaco-editor/react"
+import { toast } from "@/components/ui/use-toast"
 
 export const REGEX_IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
 export const REGEX_IDENTIFIER_MESSAGE =
@@ -104,4 +105,26 @@ export function initMonaco() {
 export async function hasUniqueName(apiUrl: string) {
   const res = await fetch(apiUrl)
   return (await res.json()).unique
+}
+
+export function toastSuccess(message: string) {
+  toast({
+    title: "Success!",
+    description: message,
+  })
+}
+
+export function toastSomethingWentWrong(message: string) {
+  toast({
+    variant: "destructive",
+    title: "Something went wrong.",
+    description: message,
+  })
+}
+
+export function toastFailed(message: string) {
+  toast({
+    title: "Failed!",
+    description: message,
+  })
 }

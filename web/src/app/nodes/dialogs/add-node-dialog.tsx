@@ -21,10 +21,15 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, hasUniqueName, trimString } from "@/lib/utils"
+import {
+  cn,
+  hasUniqueName,
+  toastSomethingWentWrong,
+  toastSuccess,
+  trimString,
+} from "@/lib/utils"
 import useNodes from "@/hooks/useNodes"
 import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 import {
   Popover,
   PopoverContent,
@@ -39,6 +44,8 @@ import {
   CommandItem,
 } from "@/components/ui/command"
 import useEnvironments from "@/hooks/useEnvironments"
+import { INodeCreateRequest } from "@/lib/api-models"
+import { apiNodesCreate } from "@/lib/api"
 
 export default function AddNodeDialog({ disabled }: { disabled: boolean }) {
   const [open, setOpen] = useState(false)
@@ -78,27 +85,20 @@ export default function AddNodeDialog({ disabled }: { disabled: boolean }) {
     form.reset()
   }
 
-  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+  const onSubmit: SubmitHandler<FormSchemaType> = async (
+    data: INodeCreateRequest
+  ) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/nodes`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await apiNodesCreate(data)
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem when creating new node. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem when creating new node. Try again!"
+      )
     } else {
       mutateNodes()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "New node has been added.",
-      })
+      toastSuccess("New node has been added.")
     }
     setIsSaving(false)
   }

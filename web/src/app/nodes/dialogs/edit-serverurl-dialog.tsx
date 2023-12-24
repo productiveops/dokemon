@@ -20,11 +20,16 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, trimString } from "@/lib/utils"
+import {
+  cn,
+  toastSomethingWentWrong,
+  toastSuccess,
+  trimString,
+} from "@/lib/utils"
 import useNodes from "@/hooks/useNodes"
-import apiBaseUrl from "@/lib/api-base-url"
 import useSetting from "@/hooks/useSetting"
-import { toast } from "@/components/ui/use-toast"
+import { ISettingUpdateRequest } from "@/lib/api-models"
+import { apiSettingsUpdate } from "@/lib/api"
 
 export default function EditServerUrlDialog() {
   const { setting, mutateSetting } = useSetting("SERVER_URL")
@@ -57,28 +62,19 @@ export default function EditServerUrlDialog() {
     form.reset()
   }
 
-  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+  const onSubmit: SubmitHandler<FormSchemaType> = async (
+    data: ISettingUpdateRequest
+  ) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/settings/SERVER_URL`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await apiSettingsUpdate("SERVER_URL", data)
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem saving the URL. Try again!",
-      })
+      toastSomethingWentWrong("There was a problem saving the URL. Try again!")
     } else {
       mutateNodes()
       mutateSetting()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "Server URL has been saved.",
-      })
+      toastSuccess("Server URL has been saved.")
     }
     setIsSaving(false)
   }

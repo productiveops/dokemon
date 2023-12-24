@@ -20,12 +20,17 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, trimString } from "@/lib/utils"
+import {
+  cn,
+  toastSomethingWentWrong,
+  toastSuccess,
+  trimString,
+} from "@/lib/utils"
 import useNodes from "@/hooks/useNodes"
-import apiBaseUrl from "@/lib/api-base-url"
 import useNodeHead from "@/hooks/useNodeHead"
 import { useParams } from "react-router"
-import { toast } from "@/components/ui/use-toast"
+import { INodeContainerBaseUrlUpdateRequest } from "@/lib/api-models"
+import { apiNodesContainerBaseUrlUpdate } from "@/lib/api"
 
 export default function EditContainerBaseUrlDialog() {
   const { nodeId } = useParams()
@@ -37,7 +42,7 @@ export default function EditContainerBaseUrlDialog() {
   const formSchema = z.object({
     containerBaseUrl: z.preprocess(
       trimString,
-      z.string().url("Invalid URL format").optional().or(z.literal(""))
+      z.string().url("Invalid URL format").or(z.literal(""))
     ),
   })
 
@@ -46,7 +51,11 @@ export default function EditContainerBaseUrlDialog() {
   const form = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
     defaultValues: useMemo(() => {
-      return { containerBaseUrl: nodeHead?.containerBaseUrl }
+      return {
+        containerBaseUrl: nodeHead?.containerBaseUrl
+          ? nodeHead?.containerBaseUrl
+          : "",
+      }
     }, [nodeHead]),
   })
 
@@ -59,28 +68,19 @@ export default function EditContainerBaseUrlDialog() {
     form.reset()
   }
 
-  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+  const onSubmit: SubmitHandler<FormSchemaType> = async (
+    data: INodeContainerBaseUrlUpdateRequest
+  ) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/nodes/${nodeId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await apiNodesContainerBaseUrlUpdate(Number(nodeId), data)
     if (!response.ok) {
       handleCloseForm()
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description: "There was a problem saving the URL. Try again!",
-      })
+      toastSomethingWentWrong("There was a problem saving the URL. Try again!")
     } else {
       mutateNodeHead()
       mutateNodes()
       handleCloseForm()
-      toast({
-        title: "Success!",
-        description: "Container Base URL has been saved.",
-      })
+      toastSuccess("Container Base URL has been saved.")
     }
     setIsSaving(false)
   }

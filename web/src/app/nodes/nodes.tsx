@@ -17,14 +17,14 @@ import useNodes from "@/hooks/useNodes"
 import AddNodeDialog from "./dialogs/add-node-dialog"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
-import apiBaseUrl from "@/lib/api-base-url"
-import { toast } from "@/components/ui/use-toast"
 import RegisterNodeDialog from "./dialogs/register-node-dialog"
 import { INodeHead } from "@/lib/api-models"
 import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
 import useSetting from "@/hooks/useSetting"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { apiNodesGenerateToken } from "@/lib/api"
+import { toastSomethingWentWrong } from "@/lib/utils"
 
 export default function Nodes() {
   const navigate = useNavigate()
@@ -44,20 +44,12 @@ export default function Nodes() {
   }
 
   const handleRegister = async (nodeId: number, update: boolean) => {
-    const response = await fetch(
-      `${apiBaseUrl()}/nodes/${nodeId}/generatetoken`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
+    const response = await apiNodesGenerateToken(nodeId)
+
     if (!response.ok) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description:
-          "There was a problem when generating the registration token. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem when generating the registration token. Try again!"
+      )
     } else {
       const data: { token: string } = await response.json()
       setToken(data.token)
