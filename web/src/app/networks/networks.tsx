@@ -16,7 +16,6 @@ import {
 import { INetwork } from "@/lib/api-models"
 import { useState } from "react"
 import useNetworks from "@/hooks/useNetworks"
-import DeleteNetworkDialog from "./dialogs/delete-network-dialog"
 import PruneNetworksDialog from "./dialogs/prune-networks-dialog"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
@@ -26,29 +25,62 @@ import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import { toastFailed, toastSuccess } from "@/lib/utils"
+import apiBaseUrl from "@/lib/api-base-url"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Networks() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
-  const { isLoading, networks } = useNetworks(nodeId!)
+  const { isLoading, networks, mutateNetworks } = useNetworks(nodeId!)
 
-  const [deleteNetworkOpen, setDeleteNetworkOpen] = useState(false)
   const [network, setNetwork] = useState<INetwork | null>(null)
+  const [deleteNetworkOpenConfirmation, setDeleteNetworkOpenConfirmation] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
-  const handleDeleteNetwork = (network: INetwork) => {
+  const handleDeleteNetworkConfirmation = (network: INetwork) => {
     setNetwork({ ...network })
-    setDeleteNetworkOpen(true)
+    setDeleteNetworkOpenConfirmation(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/networks/remove`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: network?.id, force: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteNetworkOpenConfirmation(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateNetworks()
+      setTimeout(() => {
+        setDeleteNetworkOpenConfirmation(false)
+        toastSuccess("Network deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
     <MainArea>
-      {deleteNetworkOpen && (
-        <DeleteNetworkDialog
-          openState={deleteNetworkOpen}
-          setOpenState={setDeleteNetworkOpen}
-          network={network!}
+      {deleteNetworkOpenConfirmation && (
+        <DeleteDialog
+          openState={deleteNetworkOpenConfirmation}
+          setOpenState={setDeleteNetworkOpenConfirmation}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Network"
+          message={`Are you sure you want to delete network '${network?.name}?'`}
         />
       )}
       <TopBar>
@@ -89,7 +121,7 @@ export default function Networks() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteNetwork(item)
+                        handleDeleteNetworkConfirmation(item)
                       }}
                     />
                   </TableCell>

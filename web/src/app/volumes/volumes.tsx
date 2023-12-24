@@ -20,35 +20,67 @@ import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
 import useVolumes from "@/hooks/useVolumes"
-import DeleteVolumeDialog from "./dialogs/delete-volume-dialog"
 import PruneVolumesDialog from "./dialogs/prune-volumes-dialog"
 import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import DeleteDialog from "@/components/delete-dialog"
+import { toastFailed, toastSuccess } from "@/lib/utils"
+import apiBaseUrl from "@/lib/api-base-url"
 
 export default function Volumes() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
-  const { isLoading, volumes } = useVolumes(nodeId!)
+  const { isLoading, volumes, mutateVolumes } = useVolumes(nodeId!)
 
-  const [deleteVolumeOpen, setDeleteVolumeOpen] = useState(false)
   const [volume, setVolume] = useState<IVolume | null>(null)
+  const [deleteVolumeOpenConfirmation, setDeleteVolumeOpenConfirmation] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
-  const handleDeleteVolume = (volume: IVolume) => {
+  const handleDeleteVolumeConfirmation = (volume: IVolume) => {
     setVolume({ ...volume })
-    setDeleteVolumeOpen(true)
+    setDeleteVolumeOpenConfirmation(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/volumes/remove`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: volume?.name }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteVolumeOpenConfirmation(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateVolumes()
+      setTimeout(() => {
+        setDeleteVolumeOpenConfirmation(false)
+        toastSuccess("Volume deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
     <MainArea>
-      {deleteVolumeOpen && (
-        <DeleteVolumeDialog
-          openState={deleteVolumeOpen}
-          setOpenState={setDeleteVolumeOpen}
-          volume={volume!}
+      {deleteVolumeOpenConfirmation && (
+        <DeleteDialog
+          openState={deleteVolumeOpenConfirmation}
+          setOpenState={setDeleteVolumeOpenConfirmation}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Volume"
+          message={`Are you sure you want to delete volume '${volume?.name}?'`}
         />
       )}
       <TopBar>
@@ -85,7 +117,7 @@ export default function Volumes() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteVolume(item)
+                        handleDeleteVolumeConfirmation(item)
                       }}
                     />
                   </TableCell>

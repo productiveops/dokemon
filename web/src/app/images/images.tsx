@@ -16,8 +16,7 @@ import {
 import { IImage } from "@/lib/api-models"
 import { useState } from "react"
 import useImages from "@/hooks/useImages"
-import DeleteImageDialog from "./dialogs/delete-image-dialog"
-import { convertByteToMb } from "@/lib/utils"
+import { convertByteToMb, toastFailed, toastSuccess } from "@/lib/utils"
 import PruneImagesDialog from "./dialogs/prune-images-dialog"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
@@ -27,28 +26,60 @@ import { useParams } from "react-router-dom"
 import useNodeHead from "@/hooks/useNodeHead"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import apiBaseUrl from "@/lib/api-base-url"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function Images() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
-  const { isLoading, images } = useImages(nodeId!)
-  const [deleteImageOpen, setDeleteImageOpen] = useState(false)
+  const { isLoading, images, mutateImages } = useImages(nodeId!)
   const [image, setImage] = useState<IImage | null>(null)
+  const [deleteImageConfirmationOpen, setDeleteImageConfirmationOpen] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (isLoading) return <Loading />
 
-  const handleDeleteImage = (image: IImage) => {
+  const handleDeleteImageConfirmation = (image: IImage) => {
     setImage({ ...image })
-    setDeleteImageOpen(true)
+    setDeleteImageConfirmationOpen(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/images/remove`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: image?.id, force: true }),
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      setDeleteImageConfirmationOpen(false)
+      toastFailed(r.errors?.body)
+    } else {
+      mutateImages()
+      setTimeout(() => {
+        setDeleteImageConfirmationOpen(false)
+        toastSuccess("Image deleted.")
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
     <MainArea>
-      {deleteImageOpen && (
-        <DeleteImageDialog
-          openState={deleteImageOpen}
-          setOpenState={setDeleteImageOpen}
-          image={image!}
+      {deleteImageConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteImageConfirmationOpen}
+          setOpenState={setDeleteImageConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Image"
+          message={`Are you sure you want to delete image '${image?.name}?'`}
         />
       )}
       <TopBar>
@@ -96,7 +127,7 @@ export default function Images() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteImage(item)
+                        handleDeleteImageConfirmation(item)
                       }}
                     />
                   </TableCell>

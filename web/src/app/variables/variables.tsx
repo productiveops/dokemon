@@ -16,7 +16,6 @@ import useVariables from "@/hooks/useVariables"
 import AddVariableDialog from "./dialogs/add-variable-dialog"
 import { useState } from "react"
 import { IVariableHead } from "@/lib/api-models"
-import DeleteVariableDialog from "./dialogs/delete-variable-dialog"
 import useEnvironmentsMap from "@/hooks/useEnvironmentsMap"
 import { Checkbox } from "@/components/ui/checkbox"
 import EditVariableDialog from "./dialogs/edit-variable-dialog"
@@ -24,16 +23,20 @@ import EditVariableValueDialog from "./dialogs/edit-variable-value-dialog"
 import TableButtonDelete from "@/components/widgets/table-button-delete"
 import TableButtonEdit from "@/components/widgets/table-button-edit"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import DeleteDialog from "@/components/delete-dialog"
+import apiBaseUrl from "@/lib/api-base-url"
 
 export default function Variables() {
   const { isLoading: mapIsLoading, environmentsMap } = useEnvironmentsMap()
-  const { isLoading, variables } = useVariables()
+  const { isLoading, variables, mutateVariables } = useVariables()
   const [editVariableOpen, setEditVariableOpen] = useState(false)
   const [editVariableValueOpen, setEditVariableValueOpen] = useState(false)
   const [editVariableValueEnvironmentId, setEditVariableValueEnvironmentId] =
     useState<string | null>(null)
-  const [deleteVariableOpen, setDeleteVariableOpen] = useState(false)
   const [variableHead, setVariableHead] = useState<IVariableHead | null>(null)
+  const [deleteVariableOpenConfirmation, setDeleteVariableOpenConfirmation] =
+    useState(false)
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
 
   if (mapIsLoading || isLoading) return <Loading />
 
@@ -51,9 +54,29 @@ export default function Variables() {
     setEditVariableValueEnvironmentId(envId)
   }
 
-  const handleDeleteVariable = (variableHead: IVariableHead) => {
+  const handleDeleteVariableConfirmation = (variableHead: IVariableHead) => {
     setVariableHead({ ...variableHead })
-    setDeleteVariableOpen(true)
+    setDeleteVariableOpenConfirmation(true)
+  }
+
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/variables/${variableHead?.id}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      setDeleteVariableOpenConfirmation(false)
+    } else {
+      mutateVariables()
+      setTimeout(() => {
+        setDeleteVariableOpenConfirmation(false)
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
@@ -73,11 +96,15 @@ export default function Variables() {
           environmentId={editVariableValueEnvironmentId!}
         />
       )}
-      {deleteVariableOpen && (
-        <DeleteVariableDialog
-          openState={deleteVariableOpen}
-          setOpenState={setDeleteVariableOpen}
-          variableHead={variableHead!}
+      {deleteVariableOpenConfirmation && (
+        <DeleteDialog
+          openState={deleteVariableOpenConfirmation}
+          setOpenState={setDeleteVariableOpenConfirmation}
+          deleteCaption=""
+          deleteHandler={handleDelete}
+          isProcessing={deleteInProgress}
+          title="Delete Variable"
+          message={`Are you sure you want to delete variable '${variableHead?.name}?'`}
         />
       )}
       <TopBar>
@@ -110,7 +137,7 @@ export default function Variables() {
                     <TableButtonDelete
                       onClick={(e) => {
                         e.stopPropagation()
-                        handleDeleteVariable(item)
+                        handleDeleteVariableConfirmation(item)
                       }}
                     />
                   </TableCell>
