@@ -36,8 +36,6 @@ export default function Volumes() {
   const [volume, setVolume] = useState<IVolume | null>(null)
   const [deleteVolumeOpenConfirmation, setDeleteVolumeOpenConfirmation] =
     useState(false)
-  const [pruneVolumesOpenConfirmation, setPruneVolumesOpenConfirmation] =
-    useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
 
@@ -84,7 +82,6 @@ export default function Volumes() {
     )
     if (!response.ok) {
       const r = await response.json()
-      setPruneVolumesOpenConfirmation(false)
       toastFailed(r.errors?.body)
     } else {
       mutateVolumes()
@@ -98,7 +95,6 @@ export default function Volumes() {
         )}`
       }
       setTimeout(async () => {
-        setPruneVolumesOpenConfirmation(false)
         toastSuccess(description)
       }, 500)
     }

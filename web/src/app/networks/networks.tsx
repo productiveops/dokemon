@@ -36,8 +36,6 @@ export default function Networks() {
   const [network, setNetwork] = useState<INetwork | null>(null)
   const [deleteNetworkOpenConfirmation, setDeleteNetworkOpenConfirmation] =
     useState(false)
-  const [pruneNetworksOpenConfirmation, setPruneNetworksOpenConfirmation] =
-    useState(false)
   const [deleteInProgress, setDeleteInProgress] = useState(false)
   const [pruneInProgress, setPruneInProgress] = useState(false)
 
@@ -84,7 +82,6 @@ export default function Networks() {
     )
     if (!response.ok) {
       const r = await response.json()
-      setPruneNetworksOpenConfirmation(false)
       toastFailed(r.errors?.body)
     } else {
       mutateNetworks()
@@ -94,7 +91,6 @@ export default function Networks() {
         description = `${r.networksDeleted.length} unused networks deleted`
       }
       setTimeout(async () => {
-        setPruneNetworksOpenConfirmation(false)
         toastSuccess(description)
       }, 500)
     }
