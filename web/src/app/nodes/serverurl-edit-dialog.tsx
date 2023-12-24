@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -30,6 +29,7 @@ import useNodes from "@/hooks/useNodes"
 import useSetting from "@/hooks/useSetting"
 import { ISettingUpdateRequest } from "@/lib/api-models"
 import { apiSettingsUpdate } from "@/lib/api"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function ServerUrlEditDialog() {
   const { setting, mutateSetting } = useSetting("SERVER_URL")
@@ -116,11 +116,7 @@ export default function ServerUrlEditDialog() {
                   )}
                   type="submit"
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>
                     {setting?.value ? "Save" : "Set"}
                   </span>

@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -32,6 +31,7 @@ import {
 } from "@/lib/utils"
 import useEnvironments from "@/hooks/useEnvironments"
 import apiBaseUrl from "@/lib/api-base-url"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function EnvironmentAddDialog() {
   const [open, setOpen] = useState(false)
@@ -124,11 +124,7 @@ export default function EnvironmentAddDialog() {
                   )}
                   type="submit"
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Save</span>
                 </Button>
                 <Button

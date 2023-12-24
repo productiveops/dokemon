@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -24,6 +23,7 @@ import { cn, toastSomethingWentWrong, toastSuccess } from "@/lib/utils"
 import useVariables from "@/hooks/useVariables"
 import { IVariableHead } from "@/lib/api-models"
 import apiBaseUrl from "@/lib/api-base-url"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function VariableValueEditDialog({
   openState,
@@ -114,11 +114,7 @@ export default function VariableValueEditDialog({
                   )}
                   type="submit"
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Save</span>
                 </Button>
                 <Button

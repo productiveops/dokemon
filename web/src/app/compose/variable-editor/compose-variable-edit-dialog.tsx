@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -31,6 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import apiBaseUrl from "@/lib/api-base-url"
 import { INodeComposeVariable } from "@/lib/api-models"
 import useNodeComposeVariables from "@/hooks/useNodeComposeVariables"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function ComposeVariableEditDialog({
   openState,
@@ -180,11 +180,7 @@ export default function ComposeVariableEditDialog({
                   )}
                   type="submit"
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Save</span>
                 </Button>
                 <Button

@@ -1,4 +1,3 @@
-import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 import apiBaseUrl from "@/lib/api-base-url"
 import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -126,11 +126,7 @@ export default function ChangePassword() {
                   )}
                   disabled={isSaving}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>
                     Change Password
                   </span>
@@ -144,11 +140,7 @@ export default function ChangePassword() {
                   disabled={isSaving}
                   onClick={() => navigate("/nodes")}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Cancel</span>
                 </Button>
               </fieldset>

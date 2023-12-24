@@ -7,9 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import { DialogTrigger } from "@radix-ui/react-dialog"
+import SpinnerIcon from "./widgets/spinner-icon"
 
 export default function DeleteDialog({
   openState,
@@ -67,11 +67,7 @@ export default function DeleteDialog({
                   : setOpen(false)
               }}
             >
-              <Icons.spinner
-                className={cn(
-                  "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                )}
-              />
+              <SpinnerIcon />
               <span className={cn("group-disabled:opacity-0")}>Delete</span>
             </Button>
             <Button

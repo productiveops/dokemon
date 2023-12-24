@@ -1,4 +1,3 @@
-import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -11,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
 import Loading from "@/components/widgets/loading"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 import apiBaseUrl from "@/lib/api-base-url"
 import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -155,11 +155,7 @@ export default function Login() {
                   )}
                   disabled={isSaving}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>
                     Sign In
                   </span>

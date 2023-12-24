@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Icons } from "@/components/icons"
 import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
@@ -23,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { cn, toastSomethingWentWrong, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import { ICredentialHead } from "@/lib/api-models"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function GithubPATSecretEditDialog({
   openState,
@@ -104,11 +104,7 @@ export default function GithubPATSecretEditDialog({
                   )}
                   type="submit"
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Save</span>
                 </Button>
                 <Button
