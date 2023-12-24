@@ -12,12 +12,16 @@ import { cn } from "@/lib/utils"
 import { DialogTrigger } from "@radix-ui/react-dialog"
 
 export default function DeleteDialog({
+  openState,
+  setOpenState,
   deleteCaption,
   title,
   message,
   deleteHandler,
   isProcessing,
 }: {
+  openState: boolean | undefined
+  setOpenState: React.Dispatch<React.SetStateAction<boolean>> | undefined
   deleteCaption: string
   title: string
   message: string
@@ -27,12 +31,17 @@ export default function DeleteDialog({
   const [open, setOpen] = useState(false)
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant={"destructive"} className="ml-auto w-24">
-          {deleteCaption}
-        </Button>
-      </DialogTrigger>
+    <Dialog
+      open={openState !== undefined ? openState : open}
+      onOpenChange={setOpenState !== undefined ? setOpenState : setOpen}
+    >
+      {openState === undefined && (
+        <DialogTrigger asChild>
+          <Button variant={"destructive"} className="ml-auto w-24">
+            {deleteCaption}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -58,7 +67,11 @@ export default function DeleteDialog({
             <Button
               variant={"secondary"}
               className="ml-2 w-24"
-              onClick={() => setOpen(false)}
+              onClick={() =>
+                setOpenState !== undefined
+                  ? setOpenState(false)
+                  : setOpen(false)
+              }
             >
               Cancel
             </Button>

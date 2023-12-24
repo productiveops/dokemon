@@ -14,8 +14,9 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline"
 import { CLASSES_TABLE_ACTION_ICON } from "@/lib/utils"
 import { INodeComposeVariable } from "@/lib/api-models"
 import { useState } from "react"
-import DeleteComposeVariableDialog from "./delete-compose-variable-dialog"
 import EditComposeVariableDialog from "./edit-compose-variable-dialog"
+import apiBaseUrl from "@/lib/api-base-url"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function ComposeVariableEditor({
   nodeId,
@@ -28,8 +29,12 @@ export default function ComposeVariableEditor({
     nodeId!,
     nodeComposeProjectId
   )
+  const { mutateNodeComposeVariables } = useNodeComposeVariables(
+    nodeId,
+    nodeComposeProjectId
+  )
+
   const [editVariableOpen, setEditVariableOpen] = useState(false)
-  const [deleteVariableOpen, setDeleteVariableOpen] = useState(false)
   const [variable, setVariable] = useState<INodeComposeVariable | null>(null)
 
   function handleEditVariable(item: INodeComposeVariable) {
@@ -37,9 +42,32 @@ export default function ComposeVariableEditor({
     setEditVariableOpen(true)
   }
 
-  function handleDeleteVariable(item: INodeComposeVariable) {
+  const [deleteVariableConfirmationOpen, setDeleteVariableConfirmationOpen] =
+    useState(false)
+  function handleDeleteVariableConfirmation(item: INodeComposeVariable) {
     setVariable({ ...item })
-    setDeleteVariableOpen(true)
+    setDeleteVariableConfirmationOpen(true)
+  }
+
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const handleDeleteVariable = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/${nodeComposeProjectId}/variables/${variable?.id}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      setDeleteVariableConfirmationOpen(false)
+    } else {
+      mutateNodeComposeVariables()
+      setTimeout(() => {
+        setDeleteVariableConfirmationOpen(false)
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
@@ -53,13 +81,15 @@ export default function ComposeVariableEditor({
           nodeComposeProjectId={nodeComposeProjectId}
         />
       )}
-      {deleteVariableOpen && (
-        <DeleteComposeVariableDialog
-          openState={deleteVariableOpen}
-          setOpenState={setDeleteVariableOpen}
-          variable={variable!}
-          nodeId={nodeId}
-          nodeComposeProjectId={nodeComposeProjectId}
+      {deleteVariableConfirmationOpen && (
+        <DeleteDialog
+          openState={deleteVariableConfirmationOpen}
+          setOpenState={setDeleteVariableConfirmationOpen}
+          deleteCaption=""
+          deleteHandler={handleDeleteVariable}
+          isProcessing={deleteInProgress}
+          title="Delete Variable"
+          message={`Are you sure you want to delete variable '${variable?.name}?'`}
         />
       )}
       <h2>
@@ -107,7 +137,7 @@ export default function ComposeVariableEditor({
                   title="Delete"
                   onClick={(e) => {
                     e.stopPropagation()
-                    handleDeleteVariable(item)
+                    handleDeleteVariableConfirmation(item)
                   }}
                 >
                   <TrashIcon className={CLASSES_TABLE_ACTION_ICON} />

@@ -8,16 +8,22 @@ import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
-import { useParams } from "react-router-dom"
-import { useEffect } from "react"
-import { wsApiBaseUrl } from "@/lib/api-base-url"
+import { useNavigate, useParams } from "react-router-dom"
+import { useEffect, useState } from "react"
+import apiBaseUrl, { wsApiBaseUrl } from "@/lib/api-base-url"
 import { AttachAddon } from "@xterm/addon-attach"
 import { FitAddon } from "@xterm/addon-fit"
 import { Button } from "@/components/ui/button"
-import { newTerminal, recreateTerminalElement } from "@/lib/utils"
+import {
+  newTerminal,
+  recreateTerminalElement,
+  toastFailed,
+  toastSuccess,
+} from "@/lib/utils"
 import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
-import DeleteNodeComposeDialog from "./dialogs/delete-node-compose-dialog"
+import useComposeLibraryItemList from "@/hooks/useComposeLibraryItemList"
+import DeleteDialog from "@/components/delete-dialog"
 
 export default function ComposeActions() {
   const { nodeId, composeProjectId } = useParams()
@@ -26,6 +32,8 @@ export default function ComposeActions() {
     nodeId!,
     composeProjectId!
   )
+  const { mutateComposeLibraryItemList } = useComposeLibraryItemList()
+  const navigate = useNavigate()
 
   let terminal = newTerminal()
   let fitAddon = new FitAddon()
@@ -61,6 +69,29 @@ export default function ComposeActions() {
     addEventListener("resize", () => {
       fitAddon?.fit()
     })
+  }
+
+  const [deleteInProgress, setDeleteInProgress] = useState(false)
+  const handleDelete = async () => {
+    setDeleteInProgress(true)
+    const response = await fetch(
+      `${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}`,
+      {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+    if (!response.ok) {
+      const r = await response.json()
+      toastFailed(r.errors?.body)
+    } else {
+      mutateComposeLibraryItemList()
+      setTimeout(() => {
+        toastSuccess("Compose project deleted.")
+        navigate(`/nodes/${nodeId}/compose`)
+      }, 500)
+    }
+    setDeleteInProgress(false)
   }
 
   return (
@@ -109,7 +140,13 @@ export default function ComposeActions() {
           >
             Down
           </Button>
-          <DeleteNodeComposeDialog />
+          <DeleteDialog
+            deleteCaption="Delete"
+            title="Delete Compose Project"
+            message={`Are you sure you want to delete project '${nodeComposeItem?.projectName}'?`}
+            deleteHandler={handleDelete}
+            isProcessing={deleteInProgress}
+          />
         </div>
         <div id="terminalContainer">
           <h2 className="mb-2 font-bold">Action Logs</h2>
