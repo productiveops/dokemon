@@ -2,7 +2,6 @@ import { Terminal } from "@xterm/xterm"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { loader } from "@monaco-editor/react"
-import apiBaseUrl from "./api-base-url"
 
 export const REGEX_IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
 export const REGEX_IDENTIFIER_MESSAGE =

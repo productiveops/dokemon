@@ -35,7 +35,7 @@ import {
   Section,
   SectionBody,
 } from "@/components/widgets/main-container"
-import Editor, { OnMount, loader } from "@monaco-editor/react"
+import Editor, { OnMount } from "@monaco-editor/react"
 import type monaco from "monaco-editor"
 import { Input } from "@/components/ui/input"
 import DeleteComposeDialog from "./dialogs/delete-compose-dialog"
