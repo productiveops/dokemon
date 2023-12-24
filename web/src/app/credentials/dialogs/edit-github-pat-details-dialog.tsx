@@ -25,6 +25,7 @@ import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
+  hasUniqueName,
   trimString,
 } from "@/lib/utils"
 import useCredentials from "@/hooks/useCredentials"
@@ -53,14 +54,15 @@ export default function EditGithubPATDetailsDialog({
         .min(1, "Required")
         .max(20)
         .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/credentials/${
-              credentialHead.id
-            }/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another credential with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(
+              `${apiBaseUrl()}/credentials/${
+                credentialHead.id
+              }/uniquename?value=${value}`
+            ),
+          "Another credential with this name already exists"
+        )
     ),
     service: z.string().default("github"),
     type: z.string().default("pat"),

@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, trimString } from "@/lib/utils"
+import { cn, hasUniqueName, trimString } from "@/lib/utils"
 import useVariables from "@/hooks/useVariables"
 import { Checkbox } from "@/components/ui/checkbox"
 import apiBaseUrl from "@/lib/api-base-url"
@@ -46,14 +46,15 @@ export default function EditVariableDialog({
         .string()
         .min(1, "Name is required")
         .max(100)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/variables/${
-              variableHead.id
-            }/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another variable with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(
+              `${apiBaseUrl()}/variables/${
+                variableHead.id
+              }/uniquename?value=${value}`
+            ),
+          "Another variable with this name already exists"
+        )
     ),
     isSecret: z.boolean(),
   })

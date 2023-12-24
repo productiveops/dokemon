@@ -24,6 +24,7 @@ import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
+  hasUniqueName,
   initMonaco,
 } from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
@@ -67,12 +68,13 @@ export default function ComposeDefinitionLocal() {
       .min(1, "Name is required")
       .max(20)
       .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-      .refine(async (value) => {
-        const res = await fetch(
-          `${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}/uniquename?value=${value}`
-        )
-        return (await res.json()).unique
-      }, "Another project with this name already exists"),
+      .refine(
+        async (value) =>
+          hasUniqueName(
+            `${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}/uniquename?value=${value}`
+          ),
+        "Another project with this name already exists"
+      ),
     definition: z.string().optional(),
   })
 

@@ -25,6 +25,7 @@ import {
   REGEX_IDENTIFIER,
   REGEX_IDENTIFIER_MESSAGE,
   cn,
+  hasUniqueName,
   trimString,
 } from "@/lib/utils"
 import useEnvironments from "@/hooks/useEnvironments"
@@ -51,14 +52,15 @@ export default function EditEnvironmentDialog({
         .min(1, "Name is required")
         .max(20)
         .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/environments/${
-              environmentHead.id
-            }/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another environment with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(
+              `${apiBaseUrl()}/environments/${
+                environmentHead.id
+              }/uniquename?value=${value}`
+            ),
+          "Another environment with this name already exists"
+        )
     ),
   })
 

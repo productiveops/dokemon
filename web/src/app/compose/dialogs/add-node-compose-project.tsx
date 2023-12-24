@@ -22,7 +22,12 @@ import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "@/components/ui/use-toast"
-import { REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE, cn } from "@/lib/utils"
+import {
+  REGEX_IDENTIFIER,
+  REGEX_IDENTIFIER_MESSAGE,
+  cn,
+  hasUniqueName,
+} from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useParams } from "react-router-dom"
 import {
@@ -59,12 +64,13 @@ export default function AddNodeComposeProjectDialog() {
       .min(1, "Project Name is required")
       .max(20)
       .regex(REGEX_IDENTIFIER, REGEX_IDENTIFIER_MESSAGE)
-      .refine(async (value) => {
-        const res = await fetch(
-          `${apiBaseUrl()}/nodes/${nodeId}/compose/uniquename?value=${value}`
-        )
-        return (await res.json()).unique
-      }, "Another project with this name already exists"),
+      .refine(
+        async (value) =>
+          hasUniqueName(
+            `${apiBaseUrl()}/nodes/${nodeId}/compose/uniquename?value=${value}`
+          ),
+        "Another project with this name already exists"
+      ),
   })
 
   type FormSchemaType = z.infer<typeof formSchema>

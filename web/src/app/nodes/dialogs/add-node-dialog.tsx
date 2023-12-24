@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { cn, trimString } from "@/lib/utils"
+import { cn, hasUniqueName, trimString } from "@/lib/utils"
 import useNodes from "@/hooks/useNodes"
 import apiBaseUrl from "@/lib/api-base-url"
 import { toast } from "@/components/ui/use-toast"
@@ -54,12 +54,11 @@ export default function AddNodeDialog({ disabled }: { disabled: boolean }) {
         .string()
         .min(1, "Name is required")
         .max(20)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/nodes/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another node with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(`${apiBaseUrl()}/nodes/uniquename?value=${value}`),
+          "Another node with this name already exists"
+        )
     ),
     environmentId: z.number().nullable(),
   })

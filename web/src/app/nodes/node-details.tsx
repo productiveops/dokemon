@@ -21,7 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { z } from "zod"
-import { cn, trimString } from "@/lib/utils"
+import { cn, hasUniqueName, trimString } from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -63,12 +63,13 @@ export default function NodeDetails() {
         .string()
         .min(1, "Name is required")
         .max(20)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/nodes/${nodeId}/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another node with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(
+              `${apiBaseUrl()}/nodes/${nodeId}/uniquename?value=${value}`
+            ),
+          "Another node with this name already exists"
+        )
     ),
     environmentId: z.number().nullable(),
   })
