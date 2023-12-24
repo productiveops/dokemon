@@ -8,23 +8,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import TableButtonDelete from "@/components/widgets/table-button-delete"
 import MainArea from "@/components/widgets/main-area"
 import TopBar from "@/components/widgets/top-bar"
 import TopBarActions from "@/components/widgets/top-bar-actions"
 import MainContent from "@/components/widgets/main-content"
-import { useNavigate } from "react-router-dom"
-import useNodes from "@/hooks/useNodes"
 import AddNodeDialog from "./dialogs/add-node-dialog"
 import { Button } from "@/components/ui/button"
-import { useState } from "react"
 import RegisterNodeDialog from "./dialogs/register-node-dialog"
-import { INodeHead } from "@/lib/api-models"
 import DeleteNodeDialog from "./dialogs/delete-node-dialog"
 import EditServerUrlDialog from "./dialogs/edit-serverurl-dialog"
-import useSetting from "@/hooks/useSetting"
-import TableButtonDelete from "@/components/widgets/table-button-delete"
+import { INodeHead } from "@/lib/api-models"
 import { apiNodesGenerateToken } from "@/lib/api"
-import { toastSomethingWentWrong } from "@/lib/utils"
+import {
+  CLASSES_CLICKABLE_TABLE_ROW,
+  cn,
+  toastSomethingWentWrong,
+} from "@/lib/utils"
+import { useNavigate } from "react-router-dom"
+import useNodes from "@/hooks/useNodes"
+import { useState } from "react"
+import useSetting from "@/hooks/useSetting"
 
 export default function Nodes() {
   const navigate = useNavigate()
@@ -108,7 +112,7 @@ export default function Nodes() {
               nodes?.items.map((item) => (
                 <TableRow
                   key={item.name}
-                  className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+                  className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
                     if (item.registered) {
                       navigate(`/nodes/${item.id}/compose`)
@@ -116,33 +120,13 @@ export default function Nodes() {
                   }}
                 >
                   <TableCell>
-                    {item.online ? (
-                      <span
-                        className="-ml-2 mr-3 text-lg text-green-600"
-                        title="Online"
-                      >
-                        ●
-                      </span>
-                    ) : (
-                      <span
-                        className="-ml-2 mr-3 text-lg text-slate-300"
-                        title="Offline"
-                      >
-                        ●
-                      </span>
-                    )}
+                    <NodeStatusIcon nodeHead={item} />
                     {item.name}
                   </TableCell>
                   <TableCell>
                     {item.environment ? item.environment : "-"}
                   </TableCell>
-                  <TableCell>
-                    {item.id === 1
-                      ? "N/A (Dokemon Server)"
-                      : item.agentVersion
-                        ? item.agentVersion
-                        : "-"}
-                  </TableCell>
+                  <TableCell>{getAgentVersion(item)}</TableCell>
                   <TableCell className="text-right">
                     {!item.registered && (
                       <Button
@@ -176,4 +160,21 @@ export default function Nodes() {
 
 function isDokemonNode(nodeHead: INodeHead) {
   return nodeHead.id === 1
+}
+
+function NodeStatusIcon({ nodeHead }: { nodeHead: INodeHead }) {
+  const statusClassName = nodeHead.online ? "text-green-600" : "text-slate-300"
+  const title = nodeHead.online ? "Online" : "Offline"
+
+  return (
+    <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
+      ●
+    </span>
+  )
+}
+
+function getAgentVersion(nodeHead: INodeHead) {
+  if (isDokemonNode(nodeHead)) return "N/A (Dokemon Server)"
+  if (nodeHead.agentVersion) return nodeHead.agentVersion
+  return "-"
 }
