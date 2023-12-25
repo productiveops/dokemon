@@ -1,14 +1,20 @@
 import { Terminal } from "@xterm/xterm"
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { loader } from "@monaco-editor/react"
+import { toast } from "@/components/ui/use-toast"
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+export const REGEX_IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
+export const REGEX_IDENTIFIER_MESSAGE =
+  "Only alphabets, digits, _ and -. Must start with an alphabet or digit."
 
 export const CLASSES_TABLE_ACTION_ICON = "w-4 text-slate-900 dark:text-white"
 export const CLASSES_CLICKABLE_TABLE_ROW =
   "cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 export function convertByteToMb(size: number) {
   return (size / (1000 * 1000)).toFixed(2) + " MB"
@@ -83,6 +89,43 @@ export function newTerminal(convertToEol?: boolean) {
   })
 }
 
-export const REGEX_IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/
-export const REGEX_IDENTIFIER_MESSAGE =
-  "Only alphabets, digits, _ and -. Must start with an alphabet or digit."
+export function initMonaco() {
+  loader.init().then((monaco) => {
+    monaco.editor.defineTheme("dark", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [],
+      colors: {
+        "editor.background": "#000000",
+      },
+    })
+  })
+}
+
+export async function hasUniqueName(apiUrl: string) {
+  const res = await fetch(apiUrl)
+  return (await res.json()).unique
+}
+
+export function toastSuccess(message: string) {
+  toast({
+    title: "Success!",
+    description: message,
+  })
+}
+
+export function toastSomethingWentWrong(message: string) {
+  toast({
+    variant: "destructive",
+    title: "Something went wrong.",
+    description: message,
+  })
+}
+
+export function toastFailed(message: string) {
+  toast({
+    variant: "destructive",
+    title: "Failed!",
+    description: message,
+  })
+}

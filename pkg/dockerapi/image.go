@@ -12,7 +12,7 @@ import (
 )
 
 func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 }
 
 func ImageRemove(req *DockerImageRemove) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func ImageRemove(req *DockerImageRemove) (error) {
 }
 
 func ImagesPrune(req *DockerImagesPrune) (*DockerImagesPruneResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}

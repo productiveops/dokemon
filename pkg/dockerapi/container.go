@@ -15,7 +15,7 @@ import (
 )
 
 func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 }
 
 func ContainerStart(req *DockerContainerStart) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func ContainerStart(req *DockerContainerStart) (error) {
 }
 
 func ContainerStop(req *DockerContainerStop) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func ContainerStop(req *DockerContainerStop) (error) {
 }
 
 func ContainerRestart(req *DockerContainerRestart) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func ContainerRestart(req *DockerContainerRestart) (error) {
 }
 
 func ContainerRemove(req *DockerContainerRemove) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func ContainerRemove(req *DockerContainerRemove) (error) {
 }
 
 func ContainerLogs(req *DockerContainerLogs, ws *websocket.Conn) error {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func ContainerTerminal(req *DockerContainerTerminal, wsBrowser *websocket.Conn) 
 	sessionId := terminalSessionId
 	log.Debug().Uint("sessionId", terminalSessionId).Msg("Starting terminal session")
 
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}

@@ -1,3 +1,25 @@
+// Request
+
+export interface INodeCreateRequest {
+  name: string
+  environmentId: number | null
+}
+
+export interface INodeUpdateRequest {
+  name: string
+  environmentId: number | null
+}
+
+export interface INodeContainerBaseUrlUpdateRequest {
+  containerBaseUrl: string
+}
+
+export interface ISettingUpdateRequest {
+  value: string
+}
+
+// Response
+
 export interface IPageResponse<T> {
   items: T[]
   pageNo: number

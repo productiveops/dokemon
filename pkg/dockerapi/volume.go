@@ -10,7 +10,7 @@ import (
 )
 
 func VolumeList(req *DockerVolumeList) (*DockerVolumeListResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func VolumeList(req *DockerVolumeList) (*DockerVolumeListResponse, error) {
 }
 
 func VolumeRemove(req *DockerVolumeRemove) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func VolumeRemove(req *DockerVolumeRemove) (error) {
 }
 
 func VolumesPrune(req *DockerVolumesPrune) (*DockerVolumesPruneResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}

@@ -1,4 +1,3 @@
-import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -10,10 +9,10 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
-import { toast } from "@/components/ui/use-toast"
 import Loading from "@/components/widgets/loading"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 import apiBaseUrl from "@/lib/api-base-url"
-import { cn, trimString } from "@/lib/utils"
+import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useEffect, useMemo, useState } from "react"
@@ -42,11 +41,7 @@ export default function Login() {
         }
       } catch (e) {
         if (axios.isAxiosError(e)) {
-          toast({
-            variant: "destructive",
-            title: "Failed",
-            description: e.response?.data.errors?.body,
-          })
+          toastFailed(e.response?.data.errors?.body)
         }
       }
     }
@@ -87,10 +82,7 @@ export default function Login() {
         localStorage.setItem("userName", data.userName)
         navigate("/nodes")
       } else {
-        toast({
-          variant: "destructive",
-          description: "Invalid username or password",
-        })
+        toastFailed("Invalid username or password")
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
@@ -163,11 +155,7 @@ export default function Login() {
                   )}
                   disabled={isSaving}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>
                     Sign In
                   </span>

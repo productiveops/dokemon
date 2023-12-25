@@ -1,4 +1,3 @@
-import { Icons } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -10,9 +9,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useTheme } from "@/components/ui/theme-provider"
-import { toast } from "@/components/ui/use-toast"
+import SpinnerIcon from "@/components/widgets/spinner-icon"
 import apiBaseUrl from "@/lib/api-base-url"
-import { cn, trimString } from "@/lib/utils"
+import { cn, toastFailed, trimString } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import axios from "axios"
 import { useMemo, useState } from "react"
@@ -55,18 +54,11 @@ export default function ChangePassword() {
       if (response?.status === 204) {
         navigate("/nodes")
       } else {
-        toast({
-          variant: "destructive",
-          description: "Password update failed",
-        })
+        toastFailed("Password update failed")
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
-        toast({
-          variant: "destructive",
-          title: "Failed",
-          description: e.response?.data,
-        })
+        toastFailed(e.response?.data)
       }
     }
 
@@ -134,11 +126,7 @@ export default function ChangePassword() {
                   )}
                   disabled={isSaving}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>
                     Change Password
                   </span>
@@ -152,11 +140,7 @@ export default function ChangePassword() {
                   disabled={isSaving}
                   onClick={() => navigate("/nodes")}
                 >
-                  <Icons.spinner
-                    className={cn(
-                      "absolute animate-spin text-slate-100 group-enabled:opacity-0"
-                    )}
-                  />
+                  <SpinnerIcon />
                   <span className={cn("group-disabled:opacity-0")}>Cancel</span>
                 </Button>
               </fieldset>

@@ -10,7 +10,7 @@ import (
 )
 
 func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
 }
 
 func NetworkRemove(req *DockerNetworkRemove) (error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func NetworkRemove(req *DockerNetworkRemove) (error) {
 }
 
 func NetworksPrune(req *DockerNetworksPrune) (*DockerNetworksPruneResponse, error) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return nil, err
 	}

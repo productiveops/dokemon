@@ -5,7 +5,6 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/widgets/breadcrumb"
-import { toast } from "@/components/ui/use-toast"
 import apiBaseUrl from "@/lib/api-base-url"
 import { useEffect, useMemo, useState } from "react"
 import TopBar from "@/components/widgets/top-bar"
@@ -21,7 +20,13 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { z } from "zod"
-import { cn, trimString } from "@/lib/utils"
+import {
+  cn,
+  hasUniqueName,
+  toastSomethingWentWrong,
+  toastSuccess,
+  trimString,
+} from "@/lib/utils"
 import { SubmitHandler, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
@@ -47,6 +52,8 @@ import {
   CommandItem,
 } from "@/components/ui/command"
 import useNode from "@/hooks/useNode"
+import { INodeUpdateRequest } from "@/lib/api-models"
+import { apiNodesUpdate } from "@/lib/api"
 
 export default function NodeDetails() {
   const { nodeId } = useParams()
@@ -63,12 +70,13 @@ export default function NodeDetails() {
         .string()
         .min(1, "Name is required")
         .max(20)
-        .refine(async (value) => {
-          const res = await fetch(
-            `${apiBaseUrl()}/nodes/${nodeId}/uniquename?value=${value}`
-          )
-          return (await res.json()).unique
-        }, "Another node with this name already exists")
+        .refine(
+          async (value) =>
+            hasUniqueName(
+              `${apiBaseUrl()}/nodes/${nodeId}/uniquename?value=${value}`
+            ),
+          "Another node with this name already exists"
+        )
     ),
     environmentId: z.number().nullable(),
   })
@@ -83,27 +91,19 @@ export default function NodeDetails() {
     }, [node]),
   })
 
-  const onSubmit: SubmitHandler<FormSchemaType> = async (data) => {
+  const onSubmit: SubmitHandler<FormSchemaType> = async (
+    data: INodeUpdateRequest
+  ) => {
     setIsSaving(true)
-    const response = await fetch(`${apiBaseUrl()}/nodes/${nodeId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
+    const response = await apiNodesUpdate(Number(nodeId), data)
     if (!response.ok) {
-      toast({
-        variant: "destructive",
-        title: "Something went wrong.",
-        description:
-          "There was a problem when saving the node details. Try again!",
-      })
+      toastSomethingWentWrong(
+        "There was a problem when saving the node details. Try again!"
+      )
     } else {
       mutateNode()
       mutateNodes()
-      toast({
-        title: "Success!",
-        description: "Node details have been saved.",
-      })
+      toastSuccess("Node details have been saved.")
     }
     setIsSaving(false)
   }
