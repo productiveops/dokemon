@@ -20,6 +20,7 @@ export default function DeleteDialog({
   deleteHandler,
   isProcessing,
   widthClass,
+  buttonVisible,
 }: {
   openState?: boolean
   setOpenState?: React.Dispatch<React.SetStateAction<boolean>>
@@ -29,6 +30,7 @@ export default function DeleteDialog({
   deleteHandler: React.MouseEventHandler
   isProcessing: boolean
   widthClass?: string
+  buttonVisible?: boolean
 }) {
   const [open, setOpen] = useState(false)
 
@@ -41,7 +43,11 @@ export default function DeleteDialog({
         <DialogTrigger asChild>
           <Button
             variant={"destructive"}
-            className={cn("ml-auto", widthClass ? widthClass : "w-24")}
+            className={cn(
+              "ml-1",
+              widthClass ? widthClass : "w-24",
+              buttonVisible === undefined || buttonVisible ? "" : "hidden"
+            )}
           >
             {deleteCaption}
           </Button>

@@ -14,7 +14,6 @@ import Setup from "./app/auth/setup"
 import ComposeLibraryList from "./app/compose-library/compose-library-list"
 import ComposeContainerList from "./app/compose/compose-container-list"
 import ComposeLogs from "./app/compose/compose-logs"
-import ComposeActions from "./app/compose/compose-actions"
 import ComposeLibraryCreateFileSystemProject from "./app/compose-library/compose-library-create-filesystem-project"
 import ComposeLibraryEditFileSystemProject from "./app/compose-library/compose-library-edit-filesystem-project"
 import ComposeList from "./app/compose/compose-list"
@@ -94,10 +93,6 @@ const router = createBrowserRouter([
       {
         path: "nodes/:nodeId/compose/create/local",
         element: <ComposeAddLocal />,
-      },
-      {
-        path: "nodes/:nodeId/compose/:composeProjectId/actions",
-        element: <ComposeActions />,
       },
       {
         path: "nodes/:nodeId/compose/:composeProjectId/definition",

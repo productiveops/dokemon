@@ -162,6 +162,7 @@ func (h *Handler) Register(e *echo.Echo) {
 	node_compose_project.DELETE("/:id", h.DeleteNodeComposeProject)
 	node_compose_project.GET("/:id/containers", h.GetNodeComposeContainerList)
 	node_compose_project.GET("/:id/logs", h.GetNodeComposeLogs)
+	node_compose_project.GET("/:id/deploy", h.GetNodeComposeDeploy)
 	node_compose_project.GET("/:id/pull", h.GetNodeComposePull)
 	node_compose_project.GET("/:id/up", h.GetNodeComposeUp)
 	node_compose_project.GET("/:id/down", h.GetNodeComposeDown)

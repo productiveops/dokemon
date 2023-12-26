@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-amber-600 hover:bg-amber-500 focus-visible:outline-amber-600",
+          "bg-amber-600 hover:bg-amber-500 focus-visible:outline-amber-600 disabled:bg-amber-600/70 disabled:text-slate-400 disabled:cursor-not-allowed",
         destructive: "bg-red-600 text-destructive-foreground hover:bg-red-500",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
@@ -37,14 +37,18 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  visible?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ visible, className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     return (
       <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          visible || visible === undefined ? "" : "hidden"
+        )}
         ref={ref}
         {...props}
       />

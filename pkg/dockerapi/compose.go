@@ -179,9 +179,11 @@ func toEnvFormat(variables map[string]store.VariableValue) ([]string) {
 	return ret
 }
 
-func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websocket.Conn) {
+func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websocket.Conn, print bool) {
 	cmd.Env = os.Environ()
-	ws.WriteMessage(websocket.TextMessage, []byte("Setting below variables:\n"))
+	if print {
+		ws.WriteMessage(websocket.TextMessage, []byte("*** SETTING BELOW VARIABLES: ***\n\n"))
+	}
 
 	keys := make([]string, 0)
 	for k, _ := range variables {
@@ -194,17 +196,18 @@ func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *we
 		if !variables[k].IsSecret {
 			val = *variables[k].Value
 		}
-		ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s=%s\n", k, val)))
+		if print {
+			ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s=%s\n", k, val)))
+		}
 	}
+
 	for _, v := range toEnvFormat(variables) {
 		cmd.Env = append(cmd.Env, v)
 	}
 }
 
-func ComposePull(req *DockerComposePull, ws *websocket.Conn) error {
-	go discardIncomingMessages(ws)
-
-	dir, file, err := createTempComposeFile(req.ProjectName, req.Definition)
+func performComposeAction(action string, projectName string, definition string, variables map[string]store.VariableValue, ws *websocket.Conn, printVars bool) error {
+	dir, file, err := createTempComposeFile(projectName, definition)
 	log.Debug().Str("fileName", file).Msg("Created temporary compose file")
 	if err != nil {
 		return err
@@ -213,11 +216,21 @@ func ComposePull(req *DockerComposePull, ws *websocket.Conn) error {
 		log.Debug().Str("fileName", file).Msg("Deleting temporary compose file")
 		os.RemoveAll(dir) 
 	}()
+
+	var cmd *exec.Cmd
+	switch action {
+	case "up":
+		cmd = exec.Command("docker-compose", "-p", projectName, "-f", file, action, "-d")
+	case "down":
+		cmd = exec.Command("docker-compose", "-p", projectName, action)
+	case "pull":
+		cmd = exec.Command("docker-compose", "-p", projectName, "-f", file, action)
+	default:
+		panic(fmt.Errorf("unknown compose action %s", action))
+	}
+	processVars(cmd, variables, ws, printVars)
 	
-	cmd := exec.Command("docker-compose", "-p", req.ProjectName, "-f", file, "pull")
-	processVars(cmd, req.Variables, ws)
-	
-	ws.WriteMessage(websocket.TextMessage, []byte("\nStarting action: Compose Pull\n"))
+	ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("\n*** STARTING ACTION: %s ***\n\n", action)))
 	f, err := pty.Start(cmd)
 	if err != nil {
 		log.Error().Err(err).Msg("pty returned error")
@@ -243,99 +256,43 @@ func ComposePull(req *DockerComposePull, ws *websocket.Conn) error {
 	}
 
 	err = cmd.Wait()
+	ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("\n*** COMPLETED ACTION: %s ***\n\n", action)))
+
 	if err != nil {
-		log.Error().Err(err).Msg("Error executing compose pull")
+		log.Error().Err(err).Msg(fmt.Sprintf("Error executing compose %s", action))
 	}
 
-	log.Debug().Msg("compose pull session closed")
 	return nil
+}
+
+func ComposeDeploy(req *DockerComposeDeploy, ws *websocket.Conn) error {
+	go discardIncomingMessages(ws)
+
+	err := performComposeAction("pull", req.ProjectName, req.Definition, req.Variables, ws, true)
+	if err != nil {
+		return err
+	}
+	err = performComposeAction("up", req.ProjectName, req.Definition, req.Variables, ws, false)
+
+	return err
+}
+
+func ComposePull(req *DockerComposePull, ws *websocket.Conn) error {
+	go discardIncomingMessages(ws)
+	err := performComposeAction("pull", req.ProjectName, req.Definition, req.Variables, ws, true)
+	return err
 }
 
 func ComposeUp(req *DockerComposeUp, ws *websocket.Conn) error {
 	go discardIncomingMessages(ws)
-
-	dir, file, err := createTempComposeFile(req.ProjectName, req.Definition)
-	log.Debug().Str("fileName", file).Msg("Created temporary compose file")
-	if err != nil {
-		return err
-	}
-	defer func() { 
-		log.Debug().Str("fileName", file).Msg("Deleting temporary compose file")
-		os.RemoveAll(dir) 
-	}()
-	
-	cmd := exec.Command("docker-compose", "-p", req.ProjectName, "-f", file, "up", "-d")
-	processVars(cmd, req.Variables, ws)
-	
-	ws.WriteMessage(websocket.TextMessage, []byte("\nStarting action: Compose Up\n"))
-	f, err := pty.Start(cmd)
-	if err != nil {
-		log.Error().Err(err).Msg("pty returned error")
-		return err
-	}
-
-	b := make([]byte, 1024)
-	for {
-		n, err := f.Read(b)
-		if n == 0 {
-			break
-		}
-		if err != nil {
-			if err != io.EOF {
-				log.Error().Err(err).Msg("Error while reading from pty")
-			}
-			break
-		}
-		_ = ws.WriteMessage(websocket.BinaryMessage, b[:n])
-		// We ignore websocket write errors. This is because 
-		// we don't want to terminate the command execution in between 
-		// causing unexpected state
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		log.Error().Err(err).Msg("Error executing compose up")
-	}
-
-	log.Debug().Msg("compose up session closed")
-	return nil
+	err := performComposeAction("up", req.ProjectName, req.Definition, req.Variables, ws, true)
+	return err
 }
 
 func ComposeDown(req *DockerComposeDown, ws *websocket.Conn) error {
 	go discardIncomingMessages(ws)
-
-	cmd := exec.Command("docker-compose", "-p", req.ProjectName, "down")
-	f, err := pty.Start(cmd)
-	if err != nil {
-		log.Error().Err(err).Msg("pty returned error")
-		return err
-	}
-
-	b := make([]byte, 1024)
-	for {
-		n, err := f.Read(b)
-		if n == 0 {
-			break
-		}
-		if err != nil {
-			if err != io.EOF {
-				log.Error().Err(err).Msg("Error while reading from pty")
-			}
-			break
-		}
-		_ = ws.WriteMessage(websocket.BinaryMessage, b[:n])
-		// We ignore websocket write errors. This is because 
-		// we don't want to terminate the command execution in between 
-		// causing unexpected state
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		log.Error().Err(err).Msg("Error executing compose down")
-	}
-
-	log.Debug().Msg("compose down session closed")
-	return nil
+	err := performComposeAction("down", req.ProjectName, "", nil, ws, true)
+	return err
 }
 
 func ComposeDownNoStreaming(req *DockerComposeDownNoStreaming) error {

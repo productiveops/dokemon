@@ -35,8 +35,10 @@ import SpinnerIcon from "@/components/widgets/spinner-icon"
 
 export default function GitHubPATAddDialog({
   buttonCaption,
+  disabled,
 }: {
   buttonCaption: string
+  disabled?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -103,7 +105,9 @@ export default function GitHubPATAddDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{buttonCaption}</Button>
+        <Button disabled={disabled !== undefined || disabled}>
+          {buttonCaption}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <Form {...form}>
