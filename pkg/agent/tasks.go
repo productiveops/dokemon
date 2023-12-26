@@ -21,7 +21,7 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 
 	stream := false
 	steamMessageTypes := []string{"DockerContainerLogs", "DockerContainerTerminal",
-									"DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs"}
+									"DockerComposeDeploy", "DockerComposePull","DockerComposePull", "DockerComposeUp", "DockerComposeDown", "DockerComposeLogs"}
 	if slices.Contains(steamMessageTypes, messageType) {	
 		stream = true
 	}
@@ -80,6 +80,8 @@ func startTaskSession(tqm messages.TaskQueuedMessage) {
 		handleDockerComposeContainerList(c, taskDefinition)
 	case "DockerComposeLogs":
 		handleDockerComposeLogs(c, taskDefinition)
+	case "DockerComposeDeploy":
+		handleDockerComposeDeploy(c, taskDefinition)
 	case "DockerComposePull":
 		handleDockerComposePull(c, taskDefinition)
 	case "DockerComposeUp":

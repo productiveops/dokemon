@@ -1,8 +1,19 @@
 import { cn } from "@/lib/utils"
 
-export function MainContainer({ children }: { children: any }) {
+export function MainContainer({
+  visible = true,
+  children,
+}: {
+  visible?: boolean
+  children: any
+}) {
   return (
-    <div className="bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-gray-800 sm:rounded-xl md:col-span-2">
+    <div
+      className={cn(
+        "bg-white shadow-sm ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-gray-800 sm:rounded-xl md:col-span-2",
+        visible ? "" : "hidden"
+      )}
+    >
       {children}
     </div>
   )

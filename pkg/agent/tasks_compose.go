@@ -106,6 +106,22 @@ func handleDockerComposeLogs(c *websocket.Conn, messageString string) {
 	}
 }
 
+func handleDockerComposeDeploy(c *websocket.Conn, messageString string) {
+	m, err := messages.Parse[dockerapi.DockerComposeDeploy](messageString)
+	if err != nil {
+		err := completedWithFailure(c, "Error parsing request message")
+		if err != nil {
+			log.Debug().Err(err).Msg("Error sending message to client")
+		}
+		return
+	}
+
+	err = dockerapi.ComposeDeploy(m, c)
+	if err != nil {
+		log.Debug().Err(err).Msg("Error sending message to client")
+	}
+}
+
 func handleDockerComposePull(c *websocket.Conn, messageString string) {
 	m, err := messages.Parse[dockerapi.DockerComposePull](messageString)
 	if err != nil {

@@ -12,13 +12,6 @@ export function SideNavCompose() {
   const baseUrl = `/nodes/${nodeId}/compose/${composeProjectId}`
   const items = [
     {
-      title: "Actions",
-      link: `${baseUrl}/actions`,
-      icon: (
-        <Bars3BottomLeftIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
-      ),
-    },
-    {
       title: "Definition",
       link: `${baseUrl}/definition`,
       icon: (

@@ -198,6 +198,12 @@ type DockerComposeLogs struct {
 	ProjectName string `json:"projectName"`
 }
 
+type DockerComposeDeploy struct {
+	ProjectName string `json:"projectName"`
+	Definition string `json:"definition"`
+	Variables map[string]store.VariableValue `json:"variables"`
+}
+
 type DockerComposePull struct {
 	ProjectName string `json:"projectName"`
 	Definition string `json:"definition"`

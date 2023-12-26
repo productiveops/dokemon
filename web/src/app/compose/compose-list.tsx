@@ -83,7 +83,7 @@ export default function ComposeList() {
                   key={item.projectName}
                   className={CLASSES_CLICKABLE_TABLE_ROW}
                   onClick={() => {
-                    navigate(`/nodes/${nodeId}/compose/${item.id}/actions`)
+                    navigate(`/nodes/${nodeId}/compose/${item.id}/definition`)
                   }}
                 >
                   <TableCell>{item.projectName}</TableCell>

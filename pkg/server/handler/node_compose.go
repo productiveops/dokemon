@@ -469,6 +469,62 @@ func (h *Handler) getComposeVariables(environmentId *uint, nodeComposeProjectId 
 	return variables
 }
 
+func (h *Handler) GetNodeComposeDeploy(c echo.Context) error {
+	nodeId, err := strconv.Atoi(c.Param("nodeId"))
+	if err != nil {
+		return unprocessableEntity(c, errors.New("nodeId should be an integer"))
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return unprocessableEntity(c, errors.New("id should be an integer"))
+	}
+
+	ncp, err := h.nodeComposeProjectStore.GetById(uint(nodeId), uint(id))
+	if err != nil {
+		return unprocessableEntity(c, errors.New("Project not found"))
+	}
+
+	definition, err := h.getComposeProjectDefinition(ncp)
+	if err != nil {
+		return unprocessableEntity(c, err)
+	}
+
+	environmentId := ncp.EnvironmentId
+	if ncp.EnvironmentId == nil {
+		node, err := h.nodeStore.GetById(uint(nodeId))
+		if err != nil {
+			return unprocessableEntity(c, errors.New("Node not found"))
+		}
+
+		environmentId = node.EnvironmentId
+	}
+
+	variables := h.getComposeVariables(environmentId, uint(id))
+
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while upgrading from http to websocket")
+		return err
+	}
+	defer ws.Close()
+
+	req := dockerapi.DockerComposeDeploy{ProjectName: ncp.ProjectName, Definition: definition, Variables: variables}
+	if nodeId == 1 {
+		err := dockerapi.ComposeDeploy(&req, ws)
+		if err != nil {
+			log.Debug().Err(err).Msg("Error while calling ComposeDeploy")
+		}
+	} else {
+		err = messages.ProcessStreamTask[dockerapi.DockerComposeDeploy](uint(nodeId), req, ws)
+		if err != nil {
+			log.Debug().Err(err).Msg("Error while calling ComposeDeploy ProcessStreamTask")
+		}
+	}
+
+	return nil
+}
+
 func (h *Handler) GetNodeComposePull(c echo.Context) error {
 	nodeId, err := strconv.Atoi(c.Param("nodeId"))
 	if err != nil {

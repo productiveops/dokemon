@@ -44,8 +44,25 @@ import { useTheme } from "@/components/ui/theme-provider"
 import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
 import ComposeVariableEditor from "./variable-editor/compose-variable-editor"
+import DeleteDialog from "@/components/delete-dialog"
 
-export default function ComposeDefinitionLocal() {
+export default function ComposeDefinitionLocal({
+  deleteHandler,
+  deleteProcessingStatus,
+  composeActionHandler,
+  logsOpen,
+  setLogsOpen,
+  editing,
+  setEditing,
+}: {
+  deleteHandler: React.MouseEventHandler
+  deleteProcessingStatus: boolean
+  composeActionHandler: (action: string) => void
+  logsOpen: boolean
+  setLogsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  editing: boolean
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>
+}) {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
   const { composeProjectId } = useParams()
@@ -113,11 +130,21 @@ export default function ComposeDefinitionLocal() {
     } else {
       mutateNodeComposeItem()
       toastSuccess("Project has been saved.")
+      setEditing(false)
     }
     setIsSaving(false)
   }
 
   useEffect(() => {
+    resetForm()
+  }, [nodeComposeItem, editorMounted])
+
+  const handleEditorDidMount: OnMount = (editor, _monaco) => {
+    editorRef.current = editor
+    setEditorMounted(editorMounted + 1)
+  }
+
+  function resetForm() {
     form.reset({
       projectName: nodeComposeItem?.projectName,
       definition: nodeComposeItem?.definition,
@@ -125,11 +152,15 @@ export default function ComposeDefinitionLocal() {
     if (nodeComposeItem?.definition && editorRef.current) {
       editorRef.current.setValue(nodeComposeItem.definition)
     }
-  }, [nodeComposeItem, editorMounted])
+  }
 
-  const handleEditorDidMount: OnMount = (editor, _monaco) => {
-    editorRef.current = editor
-    setEditorMounted(editorMounted + 1)
+  function startEdit() {
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    resetForm()
+    setEditing(false)
   }
 
   return (
@@ -150,16 +181,86 @@ export default function ComposeDefinitionLocal() {
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
-      <div className="-mb-8 pt-4">
-        <Button
-          className="mb-4 mr-2 w-24"
-          onClick={form.handleSubmit(onSubmit)}
-        >
-          Save
-        </Button>
-      </div>
       <MainContent>
-        <MainContainer>
+        <div className="mb-4 flex">
+          <Button
+            visible={!logsOpen && !editing}
+            className="w-24"
+            variant={"default"}
+            onClick={startEdit}
+          >
+            Edit
+          </Button>
+          <Button
+            visible={!logsOpen && editing}
+            className="w-24"
+            variant={"default"}
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            Save
+          </Button>
+          <Button
+            visible={!logsOpen && editing}
+            className="ml-2 w-24"
+            variant={"secondary"}
+            onClick={cancelEdit}
+          >
+            Cancel
+          </Button>
+          <DeleteDialog
+            buttonVisible={!logsOpen && !editing}
+            deleteCaption="Delete"
+            title="Delete Compose Project"
+            message={`Are you sure you want to delete project '${nodeComposeItem?.projectName}'?`}
+            deleteHandler={deleteHandler}
+            isProcessing={deleteProcessingStatus}
+          />
+          <Button
+            visible={logsOpen}
+            className="ml-auto mr-2 w-24"
+            variant={"default"}
+            onClick={() => setLogsOpen(false)}
+          >
+            Close Logs
+          </Button>
+          <Button
+            visible={!editing}
+            className={cn(
+              "w-24 rounded-r-none border-r border-r-slate-800",
+              logsOpen ? "" : "ml-auto"
+            )}
+            variant={"default"}
+            onClick={() => composeActionHandler("deploy")}
+            title="Pull + Up"
+          >
+            Deploy
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-none  border-r border-r-slate-800"
+            variant={"default"}
+            onClick={() => composeActionHandler("pull")}
+          >
+            Pull
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-none border-r border-r-slate-800"
+            variant={"default"}
+            onClick={() => composeActionHandler("up")}
+          >
+            Up
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-l-none"
+            variant={"destructive"}
+            onClick={() => composeActionHandler("down")}
+          >
+            Down
+          </Button>
+        </div>
+        <MainContainer visible={!logsOpen}>
           <Section>
             <SectionBody>
               <Form {...form}>
@@ -181,9 +282,11 @@ export default function ComposeDefinitionLocal() {
                               <Input
                                 {...field}
                                 autoFocus
-                                disabled={nodeComposeItem?.status?.startsWith(
-                                  "running"
-                                )}
+                                disabled={
+                                  nodeComposeItem?.status?.startsWith(
+                                    "running"
+                                  ) || !editing
+                                }
                                 title={
                                   nodeComposeItem?.status?.startsWith("running")
                                     ? "Names of running projects cannot be edited"
@@ -219,7 +322,7 @@ export default function ComposeDefinitionLocal() {
                         defaultValue={""}
                         options={{
                           minimap: { enabled: false },
-                          readOnly: isLibraryProject(),
+                          readOnly: isLibraryProject() || !editing,
                         }}
                         onMount={handleEditorDidMount}
                       />
@@ -238,6 +341,10 @@ export default function ComposeDefinitionLocal() {
             </SectionBody>
           </Section>
         </MainContainer>
+        <div id="terminalContainer" className={!logsOpen ? "hidden" : ""}>
+          <h2 className="mb-2 font-bold">Action Logs</h2>
+          <div id="terminal"></div>
+        </div>
       </MainContent>
     </MainArea>
   )

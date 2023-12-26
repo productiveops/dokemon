@@ -59,8 +59,25 @@ import useNodeHead from "@/hooks/useNodeHead"
 import GitHubPATAddDialog from "@/app/credentials/github-pat-add-dialog"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
 import ComposeVariableEditor from "./variable-editor/compose-variable-editor"
+import DeleteDialog from "@/components/delete-dialog"
 
-export default function ComposeDefinitionGitHub() {
+export default function ComposeDefinitionGitHub({
+  deleteHandler,
+  deleteProcessingStatus,
+  composeActionHandler,
+  logsOpen,
+  setLogsOpen,
+  editing,
+  setEditing,
+}: {
+  deleteHandler: React.MouseEventHandler
+  deleteProcessingStatus: boolean
+  composeActionHandler: (action: string) => void
+  logsOpen: boolean
+  setLogsOpen: React.Dispatch<React.SetStateAction<boolean>>
+  editing: boolean
+  setEditing: React.Dispatch<React.SetStateAction<boolean>>
+}) {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
   const { composeProjectId } = useParams()
@@ -120,18 +137,32 @@ export default function ComposeDefinitionGitHub() {
     } else {
       mutateNodeComposeItem()
       toastSuccess("Project has been saved.")
+      setEditing(false)
     }
     setIsSaving(false)
   }
 
   useEffect(() => {
+    resetForm()
+  }, [nodeComposeItem])
+
+  function resetForm() {
     form.reset({
       credentialId: nodeComposeItem?.credentialId,
       projectName: nodeComposeItem?.projectName,
       url: nodeComposeItem?.url,
     })
     handleLoadFileContent()
-  }, [nodeComposeItem])
+  }
+
+  function startEdit() {
+    setEditing(true)
+  }
+
+  function cancelEdit() {
+    resetForm()
+    setEditing(false)
+  }
 
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>()
 
@@ -186,16 +217,86 @@ export default function ComposeDefinitionGitHub() {
         </Breadcrumb>
         <TopBarActions></TopBarActions>
       </TopBar>
-      <div className="-mb-8 pt-4">
-        <Button
-          className="mb-4 mr-2 w-24"
-          onClick={form.handleSubmit(onSubmit)}
-        >
-          Save
-        </Button>
-      </div>
       <MainContent>
-        <MainContainer>
+        <div className="mb-4 flex">
+          <Button
+            visible={!logsOpen && !editing}
+            className="w-24"
+            variant={"default"}
+            onClick={startEdit}
+          >
+            Edit
+          </Button>
+          <Button
+            visible={!logsOpen && editing}
+            className="w-24"
+            variant={"default"}
+            onClick={form.handleSubmit(onSubmit)}
+          >
+            Save
+          </Button>
+          <Button
+            visible={!logsOpen && editing}
+            className="ml-2 w-24"
+            variant={"secondary"}
+            onClick={cancelEdit}
+          >
+            Cancel
+          </Button>
+          <DeleteDialog
+            buttonVisible={!logsOpen && !editing}
+            deleteCaption="Delete"
+            title="Delete Compose Project"
+            message={`Are you sure you want to delete project '${nodeComposeItem?.projectName}'?`}
+            deleteHandler={deleteHandler}
+            isProcessing={deleteProcessingStatus}
+          />
+          <Button
+            visible={logsOpen}
+            className="ml-auto mr-2 w-24"
+            variant={"default"}
+            onClick={() => setLogsOpen(false)}
+          >
+            Close Logs
+          </Button>
+          <Button
+            visible={!editing}
+            className={cn(
+              "w-24 rounded-r-none border-r border-r-slate-800",
+              logsOpen ? "" : "ml-auto"
+            )}
+            variant={"default"}
+            onClick={() => composeActionHandler("deploy")}
+            title="Pull + Up"
+          >
+            Deploy
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-none  border-r border-r-slate-800"
+            variant={"default"}
+            onClick={() => composeActionHandler("pull")}
+          >
+            Pull
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-none border-r border-r-slate-800"
+            variant={"default"}
+            onClick={() => composeActionHandler("up")}
+          >
+            Up
+          </Button>
+          <Button
+            visible={!editing}
+            className="w-24 rounded-l-none"
+            variant={"destructive"}
+            onClick={() => composeActionHandler("down")}
+          >
+            Down
+          </Button>
+        </div>
+        <MainContainer visible={!logsOpen}>
           <Section>
             <SectionBody>
               <Form {...form}>
@@ -217,9 +318,11 @@ export default function ComposeDefinitionGitHub() {
                               <Input
                                 {...field}
                                 autoFocus
-                                disabled={nodeComposeItem?.status?.startsWith(
-                                  "running"
-                                )}
+                                disabled={
+                                  nodeComposeItem?.status?.startsWith(
+                                    "running"
+                                  ) || !editing
+                                }
                                 title={
                                   nodeComposeItem?.status?.startsWith("running")
                                     ? "Names of running projects cannot be edited"
@@ -250,7 +353,10 @@ export default function ComposeDefinitionGitHub() {
                           <FormItem>
                             <FormLabel>GitHub URL of Compose File</FormLabel>
                             <FormControl>
-                              <Input {...field} disabled={isLibraryProject()} />
+                              <Input
+                                {...field}
+                                disabled={isLibraryProject() || !editing}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -274,10 +380,11 @@ export default function ComposeDefinitionGitHub() {
                                     <PopoverTrigger asChild>
                                       <FormControl>
                                         <Button
+                                          disabled={!editing}
                                           variant="outline"
                                           role="combobox"
                                           className={cn(
-                                            "inline-flex w-[300px] justify-between font-normal text-slate-800 dark:text-slate-50",
+                                            "inline-flex w-[300px] justify-between font-normal text-slate-800 disabled:cursor-not-allowed disabled:text-slate-300 dark:text-slate-50 dark:disabled:text-slate-300",
                                             !field.value &&
                                               "text-muted-foreground"
                                           )}
@@ -348,7 +455,10 @@ export default function ComposeDefinitionGitHub() {
                                     </PopoverContent>
                                   </Popover>
                                 </FormControl>
-                                <GitHubPATAddDialog buttonCaption="Add New" />
+                                <GitHubPATAddDialog
+                                  buttonCaption="Add New"
+                                  disabled={!editing}
+                                />
                               </div>
                               <FormMessage />
                             </FormItem>
@@ -394,6 +504,10 @@ export default function ComposeDefinitionGitHub() {
             </SectionBody>
           </Section>
         </MainContainer>
+        <div id="terminalContainer" className={!logsOpen ? "hidden" : ""}>
+          <h2 className="mb-2 font-bold">Action Logs</h2>
+          <div id="terminal"></div>
+        </div>
       </MainContent>
     </MainArea>
   )
