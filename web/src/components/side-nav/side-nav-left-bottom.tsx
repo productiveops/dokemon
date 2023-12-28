@@ -46,7 +46,7 @@ export function SideNavLeftBottom() {
             className="h-6 w-6 shrink-0 text-red-500"
             aria-hidden="true"
           />
-          Sponsor
+          Sponsor $1
         </a>
       </li>
       <li>
