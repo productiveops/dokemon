@@ -8,9 +8,12 @@ export default function useNodeComposeItem(
 ) {
   const url = `${apiBaseUrl()}/nodes/${nodeId}/compose/${composeProjectId}`
 
-  const { data, error, isLoading, mutate } = useRequest<INodeComposeItem>({
-    url,
-  })
+  const { data, error, isLoading, mutate } = useRequest<INodeComposeItem>(
+    {
+      url,
+    },
+    { revalidateOnFocus: false }
+  )
 
   const mutateNodeComposeItem = async () => {
     mutate()
