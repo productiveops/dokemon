@@ -14,7 +14,6 @@ import "/node_modules/xterm/css/xterm.css"
 import { useEffect, useState } from "react"
 import { wsApiBaseUrl } from "@/lib/api-base-url"
 import {
-  download,
   downloadTerminalTextAsFile,
   newTerminal,
   recreateTerminalElement,
