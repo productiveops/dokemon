@@ -57,7 +57,7 @@ export function SideNavNode() {
       <SideNavBack to="/nodes" />
       <ul role="list" className="-mx-2 space-y-1">
         {items.map((item) => (
-          <li>
+          <li key={item.title}>
             <SideBarItem to={item.link}>
               {item.icon}
               {item.title}

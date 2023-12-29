@@ -13,18 +13,26 @@ import { useEffect, useState } from "react"
 import { wsApiBaseUrl } from "@/lib/api-base-url"
 import { AttachAddon } from "@xterm/addon-attach"
 import { FitAddon } from "@xterm/addon-fit"
-import { newTerminal, recreateTerminalElement } from "@/lib/utils"
+import {
+  downloadTerminalTextAsFile,
+  newTerminal,
+  recreateTerminalElement,
+} from "@/lib/utils"
 import useNodeHead from "@/hooks/useNodeHead"
 import useNodeComposeItem from "@/hooks/useNodeComposeItem"
+import { Button } from "@/components/ui/button"
+import { Terminal } from "@xterm/xterm"
 
 export default function ComposeLogs() {
   const { nodeId, composeProjectId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
   const { nodeComposeItem } = useNodeComposeItem(nodeId!, composeProjectId!)
   const [socket, setSocket] = useState<WebSocket>(null!)
+  const [terminal, setTerminal] = useState<Terminal>(null!)
 
   useEffect(() => {
-    const terminal = newTerminal()
+    const t = newTerminal()
+    setTerminal(t)
 
     if (socket) socket.close()
     const s = new WebSocket(
@@ -32,17 +40,24 @@ export default function ComposeLogs() {
     )
     setSocket(s)
 
-    terminal.loadAddon(new AttachAddon(s))
+    t.loadAddon(new AttachAddon(s))
     const fitAddon = new FitAddon()
-    terminal.loadAddon(fitAddon)
+    t.loadAddon(fitAddon)
 
     const terminalEl = recreateTerminalElement("terminalContainer", "terminal")
-    terminal.open(terminalEl!)
+    t.open(terminalEl!)
     fitAddon.fit()
     addEventListener("resize", () => {
       fitAddon?.fit()
     })
   }, [composeProjectId])
+
+  const handleDownload = () => {
+    downloadTerminalTextAsFile(
+      terminal,
+      `logs_${nodeComposeItem?.projectName}.txt`
+    )
+  }
 
   return (
     <MainArea>
@@ -65,7 +80,9 @@ export default function ComposeLogs() {
           <BreadcrumbSeparator />
           <BreadcrumbCurrent>Logs</BreadcrumbCurrent>
         </Breadcrumb>
-        <TopBarActions></TopBarActions>
+        <TopBarActions>
+          <Button onClick={handleDownload}>Download to File</Button>
+        </TopBarActions>
       </TopBar>
       <MainContent>
         <div id="terminalContainer">
