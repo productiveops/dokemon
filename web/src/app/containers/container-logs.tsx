@@ -13,17 +13,25 @@ import { useParams } from "react-router-dom"
 import "/node_modules/xterm/css/xterm.css"
 import { useEffect, useState } from "react"
 import { wsApiBaseUrl } from "@/lib/api-base-url"
-import { newTerminal, recreateTerminalElement } from "@/lib/utils"
+import {
+  downloadTerminalTextAsFile,
+  newTerminal,
+  recreateTerminalElement,
+} from "@/lib/utils"
 import { AttachAddon } from "@xterm/addon-attach"
 import useNodeHead from "@/hooks/useNodeHead"
+import { Button } from "@/components/ui/button"
+import { Terminal } from "@xterm/xterm"
 
 export default function ContainerLogs() {
   const { nodeId, containerId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
   const [socket, setSocket] = useState<WebSocket>(null!)
+  const [terminal, setTerminal] = useState<Terminal>(null!)
 
   useEffect(() => {
-    const terminal = newTerminal()
+    const t = newTerminal()
+    setTerminal(t)
 
     if (socket) socket.close()
     const s = new WebSocket(
@@ -31,17 +39,21 @@ export default function ContainerLogs() {
     )
     setSocket(s)
 
-    terminal.loadAddon(new AttachAddon(s))
+    t.loadAddon(new AttachAddon(s))
     const fitAddon = new FitAddon()
-    terminal.loadAddon(fitAddon)
+    t.loadAddon(fitAddon)
 
     const terminalEl = recreateTerminalElement("terminalContainer", "terminal")
-    terminal.open(terminalEl!)
+    t.open(terminalEl!)
     fitAddon.fit()
     addEventListener("resize", () => {
       fitAddon?.fit()
     })
   }, [containerId])
+
+  const handleDownload = () => {
+    downloadTerminalTextAsFile(terminal, `logs_${containerId}.txt`)
+  }
 
   return (
     <MainArea>
@@ -59,7 +71,9 @@ export default function ContainerLogs() {
             Logs for <span className="font-semibold">{containerId}</span>
           </BreadcrumbCurrent>
         </Breadcrumb>
-        <TopBarActions></TopBarActions>
+        <TopBarActions>
+          <Button onClick={handleDownload}>Download to File</Button>
+        </TopBarActions>
       </TopBar>
       <MainContent>
         <div id="terminalContainer">

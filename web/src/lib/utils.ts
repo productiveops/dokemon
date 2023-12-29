@@ -89,6 +89,20 @@ export function newTerminal(convertToEol?: boolean) {
   })
 }
 
+export function downloadTerminalTextAsFile(
+  terminal: Terminal,
+  filename: string
+) {
+  let text = ""
+  const l = terminal.buffer.normal.length
+  for (let i = 0; i < l; i++) {
+    const line = terminal.buffer.normal.getLine(i)?.translateToString(true)
+    text += `${line}\r\n`
+  }
+
+  download(filename, text)
+}
+
 export function initMonaco() {
   loader.init().then((monaco) => {
     monaco.editor.defineTheme("dark", {
@@ -128,4 +142,20 @@ export function toastFailed(message: string) {
     title: "Failed!",
     description: message,
   })
+}
+
+export function download(filename: string, text: string) {
+  var element = document.createElement("a")
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+  )
+  element.setAttribute("download", filename)
+
+  element.style.display = "none"
+  document.body.appendChild(element)
+
+  element.click()
+
+  document.body.removeChild(element)
 }
