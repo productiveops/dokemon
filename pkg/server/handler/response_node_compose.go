@@ -14,6 +14,7 @@ type nodeComposeProjectItemHead struct {
 	LibraryProjectId   *uint `json:"libraryProjectId"`
 	LibraryProjectName *string `json:"libraryProjectName"`
 	Status             string `json:"status"`
+	Stale             	string `json:"stale"`
 }
 
 func newNodeComposeProjectItemHead(ncp *model.NodeComposeProject, dci *dockerapi.ComposeItem) nodeComposeProjectItemHead {
@@ -24,10 +25,12 @@ func newNodeComposeProjectItemHead(ncp *model.NodeComposeProject, dci *dockerapi
 		LibraryProjectId: ncp.LibraryProjectId,
 		LibraryProjectName: ncp.LibraryProjectName,
 		Status: "",
+		Stale: "",
 	}
 
 	if dci != nil {
 		res.Status = dci.Status
+		res.Stale = dci.Stale
 	}
 
 	return res
@@ -58,6 +61,7 @@ type nodeComposeProjectItem struct {
 	CredentialId       	*uint `json:"credentialId"`
 	Definition       	*string `json:"definition"`
 	Status             	string `json:"status"`
+	Stale             	string `json:"stale"`
 }
 
 func newNodeComposeProjectItem(ncp *model.NodeComposeProject, dci *dockerapi.ComposeItem) nodeComposeProjectItem {
@@ -71,10 +75,12 @@ func newNodeComposeProjectItem(ncp *model.NodeComposeProject, dci *dockerapi.Com
 		CredentialId: ncp.CredentialId,
 		Definition: ncp.Definition,
 		Status: "",
+		Stale: "",
 	}
 
 	if dci != nil {
 		res.Status = dci.Status
+		res.Stale = dci.Stale
 	}
 
 	return res

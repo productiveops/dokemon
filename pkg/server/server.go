@@ -11,6 +11,7 @@ import (
 	"github.com/productiveops/dokemon/pkg/common"
 	"github.com/productiveops/dokemon/pkg/crypto/ske"
 	"github.com/productiveops/dokemon/pkg/crypto/ssl"
+	"github.com/productiveops/dokemon/pkg/dockerapi"
 	"github.com/productiveops/dokemon/pkg/server/handler"
 	"github.com/productiveops/dokemon/pkg/server/model"
 	"github.com/productiveops/dokemon/pkg/server/requestutil"
@@ -80,6 +81,8 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 	if err != nil {
 		log.Error().Err(err).Msg("Error while updating old version data")
 	}
+
+	go dockerapi.ContainerScheduleRefreshStaleStatus()
 
 	// Web Server
 	s.handler = h

@@ -11,14 +11,14 @@ type Port struct {
 	Type string `json:"type"`
 }
 
-
 type Container struct {
-	Id     string `json:"id"`
-	Name   string `json:"name"`
+	Id     	string `json:"id"`
+	Name   	string `json:"name"`
 	Image   string `json:"image"`
-	Status string `json:"status"`
-	State  string `json:"state"`
-	Ports  []Port `json:"ports"`
+	Status 	string `json:"status"`
+	State  	string `json:"state"`
+	Ports  	[]Port `json:"ports"`
+	Stale 	string `json:"stale"`	// yes, no, error, processing
 }
 
 type DockerContainerList struct {
@@ -165,6 +165,7 @@ type ComposeItem struct {
 	Name string `json:"name"`
 	Status string `json:"status"`
 	ConfigFiles string `json:"configFiles"`
+	Stale string `json:"stale"`
 }
 
 type DockerComposeListResponse struct {
@@ -176,19 +177,24 @@ type DockerComposeContainerList struct {
 }
 
 type ComposeContainerInternal struct {
+	Id string `json:"ID"`
 	Name string `json:"Name"`
 	Image string `json:"Image"`
 	Service string `json:"Service"`
 	Status string `json:"Status"`
+	State string `json:"State"`
 	Ports string `json:"Ports"`
 }
 
 type ComposeContainer struct {
+	Id string `json:"id"`
 	Name string `json:"name"`
 	Image string `json:"image"`
 	Service string `json:"service"`
 	Status string `json:"status"`
+	State string `json:"state"`
 	Ports string `json:"ports"`
+	Stale string `json:"stale"`
 }
 
 type DockerComposeContainerListResponse struct {

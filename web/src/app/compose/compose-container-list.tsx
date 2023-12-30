@@ -30,6 +30,8 @@ import useNodeComposeItem from "@/hooks/useNodeComposeItem"
 import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "@/app/nodes/containerbaseurl-edit-dialog"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import { StaleStatusIcon } from "../containers/container-list"
+import { Badge } from "@/components/ui/badge"
 
 export default function ComposeContainerList() {
   const { nodeId, composeProjectId } = useParams()
@@ -124,7 +126,7 @@ function ContainersTable({
           <TableHead scope="col">Image</TableHead>
           <TableHead scope="col">Ports</TableHead>
           <TableHead scope="col">Service</TableHead>
-          <TableHead scope="col">Status</TableHead>
+          <TableHead scope="col">State</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -132,11 +134,30 @@ function ContainersTable({
         {composeContainers?.items &&
           composeContainers?.items.map((item) => (
             <TableRow key={item.name}>
-              <TableCell>{item.name}</TableCell>
+              <TableCell>
+                <span className="font-bold" title={`Image: ${item.image}`}>
+                  <StaleStatusIcon status={item.stale} />
+                  {item.name}
+                  <br />
+                  <span className="ml-4 text-xs">
+                    {item.id.substring(0, 12)}
+                  </span>
+                </span>
+              </TableCell>
               <TableCell>{item.image}</TableCell>
               <TableCell> {getPortsHtml(item.ports)} </TableCell>
               <TableCell>{item.service}</TableCell>
-              <TableCell>{item.status}</TableCell>
+              <TableCell>
+                {item.state == "exited" ? (
+                  <Badge variant="destructive" title={item.status}>
+                    {item.state}
+                  </Badge>
+                ) : (
+                  <Badge variant="default" title={item.status}>
+                    {item.state}
+                  </Badge>
+                )}
+              </TableCell>
             </TableRow>
           ))}
       </TableBody>

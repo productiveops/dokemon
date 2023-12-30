@@ -31,6 +31,7 @@ import { ArrowUpRight } from "lucide-react"
 import EditContainerBaseUrlDialog from "../nodes/containerbaseurl-edit-dialog"
 import {
   CLASSES_CLICKABLE_TABLE_ROW,
+  cn,
   toastFailed,
   toastSuccess,
 } from "@/lib/utils"
@@ -229,10 +230,13 @@ export default function ContainerList() {
                 >
                   <TableCell>
                     <span className="font-bold" title={`Image: ${item.image}`}>
+                      <StaleStatusIcon status={item.stale} />
                       {item.name}
+                      <br />
+                      <span className="ml-4 text-xs">
+                        {item.id.substring(0, 12)}
+                      </span>
                     </span>
-                    <br />
-                    <span className="text-xs">{item.id.substring(0, 12)}</span>
                   </TableCell>
                   <TableCell className="hidden 2xl:block">
                     {item.image}
@@ -303,5 +307,35 @@ export default function ContainerList() {
         </Table>
       </MainContent>
     </MainArea>
+  )
+}
+
+export function StaleStatusIcon({ status }: { status: string }) {
+  let statusClassName = ""
+  let title = ""
+
+  switch (status) {
+    case "no":
+      statusClassName = "text-green-600"
+      title = "Image up-to-date"
+      break
+    case "yes":
+      statusClassName = "text-red-400"
+      title = "New image available"
+      break
+    case "error":
+      statusClassName = "text-slate-300"
+      title = "Unable to check if image is up-to-date"
+      break
+    case "processing":
+      statusClassName = "text-amber-300"
+      title = "Checking stale status. Please wait."
+      break
+  }
+
+  return (
+    <span className={cn("-ml-2 mr-3 text-lg", statusClassName)} title={title}>
+      ●
+    </span>
   )
 }

@@ -33,6 +33,11 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 		}
 
 		image := strings.Split(c.Image, "@")[0]
+		stale, ok := containerStaleStatus[c.ID]
+		if !ok {
+			stale = StaleStatusProcessing
+		}
+
 		containers[i] = Container{
 			Id:     c.ID,
 			Name:   c.Names[0][1:],
@@ -40,6 +45,7 @@ func ContainerList(req *DockerContainerList) (*DockerContainerListResponse, erro
 			Status: c.Status,
 			State: c.State,
 			Ports: ports,
+			Stale: stale,
 		}
 	}
 
