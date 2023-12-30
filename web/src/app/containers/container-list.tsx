@@ -317,10 +317,10 @@ export function StaleStatusIcon({ status }: { status: string }) {
   switch (status) {
     case "no":
       statusClassName = "text-green-600"
-      title = "Image up-to-date"
+      title = "Image(s) up-to-date"
       break
     case "yes":
-      statusClassName = "text-red-400"
+      statusClassName = "text-red-500"
       title = "New image available"
       break
     case "error":
@@ -329,7 +329,7 @@ export function StaleStatusIcon({ status }: { status: string }) {
       break
     case "processing":
       statusClassName = "text-amber-300"
-      title = "Checking stale status. Please wait."
+      title = "Image staleness check pending. It might take an hour to update."
       break
   }
 
