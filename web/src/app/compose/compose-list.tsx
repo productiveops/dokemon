@@ -26,6 +26,7 @@ import { ArrowUpRight } from "lucide-react"
 import { CLASSES_CLICKABLE_TABLE_ROW } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { TableNoData } from "@/components/widgets/table-no-data"
+import { StaleStatusIcon } from "../containers/container-list"
 
 export default function ComposeList() {
   const { nodeId } = useParams()
@@ -86,7 +87,14 @@ export default function ComposeList() {
                     navigate(`/nodes/${nodeId}/compose/${item.id}/definition`)
                   }}
                 >
-                  <TableCell>{item.projectName}</TableCell>
+                  <TableCell>
+                    <span>
+                      {item.status.startsWith("running") && (
+                        <StaleStatusIcon status={item.stale} />
+                      )}
+                      {item.projectName}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {item.type === "local" ? "Local" : "GitHub"}
                   </TableCell>

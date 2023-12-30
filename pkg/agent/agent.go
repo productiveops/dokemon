@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/productiveops/dokemon/pkg/common"
+	"github.com/productiveops/dokemon/pkg/dockerapi"
 	"github.com/productiveops/dokemon/pkg/messages"
 
 	"github.com/gorilla/websocket"
@@ -25,6 +26,7 @@ var (
 func Main() {
  	parseArgs()
 	setLogLevel(logLevel)
+	go dockerapi.ContainerScheduleRefreshStaleStatus()
 	listen()
 }
 

@@ -90,6 +90,7 @@ export interface IContainer {
   status: string
   state: string
   ports: IPort[]
+  stale: string
 }
 
 export interface IImage {
@@ -139,6 +140,7 @@ export interface INodeComposeItemHead {
   libraryProjectId?: number
   libraryProjectName: string
   status: string
+  stale: string
 }
 
 export interface INodeComposeItem {
@@ -161,11 +163,14 @@ export interface INodeComposeVariable {
 }
 
 export interface INodeComposeContainer {
+  id: string
   name: string
   image: string
   service: string
   status: string
+  state: string
   ports: string
+  stale: string
 }
 
 export interface IComposeDefinition {

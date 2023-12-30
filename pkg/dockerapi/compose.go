@@ -19,6 +19,39 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+func composeGetStaleStatus(projectName string) string {
+	l, err := ComposeContainerList(&DockerComposeContainerList{ProjectName: projectName})
+	if err != nil {
+		log.Error().Err(err).Msg("Error while calling ComposeContainerList")
+		return StaleStatusError
+	}
+
+	anyError := false
+	anyProcessing := false
+
+	for _, item := range l.Items {
+		if item.Stale == StaleStatusYes {
+			return StaleStatusYes
+		}
+		if item.Stale == StaleStatusError {
+			anyError = true
+		}
+		if item.Stale == StaleStatusProcessing {
+			anyProcessing = true
+		}
+	}
+
+	if anyError {
+		return StaleStatusError
+	}
+
+	if anyProcessing {
+		return StaleStatusProcessing
+	}
+
+	return StaleStatusNo
+}
+
 func ComposeList(req *DockerComposeList) (*DockerComposeListResponse, error) {
 	cmd := exec.Command("docker-compose", "ls", "-a", "--format=json")
 	var outb bytes.Buffer
@@ -38,7 +71,12 @@ func ComposeList(req *DockerComposeList) (*DockerComposeListResponse, error) {
 
 	items := make([]ComposeItem, len(itemsInternal))
 	for i, itemInternal := range itemsInternal {
-		items[i] = ComposeItem(itemInternal)
+		items[i] = ComposeItem{
+			Name: itemInternal.Name,
+			Status: itemInternal.Status,
+			ConfigFiles: itemInternal.ConfigFiles,
+			Stale: composeGetStaleStatus(itemInternal.Name),
+		}
 	}
 
 	return &DockerComposeListResponse{Items: items}, nil
@@ -81,7 +119,20 @@ func ComposeContainerList(req *DockerComposeContainerList) (*DockerComposeContai
 		if err != nil {
 			return nil, err
 		}
-		items = append(items, ComposeContainer(item))
+		stale, ok := containerStaleStatus[item.Id]
+		if !ok {
+			stale = StaleStatusProcessing
+		}
+		items = append(items, ComposeContainer{
+			Id: item.Id,
+			Name: item.Name,
+			Image: item.Image,
+			Service: item.Service,
+			Status: item.Status,
+			State: item.State,
+			Ports: item.Ports,
+			Stale: stale,
+		})
     }
 
 	sort.Slice(items, func(i, j int) bool {
@@ -260,6 +311,10 @@ func performComposeAction(action string, projectName string, definition string, 
 
 	if err != nil {
 		log.Error().Err(err).Msg(fmt.Sprintf("Error executing compose %s", action))
+	}
+
+	if action == "up" {
+		go ContainerRefreshStaleStatus()
 	}
 
 	return nil
