@@ -137,6 +137,7 @@ export default function ImageList() {
               <TableHead scope="col">Id</TableHead>
               <TableHead scope="col">Name</TableHead>
               <TableHead scope="col">Tag</TableHead>
+              <TableHead scope="col">Status</TableHead>
               <TableHead scope="col">Size</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
@@ -158,6 +159,7 @@ export default function ImageList() {
                       ""
                     )}
                   </TableCell>
+                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
                   <TableCell>{convertByteToMb(item.size)}</TableCell>
                   <TableCell className="text-right">
                     <TableButtonDelete

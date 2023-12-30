@@ -63,6 +63,7 @@ type Image struct {
 	Size    int64  `json:"size"`
 	Dangling bool  `json:"dangling"`
 	Created int64  `json:"created"`
+	InUse   bool   `json:"inUse"`
 }
 
 type DockerImageList struct {

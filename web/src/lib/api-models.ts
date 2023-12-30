@@ -99,6 +99,7 @@ export interface IImage {
   size: number
   dangling: boolean
   created: number
+  inUse: boolean
 }
 
 export interface IVolume {

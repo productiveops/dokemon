@@ -3,6 +3,7 @@ package dockerapi
 import (
 	"context"
 	"errors"
+	"slices"
 	"sort"
 	"strings"
 
@@ -17,6 +18,11 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 		return nil, err
 	}
 
+	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: req.All})
+	if err != nil {
+		return nil, err
+	}
+
 	dimages, err := cli.ImageList(context.Background(), types.ImageListOptions{All: req.All})
 	if err != nil {
 		return nil, err
@@ -26,9 +32,10 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 	for i, item := range dimages {
 		name := "<none>"
 		tag := "<none>"
-		dangling := len(item.RepoTags) == 0
+		inUse := slices.ContainsFunc(dcontainers, func(c types.Container) bool { return c.ImageID == item.ID })
+		untagged := len(item.RepoTags) == 0 
 
-		if dangling {
+		if untagged {
 			if len(item.RepoDigests) >= 1 {
 				name = strings.Split(item.RepoDigests[0], "@")[0]
 			}
@@ -45,8 +52,9 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 			Name: 		name,
 			Tag: 		tag,
 			Size:   	item.Size,
-			Dangling: 	dangling,
+			Dangling: 	untagged && !inUse,
 			Created: 	item.Created,
+			InUse: 		inUse,
 		}
 	}
 
