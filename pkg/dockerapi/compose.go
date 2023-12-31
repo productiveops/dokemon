@@ -195,27 +195,43 @@ func ComposeLogs(req *DockerComposeLogs, ws *websocket.Conn) error {
 	return nil
 }
 
-func createTempComposeFile(projectName string, definition string) (string, string, error) {
+func createTempComposeFile(projectName string, definition string, variables map[string]store.VariableValue) (string, string, string, error) {
 	dir, err := os.MkdirTemp("", projectName)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while creating temp directory for compose")
-		return "", "", err
+		return "", "", "", err
 	}
 
-	filename := filepath.Join(dir, "compose.yaml")
-	composeFile, err := os.Create(filename)
+	composeFilename := filepath.Join(dir, "compose.yaml")
+	composeFile, err := os.Create(composeFilename)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while creating temp compose file")
-		return "", "", err
+		return "", "", "", err
 	}
 
 	_ , err = composeFile.WriteString(definition)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while writing to temp compose file")
-		return "", "", err
+		return "", "", "", err
 	}
 
-	return dir, filename, nil
+	envFilename := filepath.Join(dir, ".env")
+	envFile, err := os.Create(envFilename)
+	if err != nil {
+		log.Error().Err(err).Msg("Error while creating temp compose file")
+		return "", "", "", err
+	}
+	
+	envVars := toEnvFormat(variables)
+	for _, v := range envVars {
+		_ , err = envFile.WriteString(v + "\r\n")
+		if err != nil {
+			log.Error().Err(err).Msg("Error while writing to temp .env file")
+			return "", "", "", err
+		}
+	}
+
+	return dir, composeFilename, envFilename, nil
 }
 
 func toEnvFormat(variables map[string]store.VariableValue) ([]string) {
@@ -258,24 +274,24 @@ func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *we
 }
 
 func performComposeAction(action string, projectName string, definition string, variables map[string]store.VariableValue, ws *websocket.Conn, printVars bool) error {
-	dir, file, err := createTempComposeFile(projectName, definition)
-	log.Debug().Str("fileName", file).Msg("Created temporary compose file")
+	dir, composefile, envfile, err := createTempComposeFile(projectName, definition, variables)
+	log.Debug().Str("composeFileName", composefile).Str("envFileName", envfile).Msg("Created temporary compose file and .env file")
 	if err != nil {
 		return err
 	}
 	defer func() { 
-		log.Debug().Str("fileName", file).Msg("Deleting temporary compose file")
+		log.Debug().Str("fileName", composefile).Msg("Deleting temporary compose file and .env file")
 		os.RemoveAll(dir) 
 	}()
 
 	var cmd *exec.Cmd
 	switch action {
 	case "up":
-		cmd = exec.Command("docker-compose", "-p", projectName, "-f", file, action, "-d")
+		cmd = exec.Command("docker-compose", "-p", projectName, "-f", composefile, action, "-d")
 	case "down":
 		cmd = exec.Command("docker-compose", "-p", projectName, action)
 	case "pull":
-		cmd = exec.Command("docker-compose", "-p", projectName, "-f", file, action)
+		cmd = exec.Command("docker-compose", "-p", projectName, "-f", composefile, action)
 	default:
 		panic(fmt.Errorf("unknown compose action %s", action))
 	}
