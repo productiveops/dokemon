@@ -139,6 +139,7 @@ export default function VolumeList() {
             <TableRow>
               <TableHead scope="col">Driver</TableHead>
               <TableHead scope="col">Name</TableHead>
+              <TableHead scope="col">Status</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -151,6 +152,7 @@ export default function VolumeList() {
                 <TableRow key={item.name}>
                   <TableCell>{item.driver}</TableCell>
                   <TableCell>{item.name}</TableCell>
+                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
                   <TableCell className="text-right">
                     <TableButtonDelete
                       onClick={(e) => {

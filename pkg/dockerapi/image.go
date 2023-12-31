@@ -18,7 +18,7 @@ func ImageList(req *DockerImageList) (*DockerImageListResponse, error) {
 		return nil, err
 	}
 
-	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: req.All})
+	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
 	if err != nil {
 		return nil, err
 	}

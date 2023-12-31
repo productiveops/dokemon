@@ -106,6 +106,7 @@ export interface IImage {
 export interface IVolume {
   driver: string
   name: string
+  inUse: boolean
 }
 
 export interface INetwork {
