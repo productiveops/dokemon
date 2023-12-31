@@ -2,13 +2,12 @@ package dockerapi
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/heroku/docker-registry-client/registry"
+	"github.com/productiveops/dokemon/pkg/registry"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,40 +20,11 @@ const (
 )
 
 func isContainerImageStale(imageAndTag string, imageId string, cli *client.Client) (bool, error) {
-	parts := strings.Split(imageAndTag, ":")
-	image := parts[0]
-	tag := "latest"
-	if len(parts) == 2 {
-		tag = parts[1]
-	}
-	
-	registryName := "docker.io"
-	imageWithoutRegistryName := image
-	registryNameIncluded := strings.Count(image, "/") == 2
-	if registryNameIncluded {
-		registryName, imageWithoutRegistryName, _ = strings.Cut(image, "/")
-	}
-
-	latestDigest := ""
-	registryUrl := fmt.Sprintf("https://%s/", registryName)
-	if registryName == "docker.io" {
-		registryUrl = "https://registry-1.docker.io/"
-	}
-
-	reg, err := registry.New(registryUrl, "", "")	// TODO: Credentials for private repos
+	latestDigest, err := registry.GetImageDigest(imageAndTag)
 	if err != nil {
-		return	false, err
-	}	
-	if !strings.Contains(imageWithoutRegistryName, "/") {
-		imageWithoutRegistryName = fmt.Sprintf("library/%s", imageWithoutRegistryName)
+		return false, err
 	}
 
-	digest, err := reg.ManifestDigest(imageWithoutRegistryName, tag)
-	if err != nil {
-		return	false, err
-	}
-
-	latestDigest = digest.String()	
 	imageInspect, _, err := cli.ImageInspectWithRaw(context.Background(), imageId)
 	if err != nil {
 		return	false, err
