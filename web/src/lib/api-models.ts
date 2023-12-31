@@ -114,6 +114,7 @@ export interface INetwork {
   name: string
   driver: string
   scope: string
+  inUse: boolean
 }
 
 export interface IComposeLibraryItemHead {

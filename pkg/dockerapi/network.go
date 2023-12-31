@@ -15,6 +15,20 @@ func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
 		return nil, err
 	}
 
+	dcontainers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{All: true})
+	if err != nil {
+		return nil, err
+	}
+
+	usedNetworks := make(map[string]interface{}, 0)
+	for _, c := range dcontainers {
+		if c.NetworkSettings != nil {
+			for _, n := range c.NetworkSettings.Networks {
+				usedNetworks[n.NetworkID] = nil
+			}	
+		}
+	}
+
 	dnetworks, err := cli.NetworkList(context.Background(), types.NetworkListOptions{})
 	if err != nil {
 		return nil, err
@@ -22,11 +36,13 @@ func NetworkList(req *DockerNetworkList) (*DockerNetworkListResponse, error) {
 
 	networks := make([]Network, len(dnetworks))
 	for i, item := range dnetworks {
+		_, inUse := usedNetworks[item.ID]
 		networks[i] = Network{
 			Id:		item.ID,
 			Name: 	item.Name,
 			Driver: item.Driver,
 			Scope: 	item.Scope,
+			InUse: 	inUse,
 		}
 	}
 

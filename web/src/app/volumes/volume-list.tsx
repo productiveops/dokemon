@@ -154,12 +154,14 @@ export default function VolumeList() {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
                   <TableCell className="text-right">
-                    <TableButtonDelete
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteVolumeConfirmation(item)
-                      }}
-                    />
+                    {!item.inUse && (
+                      <TableButtonDelete
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteVolumeConfirmation(item)
+                        }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

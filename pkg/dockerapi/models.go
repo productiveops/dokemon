@@ -132,6 +132,7 @@ type Network struct {
 	Name string `json:"name"`
 	Driver string `json:"driver"`
 	Scope string `json:"scope"`
+	InUse   bool   `json:"inUse"`
 }
 
 type DockerNetworkListResponse struct {

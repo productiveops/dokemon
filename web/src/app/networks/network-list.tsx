@@ -28,6 +28,15 @@ import { toastFailed, toastSuccess } from "@/lib/utils"
 import apiBaseUrl from "@/lib/api-base-url"
 import DeleteDialog from "@/components/delete-dialog"
 
+const systemNetwoks = [
+  "none",
+  "bridge",
+  "host",
+  "ingress",
+  "docker_gwbridge",
+  "docker_volumes-backup-extension-desktop-extension_default",
+]
+
 export default function NetworkList() {
   const { nodeId } = useParams()
   const { nodeHead } = useNodeHead(nodeId!)
@@ -137,6 +146,7 @@ export default function NetworkList() {
               <TableHead scope="col">Name</TableHead>
               <TableHead scope="col">Driver</TableHead>
               <TableHead scope="col">Scope</TableHead>
+              <TableHead scope="col">Status</TableHead>
               <TableHead scope="col">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -151,13 +161,16 @@ export default function NetworkList() {
                   <TableCell>{item.name}</TableCell>
                   <TableCell>{item.driver}</TableCell>
                   <TableCell>{item.scope}</TableCell>
+                  <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
                   <TableCell className="text-right">
-                    <TableButtonDelete
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteNetworkConfirmation(item)
-                      }}
-                    />
+                    {!systemNetwoks.includes(item.name) && !item.inUse && (
+                      <TableButtonDelete
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteNetworkConfirmation(item)
+                        }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

@@ -38,11 +38,11 @@ func VolumeList(req *DockerVolumeList) (*DockerVolumeListResponse, error) {
 
 	volumes := make([]Volume, len(dvolumes.Volumes))
 	for i, item := range dvolumes.Volumes {
-		_, isUse := usedVolumes[item.Name]
+		_, inUse := usedVolumes[item.Name]
 		volumes[i] = Volume{
 			Driver: item.Driver,
 			Name: item.Name,
-			InUse: isUse,
+			InUse: inUse,
 		}
 	}
 
