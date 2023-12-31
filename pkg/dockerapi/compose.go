@@ -246,8 +246,7 @@ func toEnvFormat(variables map[string]store.VariableValue) ([]string) {
 	return ret
 }
 
-func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websocket.Conn, print bool) {
-	cmd.Env = os.Environ()
+func logVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *websocket.Conn, print bool) {
 	if print {
 		ws.WriteMessage(websocket.TextMessage, []byte("*** SETTING BELOW VARIABLES: ***\n\n"))
 	}
@@ -267,10 +266,6 @@ func processVars(cmd *exec.Cmd, variables map[string]store.VariableValue, ws *we
 			ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%s=%s\n", k, val)))
 		}
 	}
-
-	for _, v := range toEnvFormat(variables) {
-		cmd.Env = append(cmd.Env, v)
-	}
 }
 
 func performComposeAction(action string, projectName string, definition string, variables map[string]store.VariableValue, ws *websocket.Conn, printVars bool) error {
@@ -287,15 +282,15 @@ func performComposeAction(action string, projectName string, definition string, 
 	var cmd *exec.Cmd
 	switch action {
 	case "up":
-		cmd = exec.Command("docker-compose", "-p", projectName, "-f", composefile, action, "-d")
+		cmd = exec.Command("docker-compose", "-p", projectName, "--env-file", envfile, "-f", composefile, action, "-d")
 	case "down":
-		cmd = exec.Command("docker-compose", "-p", projectName, action)
+		cmd = exec.Command("docker-compose", "-p", projectName, "--env-file", envfile, action)
 	case "pull":
-		cmd = exec.Command("docker-compose", "-p", projectName, "-f", composefile, action)
+		cmd = exec.Command("docker-compose", "-p", projectName, "--env-file", envfile, "-f", composefile, action)
 	default:
 		panic(fmt.Errorf("unknown compose action %s", action))
 	}
-	processVars(cmd, variables, ws, printVars)
+	logVars(cmd, variables, ws, printVars)
 	
 	ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("\n*** STARTING ACTION: %s ***\n\n", action)))
 	f, err := pty.Start(cmd)
