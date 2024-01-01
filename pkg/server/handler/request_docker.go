@@ -78,7 +78,7 @@ func (r *dockerContainerRemoveRequest) bind(c echo.Context, m *dockerapi.DockerC
 
 type dockerImageRemoveRequest struct {
 	Id      string  `json:"id" validate:"required,max=100"`
-	Force   bool	`json:"force" validate:"required"`
+	Force   bool	`json:"force"`
 }
 
 func (r *dockerImageRemoveRequest) bind(c echo.Context, m *dockerapi.DockerImageRemove) error {

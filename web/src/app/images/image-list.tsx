@@ -52,7 +52,7 @@ export default function ImageList() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: image?.id, force: true }),
+        body: JSON.stringify({ id: image?.id, force: false }),
       }
     )
     if (!response.ok) {
@@ -162,12 +162,14 @@ export default function ImageList() {
                   <TableCell>{item.inUse ? "In use" : "Unused"}</TableCell>
                   <TableCell>{convertByteToMb(item.size)}</TableCell>
                   <TableCell className="text-right">
-                    <TableButtonDelete
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteImageConfirmation(item)
-                      }}
-                    />
+                    {!item.inUse && (
+                      <TableButtonDelete
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeleteImageConfirmation(item)
+                        }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

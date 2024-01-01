@@ -102,8 +102,9 @@ type DockerVolumeList struct {
 }
 
 type Volume struct {
-	Driver string `json:"driver"`
-	Name string `json:"name"`
+	Driver 	string `json:"driver"`
+	Name 	string `json:"name"`
+	InUse   bool   `json:"inUse"`
 }
 
 type DockerVolumeListResponse struct {
@@ -131,6 +132,7 @@ type Network struct {
 	Name string `json:"name"`
 	Driver string `json:"driver"`
 	Scope string `json:"scope"`
+	InUse   bool   `json:"inUse"`
 }
 
 type DockerNetworkListResponse struct {

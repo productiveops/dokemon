@@ -106,6 +106,7 @@ export interface IImage {
 export interface IVolume {
   driver: string
   name: string
+  inUse: boolean
 }
 
 export interface INetwork {
@@ -113,6 +114,7 @@ export interface INetwork {
   name: string
   driver: string
   scope: string
+  inUse: boolean
 }
 
 export interface IComposeLibraryItemHead {
