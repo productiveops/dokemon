@@ -12,6 +12,7 @@ func main() {
 		os.Getenv("DATA_PATH"),
 		os.Getenv("LOG_LEVEL"),
 		os.Getenv("SSL_ENABLED"),
+		os.Getenv("STALENESS_CHECK"),
 	)
 	s.Run(os.Getenv("BIND_ADDRESS"))
 }

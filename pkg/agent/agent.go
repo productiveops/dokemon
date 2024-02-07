@@ -21,12 +21,15 @@ var (
 	logLevel string
 	wsUrl string
 	token string
+	stalenessCheck string = "ON"
 )
 
 func Main() {
  	parseArgs()
 	setLogLevel(logLevel)
-	go dockerapi.ContainerScheduleRefreshStaleStatus()
+	if stalenessCheck != "OFF" {
+		go dockerapi.ContainerScheduleRefreshStaleStatus()
+	}
 	listen()
 }
 
@@ -34,6 +37,7 @@ func parseArgs() {
 	logLevel = os.Getenv("LOG_LEVEL")
 	serverUrl := os.Getenv("SERVER_URL")
 	token = os.Getenv("TOKEN")
+	stalenessCheck = os.Getenv("STALENESS_CHECK")
 
 	serverScheme := "ws"
 	if strings.HasPrefix(serverUrl, "https") {

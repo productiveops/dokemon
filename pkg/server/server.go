@@ -35,7 +35,7 @@ type Server struct {
 	sslEnabled bool
 }
 
-func NewServer(dbConnectionString string, dataPath string, logLevel string, sslEnabled string) (*Server) {
+func NewServer(dbConnectionString string, dataPath string, logLevel string, sslEnabled string, stalenessCheck string) (*Server) {
 	s := Server{}
 
 	setLogLevel(logLevel)
@@ -82,7 +82,9 @@ func NewServer(dbConnectionString string, dataPath string, logLevel string, sslE
 		log.Error().Err(err).Msg("Error while updating old version data")
 	}
 
-	go dockerapi.ContainerScheduleRefreshStaleStatus()
+	if stalenessCheck != "OFF" {
+		go dockerapi.ContainerScheduleRefreshStaleStatus()
+	}
 
 	// Web Server
 	s.handler = h
