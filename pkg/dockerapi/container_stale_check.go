@@ -43,7 +43,7 @@ func ContainerScheduleRefreshStaleStatus() {
 	for {
 		log.Info().Msg("Refreshing container stale status")
 		ContainerRefreshStaleStatus()
-		time.Sleep(1 * time.Hour)
+		time.Sleep(24 * time.Hour)
 	}
 }
 
