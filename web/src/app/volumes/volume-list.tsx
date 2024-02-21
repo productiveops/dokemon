@@ -33,17 +33,15 @@ export default function VolumeList() {
   const { nodeHead } = useNodeHead(nodeId!)
   const { isLoading, volumes, mutateVolumes } = useVolumes(nodeId!)
 
-  const [volume, setVolume] = useState<IVolume | null>(null)
-  const [deleteVolumeOpenConfirmation, setDeleteVolumeOpenConfirmation] =
+  const [volumeToDelete, setVolumeToDelete] = useState<IVolume | null>(null)
+  const [isDeleteConfirmationOpen, setDeleteConfirmationOpen] =
     useState(false)
-  const [deleteInProgress, setDeleteInProgress] = useState(false)
-  const [pruneInProgress, setPruneInProgress] = useState(false)
+  const [isDeleteInProgress, setDeleteInProgress] = useState(false)
+  const [isPruneInProgress, setPruneInProgress] = useState(false)
 
-  if (isLoading) return <Loading />
-
-  const handleDeleteVolumeConfirmation = (volume: IVolume) => {
-    setVolume({ ...volume })
-    setDeleteVolumeOpenConfirmation(true)
+  const handleDeleteConfirmation = (volume: IVolume) => {
+    setVolumeToDelete(volume)
+    setDeleteConfirmationOpen(true)
   }
 
   const handleDelete = async () => {
@@ -53,17 +51,17 @@ export default function VolumeList() {
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: volume?.name }),
+        body: JSON.stringify({ name: volumeToDelete?.name }),
       }
     )
     if (!response.ok) {
-      const r = await response.json()
-      setDeleteVolumeOpenConfirmation(false)
-      toastFailed(r.errors?.body)
+      const responseData = await response.json()
+      setDeleteConfirmationOpen(false)
+      toastFailed(responseData.errors?.body)
     } else {
       mutateVolumes()
       setTimeout(() => {
-        setDeleteVolumeOpenConfirmation(false)
+        setDeleteConfirmationOpen(false)
         toastSuccess("Volume deleted.")
       }, 500)
     }
@@ -81,20 +79,20 @@ export default function VolumeList() {
       }
     )
     if (!response.ok) {
-      const r = await response.json()
-      toastFailed(r.errors?.body)
+      const responseData = await response.json()
+      toastFailed(responseData.errors?.body)
     } else {
       mutateVolumes()
-      const r = await response.json()
+      const responseData = await response.json()
       let description = "Nothing found to delete"
-      if (r.volumesDeleted?.length > 0) {
+      if (responseData.volumesDeleted?.length > 0) {
         description = `${
-          r.volumesDeleted.length
+          responseData.volumesDeleted.length
         } unused volumes deleted. Space reclaimed: ${convertByteToMb(
-          r.spaceReclaimed
+          responseData.spaceReclaimed
         )}`
       }
-      setTimeout(async () => {
+      setTimeout(() => {
         toastSuccess(description)
       }, 500)
     }
